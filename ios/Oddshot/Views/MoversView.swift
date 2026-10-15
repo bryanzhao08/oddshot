@@ -27,7 +27,8 @@ struct MoversView: View {
             .oddshotScreen()
             .navigationTitle("Movers")
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) { ConnectionPill(state: model.connection) }
+                ToolbarItem(placement: .topBarLeading) { ConnectionPill(state: model.connection) }
+                ToolbarItem(placement: .topBarTrailing) { RoleMenu() }
             }
             .navigationDestination(for: Market.self) { m in
                 MarketDetailView(market: m)

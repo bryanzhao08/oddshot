@@ -94,8 +94,7 @@ struct APIClient: Sendable {
     }
 
     func history(marketId: String) async throws -> [PricePoint] {
-        let enc = marketId.addingPercentEncoding(withAllowedCharacters: .alphanumerics.union(CharacterSet(charactersIn: "-._~"))) ?? marketId
-        let h: MarketHistory = try await send("GET", "/api/markets/\(enc)/history")
+        let h: MarketHistory = try await send("GET", "/api/markets/\(encodedId(marketId))/history")
         return h.points.sorted { $0.t < $1.t }
     }
 
@@ -127,8 +126,53 @@ struct APIClient: Sendable {
         try await send("POST", "/api/subscriptions/\(subscriptionId)/test", body: Data("{}".utf8))
     }
 
+    // MARK: v2 (Shot List & Insights). These may 404 while the backend catches up; callers degrade gracefully.
+
+    private func encodedId(_ marketId: String) -> String {
+        marketId.addingPercentEncoding(withAllowedCharacters: .alphanumerics.union(CharacterSet(charactersIn: "-._~"))) ?? marketId
+    }
+
+    func shots(persona: Persona, category: String = "", limit: Int = 20) async throws -> [Shot] {
+        let r: LenientList<Shot> = try await send("GET", "/api/shots",
+            query: ["persona": persona.rawValue, "category": category, "limit": "\(limit)"])
+        return r.items
+    }
+
+    func insights(limit: Int = 50) async throws -> [Insight] {
+        let r: LenientList<Insight> = try await send("GET", "/api/insights", query: ["limit": "\(limit)"])
+        return r.items
+    }
+
+    func stories() async throws -> [Story] {
+        let r: LenientList<Story> = try await send("GET", "/api/stories")
+        return r.items
+    }
+
+    func briefing() async throws -> Briefing { try await send("GET", "/api/briefing") }
+
+    func forecast(marketId: String) async throws -> Forecast {
+        try await send("GET", "/api/markets/\(encodedId(marketId))/forecast")
+    }
+
+    // v3
+    func context(marketId: String) async throws -> LiveContext {
+        try await send("GET", "/api/markets/\(encodedId(marketId))/context")
+    }
+
+    func recommendation(marketId: String, role: Persona) async throws -> Recommendation {
+        try await send("GET", "/api/markets/\(encodedId(marketId))/recommendation", query: ["role": role.rawValue], timeout: 25)
+    }
+
     func simulateSpike(marketId: String? = nil) async throws -> Spike {
         let body = marketId.map { try? JSONEncoder().encode(["marketId": $0]) } ?? Data("{}".utf8)
         return try await send("POST", "/api/demo/spike", body: body ?? Data("{}".utf8))
+    }
+}
+
+extension Error {
+    /// True when the server is reachable but doesn't (yet) implement the route.
+    var isNotFound: Bool {
+        if let e = self as? APIError, case .http(let code, _) = e { return code == 404 }
+        return false
     }
 }

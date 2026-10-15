@@ -81,3 +81,21 @@ test('validateSubscription empty webhook url -> null; PUT merges', () => {
   assert.equal(u.value.minSeverity, 'major');
   assert.equal(u.value.id, 'id1');
 });
+
+test('insight matching reuses subscription semantics', async () => {
+  const { matchesInsight, matchInsightSubscriptions } = await import('./match.js');
+  const ins = { type: 'lead-change', title: 'Lead change: Rays now ahead', body: 'Guardians slid', marketIds: ['polymarket:1', 'kalshi:K'], category: 'sports', severity: 'notable', data: { delta: 0.12, live: true, source: 'polymarket' } };
+  const base = { match: { keywords: [], categories: [], marketIds: [], sources: [] }, minDelta: 0.05, minSeverity: 'info', liveOnly: false };
+  assert.equal(matchesInsight(ins, base), true);
+  assert.equal(matchesInsight(ins, { ...base, match: { ...base.match, marketIds: ['kalshi:K'] } }), true);
+  assert.equal(matchesInsight(ins, { ...base, match: { ...base.match, marketIds: ['x'] } }), false);
+  assert.equal(matchesInsight(ins, { ...base, match: { ...base.match, keywords: ['rays'] } }), true);
+  assert.equal(matchesInsight(ins, { ...base, match: { ...base.match, keywords: ['fed'] } }), false);
+  assert.equal(matchesInsight(ins, { ...base, match: { ...base.match, categories: ['politics'] } }), false);
+  assert.equal(matchesInsight(ins, { ...base, minDelta: 0.2 }), false);
+  assert.equal(matchesInsight(ins, { ...base, minSeverity: 'major' }), false);
+  assert.equal(matchesInsight({ ...ins, data: { live: false } }, { ...base, liveOnly: true }), false);
+  // no numeric delta (e.g. calm-before-storm): minDelta doesn't apply
+  assert.equal(matchesInsight({ ...ins, data: {} }, { ...base, minDelta: 0.5 }), true);
+  assert.deepEqual(matchInsightSubscriptions(ins, [{ ...base, id: 'a' }, { ...base, id: 'b', minSeverity: 'major' }]), ['a']);
+});

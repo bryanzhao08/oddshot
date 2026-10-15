@@ -35,23 +35,60 @@ Discord or Slack, or in the browser.
 1. **Data sources.** Every `POLL_MS` (default 20s) the server pulls the top markets by
    24h volume from the public Polymarket (Gamma) and Kalshi APIs and normalizes them
    into one shape: title, tracked outcome, probability, volume, category, tags,
-   link, and a best guess at whether the underlying event is live right now.
-2. **Spike detection.** Each market's price history is kept for ~6h. A spike fires when
-   a probability moves by a meaningful absolute amount within a short window, and/or
-   when the latest move is large relative to that market's own recent volatility
-   (z-score). Spikes are graded `info` / `notable` / `major`, and a per-market
+   link, a best guess at whether the underlying event is live right now, its scheduled
+   `startTime`, and an `eventKey` that groups sibling markets of the same event.
+2. **Backfill.** Right after the first poll the server fetches about 6h of 1-minute
+   price history for the top 80 Polymarket markets (CLOB `prices-history`) and the top 30
+   Kalshi markets (candlesticks), 4 requests at a time, and seeds the detector with it. That
+   way forecasts, shots and insights work within a minute of startup, not an hour later.
+   Backfilled points are never used as the "before" side of a spike.
+3. **Spike detection.** Each market's price history is kept for ~6h. A *price spike* fires
+   when a probability moves a meaningful absolute amount within a short window, and/or when
+   the latest move is large relative to that market's own recent volatility (z-score). A
+   *volatility spike* (`kind: "volatility"`) fires when the last 5 minutes of realized
+   volatility reach 3× or more of the market's own 1h–6h baseline, even if the price hasn't
+   picked a direction yet. Spikes are graded `info` / `notable` / `major`, and a per-market
    cooldown stops one move from firing repeatedly.
-3. **Event Volatility Index.** A 0–100 gauge, overall and per category (sports,
-   politics, crypto, economics, ...). It is the volume-weighted realized volatility
-   of recent price changes, smoothed so it reads like a stable "VIX for events".
-   A rising index means the world is getting interesting.
-4. **Alerts.** Each spike is matched against your subscriptions (keywords, categories,
-   sources, specific markets, minimum move, minimum severity, live events only).
-   Matches are pushed to webhooks (ntfy, Discord, Slack, or generic JSON) and to every
-   open browser over Server-Sent Events. The last 500 spikes are kept on disk.
+4. **Moment forecast.** For every market, `server/ml/forecaster.js` estimates `pMove30`, the
+   chance of a 5+ point swing in the next 30 minutes. It uses a trained XGBoost model when one
+   is present and a calibrated heuristic otherwise (recent volatility, distance from 50%,
+   live status, time to start/end).
+5. **Shot List.** Each tick the recommender (`server/insights/shots.js`) reads every market's
+   recent fluctuation pattern and classifies it: **tension** (near 50/50 and getting jumpier),
+   **turning-point** (just crossed 50%), **decisive** (favorite at 85%+ and still climbing),
+   **closing** (resolves within the hour), **upcoming** (starts within 3h, balanced line) or
+   **momentum** (steady one-way drift). Markets that fit none of these, including dead 0.1%
+   markets, don't make the list. The rest are ranked by a *drama score*: forecast × uncertainty
+   (closeness to 50%) × liveness/imminence × interest (log volume). Every shot comes with a
+   plain-English headline, the reason, a "be there" time window and a one-line tip for each
+   persona (photographer, trader, fan, journalist, general).
+6. **Insights and stories.** `server/insights/insights.js` writes narrative cards when it spots
+   a **lead change** (crossing 50%), an **upset brewing** (a 65%+ favorite sliding 8+ pts in
+   30 min), a **lock-in** (crossing 90% / 10%), the **calm before the storm** (a balanced,
+   unusually quiet market that starts within 2h), a **belief shift** (15+ pts over ~6h), or a
+   **divergence** (the same question priced 5+ pts apart on Polymarket and Kalshi; matching is
+   deliberately conservative). Cards are deduped per market and type for at least 30 minutes.
+   `stories.js` groups markets that repriced together within 15 minutes (same `eventKey`, the
+   same matchup, or strongly overlapping keywords) into one story, and `briefing.js` writes a
+   digest of the biggest belief changes of the last 24h.
+7. **Live context and recommendations.** For sports and crypto markets the server attaches
+   live context when the optional `server/context/` module is present (ESPN game state, crypto
+   spot price). `server/agent/` then writes a recommendation for each role. Rules-based copy is
+   always there; when Anthropic credentials are available, Claude upgrades notable alerts and
+   the result is pushed over SSE as a `recommendation` event.
+8. **Volatility Index.** A 0–100 gauge, overall and per category, computed as the volume-weighted
+   realized volatility of recent price changes, smoothed so it reads like a stable "VIX for events".
+9. **Alerts.** Each spike, and each notable+ insight, is matched against your subscriptions
+   (keywords, categories, sources, specific markets, minimum move, minimum severity, live events
+   only). Matches go out to webhooks (ntfy, Discord, Slack, or generic JSON) worded for the
+   subscription's persona, and to every open browser over Server-Sent Events. The last 500
+   spikes and 300 insights are kept on disk.
 
 No database and no npm dependencies: plain Node.js built-ins, JSON files in `data/`,
-and a vanilla JS front end in `public/`.
+and a vanilla JS front end in `public/`. The recommender modules (`server/insights/`,
+`server/agent/rules.js`, the forecaster) are browser-safe, so the GitHub Pages demo runs the
+same Shot List, insights, stories and briefing in your browser, backfilling the top 30
+Polymarket markets on load.
 
 ## Quickstart
 
@@ -80,7 +117,9 @@ node --test 'server/**/*.test.js'
 | `PORT`     | `8787`    | HTTP port                                      |
 | `HOST`     | all       | Interface to bind (e.g. `127.0.0.1`)           |
 | `POLL_MS`  | `20000`   | Market poll interval in milliseconds           |
-| `DATA_DIR` | `./data`  | Where `subscriptions.json` and `alerts.json` live |
+| `DATA_DIR` | `./data`  | Where `subscriptions.json`, `alerts.json` and `insights.json` live |
+| `BACKFILL` | on        | Set to `0` to skip the startup history backfill |
+| `OD_AGENT` | auto      | `rules` forces rules-only recommendations; Claude is used when credentials exist |
 
 ## API
 
@@ -102,7 +141,14 @@ All endpoints return JSON and send permissive CORS headers. Market ids contain a
 | DELETE | `/api/subscriptions/:id` | Delete a subscription |
 | POST   | `/api/subscriptions/:id/test` | Send a sample alert to the subscription's webhook: `{ok, error?}` |
 | POST   | `/api/demo/spike` | Inject a synthetic spike (`demo: true`). Optional body `{marketId}` |
-| GET    | `/api/stream` | Server-Sent Events: `spike`, `vix`, `tick`, plus a `: ping` comment every 20s |
+| GET    | `/api/shots?persona=&category=&limit=20` | Shot List: ranked `Shot[]` (see below) |
+| GET    | `/api/insights?limit=50&type=&severity=` | Insight cards, newest first (ring buffer of 300) |
+| GET    | `/api/stories` | Active co-movement stories (updated in the last 2h), strongest first |
+| GET    | `/api/briefing` | `{generatedAt, headline, bullets[], biggestShifts[]}`: digest of the last 24h |
+| GET    | `/api/markets/:id/forecast` | `{marketId, pMove30, expectedMovePts, drivers, model, historyMinutes}` |
+| GET    | `/api/markets/:id/context` | `{marketId, context}`: live game state / spot price, or `null` |
+| GET    | `/api/markets/:id/recommendation?role=` | `{marketId, targetId, role, recommendation, context}` (may call Claude) |
+| GET    | `/api/stream` | Server-Sent Events: `spike`, `insight`, `shots` (top 20 after each tick), `recommendation`, `vix`, `tick`, plus a `: ping` comment every 20s |
 
 Anything outside `/api/` is served from `public/`.
 
@@ -129,12 +175,46 @@ title or tags. `minDelta` is the minimum absolute probability move (0.05 = 5 poi
 
 ```json
 {
-  "id": "…", "marketId": "polymarket:123", "title": "Lakers vs Celtics", "outcome": "Lakers",
+  "id": "…", "kind": "price", "marketId": "polymarket:123", "title": "Lakers vs Celtics", "outcome": "Lakers",
   "source": "polymarket", "category": "sports", "tags": ["nba"], "url": "https://polymarket.com/event/…",
   "from": 0.42, "to": 0.61, "delta": 0.19, "windowMs": 240000, "zScore": 4.2,
   "severity": "major", "live": true, "detectedAt": "2026-10-14T23:59:00.000Z",
-  "matchedSubscriptions": ["…"]
+  "matchedSubscriptions": ["…"],
+  "context": null, "recommendations": { "photographer": { "headline": "…", "action": "…" }, "…": "…" }
 }
+```
+
+Volatility spikes have `"kind": "volatility"` plus `volRatio` (short vs baseline), `volShort` and
+`volBase` (per-√minute realized vol); `from`/`to`/`delta` still describe the net move.
+
+### Shot shape (`/api/shots`, SSE `shots`)
+
+```json
+{
+  "id": "polymarket:5691073:tension", "marketId": "polymarket:5691073", "market": { "…": "…" },
+  "kind": "tension",
+  "headline": "Rays vs Guardians is on a knife-edge",
+  "why": "Rays barely ahead at 54%, swinging across a 10 pts range in 15 min",
+  "forecast": { "pMove30": 0.72, "expectedMovePts": 6.1, "model": "xgboost-forecast@2026-10-15" },
+  "dramaScore": 74.3,
+  "window": { "startsAt": "…", "endsAt": "…" },
+  "tips": { "photographer": "…", "trader": "…", "fan": "…", "journalist": "Draft both versions: …", "general": "…" },
+  "rank": 1,
+  "context": { "kind": "game", "…": "…" },
+  "recommendations": { "photographer": { "headline": "…", "action": "…", "confidence": "high", "reasoning": [], "source": "rules" } }
+}
+```
+
+`persona` re-weights the ranking (photographers and fans lean to live sports and
+entertainment, journalists to politics and economics, traders to the highest forecast move).
+
+### Insight shape (`/api/insights`, SSE `insight`)
+
+```json
+{ "id": "…", "type": "upset-brewing", "title": "Upset brewing in Ruzic vs Andreescu",
+  "body": "Andreescu came in at 78% but has slid 18 pts to 61% in the last 30 min. Ruzic is gaining.",
+  "marketIds": ["polymarket:…"], "category": "sports", "severity": "major", "createdAt": "…",
+  "data": { "favorite": "Andreescu", "from": 0.78, "to": 0.61, "delta": -0.18, "live": true, "url": "…" } }
 ```
 
 ## Webhooks

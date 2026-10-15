@@ -8,6 +8,11 @@ enum Prefs {
     static let notifyAll = "notifyAllMajor"
     static let lastSeenAlert = "lastSeenAlertAt"
     static let notifiedIds = "notifiedSpikeIds"
+    // v2
+    static let shotPersona = "shotPersona"
+    static let notifyTopShots = "notifyTopShots"
+    static let notifyInsights = "notifyInsights"
+    static let lastShotNotifyAt = "lastShotNotifyAt"
 }
 
 /// Local notifications for spikes that match a subscription.
@@ -27,15 +32,73 @@ enum Notifier {
     static func post(_ spike: Spike) async {
         guard markNotified(spike.id) else { return }
         let content = UNMutableNotificationContent()
-        content.title = title(for: spike)
-        content.subtitle = [spike.live ? "LIVE" : nil, spike.category.label, Market.sourceLabel(spike.source)]
-            .compactMap { $0 }.joined(separator: " · ")
-        content.body = spike.plainEnglish
+        let role = Persona.active
+        if let rec = spike.recommendations.for(role), !rec.headline.isEmpty {
+            // v3: role-worded, e.g. "📸 Chiefs 1st & goal at the 4 — get the end-zone shot"
+            content.title = "\(role.emoji) \(rec.headline)"
+            content.subtitle = [spike.isVolatility ? "Volatility spike" : "\(spike.signedPoints) pts", spike.live ? "LIVE" : nil,
+                                Market.sourceLabel(spike.source)].compactMap { $0 }.joined(separator: " · ")
+            content.body = [rec.action, rec.disclaimer].compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: " ")
+            if content.body.isEmpty { content.body = spike.plainEnglish }
+        } else {
+            content.title = title(for: spike)
+            content.subtitle = [spike.live ? "LIVE" : nil, spike.category.label, Market.sourceLabel(spike.source)]
+                .compactMap { $0 }.joined(separator: " · ")
+            content.body = spike.plainEnglish
+        }
         if UserDefaults.standard.object(forKey: Prefs.sound) as? Bool ?? true { content.sound = .default }
         content.threadIdentifier = spike.marketId
         content.userInfo = ["marketId": spike.marketId, "url": spike.url?.absoluteString ?? ""]
         if spike.severity == .major { content.interruptionLevel = .timeSensitive }
         let req = UNNotificationRequest(identifier: "spike-\(spike.id)", content: content, trigger: nil)
+        try? await UNUserNotificationCenter.current().add(req)
+    }
+
+    /// Notable+ insight that matched one of the user's subscriptions.
+    static func post(_ insight: Insight) async {
+        guard markNotified("insight-\(insight.id)") else { return }
+        let content = UNMutableNotificationContent()
+        let role = Persona.active
+        if let rec = insight.recommendations.for(role), !rec.headline.isEmpty {
+            content.title = "\(role.emoji) \(rec.headline)"
+            content.subtitle = "\(insight.type.label) · \(insight.title)"
+            content.body = [rec.action, rec.disclaimer].compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: " ")
+        } else {
+            content.title = "Oddshot · \(insight.type.label)"
+            content.subtitle = insight.title
+            content.body = insight.body.isEmpty ? insight.title : insight.body
+        }
+        if UserDefaults.standard.object(forKey: Prefs.sound) as? Bool ?? true { content.sound = .default }
+        content.threadIdentifier = insight.marketIds.first ?? "insights"
+        content.userInfo = ["marketId": insight.marketIds.first ?? ""]
+        if insight.severity == .major { content.interruptionLevel = .timeSensitive }
+        let req = UNNotificationRequest(identifier: "insight-\(insight.id)", content: content, trigger: nil)
+        try? await UNUserNotificationCenter.current().add(req)
+    }
+
+    /// A shot that just entered the persona's top 3. Rate-limited to one per 10 minutes.
+    static func postTopShot(_ shot: Shot, persona: Persona) async {
+        let d = UserDefaults.standard
+        if let last = d.object(forKey: Prefs.lastShotNotifyAt) as? Date, Date().timeIntervalSince(last) < 600 { return }
+        d.set(Date(), forKey: Prefs.lastShotNotifyAt)
+        let content = UNMutableNotificationContent()
+        var body: String
+        if let rec = shot.recommendations.for(persona), !rec.headline.isEmpty {
+            content.title = "\(persona.emoji) \(rec.headline)"
+            content.subtitle = "Top shot #\(max(shot.rank, 1)) · \(shot.kind.label)"
+            body = [rec.action, rec.disclaimer].compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: " ")
+        } else {
+            content.title = "Top shot #\(max(shot.rank, 1)) · \(shot.kind.label)"
+            content.subtitle = shot.headline
+            body = [shot.tips.tip(for: persona), shot.forecast?.sentence].compactMap { $0 }.joined(separator: " · ")
+        }
+        if body.isEmpty { body = shot.why }
+        content.body = body
+        if d.object(forKey: Prefs.sound) as? Bool ?? true { content.sound = .default }
+        content.threadIdentifier = "shots"
+        content.userInfo = ["marketId": shot.marketId]
+        let req = UNNotificationRequest(identifier: "shot-\(shot.key)-\(Int(Date().timeIntervalSince1970))",
+                                        content: content, trigger: nil)
         try? await UNUserNotificationCenter.current().add(req)
     }
 

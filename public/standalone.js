@@ -49,16 +49,34 @@ function installStandalone() {
   };
   let subs = store.load('subs', []);
   let alerts = store.load('alerts', []);
+  const INSIGHTS_MAX = 150; // localStorage-friendly; the engine keeps 300 in memory
+  let shots = [];
 
   // Load the shared modules once; every handler awaits this.
   const ready = (async () => {
-    const [engine, poly, match, notify, ml] = await Promise.all([
+    const [engine, poly, match, notify, ml, insights, hist, fc] = await Promise.all([
       mod('../server/engine/detector.js'),
       mod('../server/sources/polymarket.js'),
       mod('../server/match.js'),
       mod('../server/notify.js'),
       mod('../server/ml/scorer.js').catch(() => null),
+      mod('../server/insights/index.js'),
+      mod('../server/sources/history.js'),
+      mod('../server/ml/forecaster.js').catch(() => null),
     ]);
+    // v3: rules-based recommendations (browser-safe) + live context (ESPN/Coinbase allow CORS).
+    const [rules, contextMod] = await Promise.all([
+      mod('../server/agent/rules.js').catch(() => null),
+      mod('../server/context/index.js').catch(() => null),
+    ]);
+    let forecast = insights.heuristicForecast;
+    if (fc?.forecastMove) {
+      try {
+        const res = await nativeFetch(new URL('../server/ml/forecaster.json', import.meta.url));
+        if (res.ok) fc.setForecaster(await res.json());
+      } catch { /* forecaster falls back to its heuristic */ }
+      forecast = (m, h, now) => fc.forecastMove(m, h, now) || insights.heuristicForecast(m, h, now);
+    }
     if (ml) {
       try {
         const res = await nativeFetch(new URL('../server/ml/model.json', import.meta.url));
@@ -66,7 +84,11 @@ function installStandalone() {
       } catch { /* run unscored */ }
     }
     const detector = new engine.Detector();
-    return { engine, poly, match, notify, ml: ml?.loadModel() ? ml : null, detector };
+    const insightEngine = new insights.InsightEngine();
+    insightEngine.restore(store.load('insights', []));
+    const storyEngine = new insights.StoryEngine();
+    const getLiveContext = typeof contextMod?.getLiveContext === 'function' ? contextMod.getLiveContext : null;
+    return { engine, poly, match, notify, ml: ml?.loadModel() ? ml : null, detector, insights, hist, forecast, insightEngine, storyEngine, rules, getLiveContext };
   })();
 
   function emit(event, data) {
@@ -81,12 +103,106 @@ function installStandalone() {
       if (scored) spike = { ...spike, ml: scored };
     }
     const matchedIds = match.matchSubscriptions(spike, subs);
-    const enriched = { ...spike, matchedSubscriptions: matchedIds };
+    const enriched = enrich(await ready, { kind: 'price', ...spike, matchedSubscriptions: matchedIds }, state.byId.get(spike.marketId));
     alerts = [enriched, ...alerts].slice(0, ALERTS_MAX);
     store.save('alerts', alerts);
     emit('spike', enriched);
     if (matchedIds.length) notify.notifySubscriptions(enriched, subs.filter((s) => matchedIds.includes(s.id)));
     return enriched;
+  }
+
+  // ---------- live context + recommendations ----------
+  const contextCache = new Map(); // id -> {at, value, inflight}
+  const wantsContext = (r, m) => Boolean(r.getLiveContext && m && (m.category === 'sports' || m.category === 'crypto'));
+  function refreshContext(r, m) {
+    if (!wantsContext(r, m)) return Promise.resolve(null);
+    const hit = contextCache.get(m.id);
+    if (hit?.inflight) return hit.inflight;
+    if (hit && Date.now() - hit.at < 15000) return Promise.resolve(hit.value);
+    const inflight = Promise.resolve().then(() => r.getLiveContext(m)).catch(() => null).then((v) => {
+      contextCache.set(m.id, { at: Date.now(), value: v || null });
+      return v || null;
+    });
+    contextCache.set(m.id, { at: hit?.at || 0, value: hit?.value ?? null, inflight });
+    return inflight;
+  }
+  function contextNow(r, m) {
+    if (!wantsContext(r, m)) return null;
+    const hit = contextCache.get(m.id);
+    if (!hit || Date.now() - hit.at >= 15000) refreshContext(r, m);
+    return hit?.value ?? null;
+  }
+  async function prefetchContext(r, markets, budget = 2000) {
+    const list = markets.filter((m) => wantsContext(r, m)).slice(0, 30);
+    if (list.length) await Promise.race([Promise.allSettled(list.map((m) => refreshContext(r, m))), new Promise((res) => setTimeout(res, budget))]);
+  }
+  function recCtx(r, market) {
+    const history = r.detector.history(market.id) || [];
+    const related = market.eventKey ? state.markets.filter((x) => x.eventKey === market.eventKey && x.id !== market.id).slice(0, 10) : [];
+    return { market, history, context: contextNow(r, market), forecast: forecastFor(r, market), related };
+  }
+  function enrich(r, target, market) {
+    if (!market) return target;
+    const ctx = recCtx(r, market);
+    if (ctx.context) target.context = ctx.context;
+    if (r.rules) {
+      try { target.recommendations = r.rules.recommendAllRoles(target, ctx); } catch { /* unscored */ }
+    }
+    return target;
+  }
+
+  // ---------- recommender (same modules as the server) ----------
+  let forecastMemo = new Map();
+  function historyOf(detector) {
+    return (id) => detector.history(id) || [];
+  }
+  function forecastFor(r, market) {
+    const hit = forecastMemo.get(market.id);
+    if (hit) return hit;
+    const h = r.detector.history(market.id) || [];
+    let f = null;
+    try { f = r.forecast(market, h, Date.now()); } catch { f = null; }
+    f = f || r.insights.heuristicForecast(market, h, Date.now());
+    if (f) forecastMemo.set(market.id, f);
+    return f;
+  }
+  function marketsWithChange(detector) {
+    return state.markets.map((m) => {
+      const ch = detector.change1h?.(m.id);
+      return Number.isFinite(ch) ? { ...m, change1h: ch } : m;
+    });
+  }
+  function computeShots(r, opts = {}) {
+    const list = r.insights.buildShots(marketsWithChange(r.detector), {
+      history: historyOf(r.detector), forecast: (m) => forecastFor(r, m), now: Date.now(), limit: 20, ...opts,
+    });
+    for (const sh of list) enrich(r, sh, sh.market);
+    return list;
+  }
+  function handleInsight(r, ins) {
+    enrich(r, ins, state.byId.get(ins.marketIds?.[0]));
+    store.save('insights', r.insightEngine.list(INSIGHTS_MAX));
+    emit('insight', ins);
+    if (r.match.severityRank(ins.severity) >= r.match.severityRank('notable')) {
+      const ids = r.match.matchInsightSubscriptions(ins, subs, state.byId);
+      if (ids.length) r.notify.notifySubscriptions(ins, subs.filter((s) => ids.includes(s.id)));
+    }
+  }
+  function runRecommender(r, spikes, now) {
+    forecastMemo = new Map();
+    const markets = marketsWithChange(r.detector);
+    try {
+      const fresh = r.insightEngine.update(markets, { history: historyOf(r.detector), spikes, now });
+      for (const st of r.storyEngine.update(markets, { history: historyOf(r.detector), now }).created) {
+        const ins = r.insightEngine.add(r.insights.storyInsight(st, now), now);
+        if (ins) fresh.push(ins);
+      }
+      for (const ins of fresh) handleInsight(r, ins);
+    } catch (err) { console.warn('[oddshot] insights failed', err); }
+    try {
+      shots = computeShots(r);
+      emit('shots', shots);
+    } catch (err) { console.warn('[oddshot] shots failed', err); }
   }
 
   async function pollOnce() {
@@ -110,10 +226,25 @@ function installStandalone() {
       while (state.vixHistory.length && state.vixHistory[0].t < now - VIX_HISTORY_MS) state.vixHistory.shift();
     }
     emit('vix', vix);
+    const r = await ready;
+    const ids = new Set([...spikes.map((x) => x.marketId), ...shots.map((x) => x.marketId)]);
+    await prefetchContext(r, [...ids].map((id) => state.byId.get(id)).filter(Boolean));
     for (const s of spikes) await handleSpike(s);
+    runRecommender(r, spikes, now);
   }
 
   const firstPoll = pollOnce();
+  // Backfill ~6h of 1-min history for the top 30 markets so the Shot List isn't empty on load.
+  const backfilled = firstPoll.then(async () => {
+    const r = await ready;
+    try {
+      const stats = await r.hist.backfillHistory(state.markets, r.detector, { polymarket: 30, kalshi: 0, hours: 6, concurrency: 4 });
+      console.info(`[oddshot] backfilled ${stats.polymarket} markets (${stats.points} points) in ${stats.ms} ms`);
+      forecastMemo = new Map();
+      shots = computeShots(r);
+      emit('shots', shots);
+    } catch (err) { console.warn('[oddshot] backfill failed', err); }
+  });
   setInterval(pollOnce, POLL_MS);
 
   // Detector history is empty on a fresh page, so charts fall back to Polymarket's CLOB history.
@@ -141,7 +272,8 @@ function installStandalone() {
   }
 
   async function route(method, url, body) {
-    const { engine, match, notify, detector } = await ready;
+    const r = await ready;
+    const { engine, match, notify, detector } = r;
     const q = url.searchParams;
     const parts = url.pathname.split('/').filter(Boolean).slice(1);
     const [a, b, c] = parts;
@@ -155,6 +287,7 @@ function installStandalone() {
       if (!state.lastPollAt) await firstPoll;
       return {
         ok: Object.values(state.sources).some((s) => s.ok), mode: 'browser',
+        context: Boolean(r.getLiveContext), agent: { available: false, rules: Boolean(r.rules) },
         lastPollAt: state.lastPollAt, marketCount: state.markets.length,
         sources: state.sources, clients: streams.size, subscriptions: subs.length,
       };
@@ -174,6 +307,50 @@ function installStandalone() {
       }
       return [...list].sort((x, y) => (y.volume24h || 0) - (x.volume24h || 0))
         .slice(0, int(q.get('limit'), 50, 1, 1000)).map(withChange);
+    }
+    if (method === 'GET' && a === 'markets' && c === 'forecast') {
+      if (!state.lastPollAt) await firstPoll;
+      const id = decodeURIComponent(b);
+      const market = state.byId.get(id);
+      if (!market) throw new HttpError(404, `unknown market "${id}"`);
+      return { marketId: id, ...forecastFor(r, market) };
+    }
+    if (method === 'GET' && a === 'markets' && (c === 'context' || c === 'recommendation')) {
+      if (!state.lastPollAt) await firstPoll;
+      const id = decodeURIComponent(b);
+      const market = state.byId.get(id);
+      if (!market) throw new HttpError(404, `unknown market "${id}"`);
+      const context = wantsContext(r, market) ? await Promise.race([refreshContext(r, market), new Promise((res) => setTimeout(() => res(contextNow(r, market)), 5000))]) : null;
+      if (c === 'context') return { marketId: id, context: context || null };
+      if (!r.rules) throw new HttpError(503, 'recommendations unavailable');
+      const roles = ['photographer', 'trader', 'fan', 'journalist', 'general'];
+      const role = roles.includes(q.get('role')) ? q.get('role') : 'general';
+      const recent = alerts.find((x) => x.marketId === id && Date.now() - Date.parse(x.detectedAt) < 30 * 60000);
+      const target = recent || shots.find((x) => x.marketId === id) || { id: `market:${id}`, marketId: id, market, title: market.title };
+      const recommendation = r.rules.recommendRules(target, { ...recCtx(r, market), role });
+      return { marketId: id, targetId: target.id || null, role, recommendation, context: context || null };
+    }
+    if (method === 'GET' && a === 'shots') {
+      if (!state.lastPollAt) await firstPoll;
+      if (!shots.length) await Promise.race([backfilled, new Promise((res) => setTimeout(res, 8000))]);
+      const persona = (q.get('persona') || 'general').toLowerCase();
+      const category = (q.get('category') || '').toLowerCase();
+      const limit = int(q.get('limit'), 20, 1, 100);
+      if (persona === 'general' && !category && limit <= shots.length) return shots.slice(0, limit);
+      return computeShots(r, { persona, category, limit });
+    }
+    if (method === 'GET' && a === 'insights') {
+      let list = r.insightEngine.list(300);
+      if (q.get('type')) list = list.filter((i) => i.type === q.get('type'));
+      if (q.get('severity')) list = list.filter((i) => match.severityRank(i.severity) >= match.severityRank(q.get('severity')));
+      return list.slice(0, int(q.get('limit'), 50, 1, 300));
+    }
+    if (method === 'GET' && a === 'stories') return r.storyEngine.list(Date.now());
+    if (method === 'GET' && a === 'briefing') {
+      if (!state.lastPollAt) await firstPoll;
+      return r.insights.buildBriefing(marketsWithChange(detector), {
+        history: historyOf(detector), spikes: alerts, insights: r.insightEngine.list(300), stories: r.storyEngine.list(Date.now()), now: Date.now(),
+      });
     }
     if (method === 'GET' && a === 'markets' && c === 'history') {
       const id = decodeURIComponent(b);
@@ -274,6 +451,7 @@ function installStandalone() {
         const { detector } = await ready;
         if (state.lastPollAt) this._dispatch('tick', { at: state.lastPollAt, marketCount: state.markets.length });
         this._dispatch('vix', detector.volatilityIndex());
+        if (shots.length) this._dispatch('shots', shots);
       }, () => {
         this.readyState = 2;
         this.onerror?.(new Event('error'));

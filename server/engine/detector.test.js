@@ -220,3 +220,78 @@ test('ingest ignores invalid probabilities and never throws on junk', () => {
   assert.deepEqual(d.ingest(undefined, T0), []);
   assert.deepEqual(d.history('q'), []);
 });
+
+test('seedHistory merges backfill (dedupe, sorted, pruned) without firing spikes', () => {
+  const d = new Detector();
+  const now = T0 + 6 * 3600_000;
+  d.ingest([mkt('s', 0.6)], now);
+  const seed = [];
+  for (let k = 400; k >= 1; k--) seed.push({ t: now - k * 60_000, p: 0.3 + (400 - k) * 0.0005 });
+  seed.push(seed[10]); // duplicate
+  seed.push({ t: now - 30_000, p: 'bad' }); // invalid
+  seed.push({ t: now + 60_000, p: 0.1 }); // after the first live tick: ignored
+  const n = d.seedHistory('s', seed.reverse());
+  const h = d.history('s');
+  assert.equal(n, h.length);
+  assert.ok(h.every((q, i) => i === 0 || q.t > h[i - 1].t), 'sorted, no dupes');
+  assert.ok(h[0].t >= now - 6 * 3600_000, 'pruned to window');
+  assert.equal(h[h.length - 1].p, 0.6, 'live point kept as latest');
+  assert.ok(h.length >= 359 && h.length <= 361);
+  // Next live tick is +5 pts vs the last seeded point but must not fire (from-side never seeded).
+  const spikes = d.ingest([mkt('s', 0.6)], now + TICK);
+  assert.deepEqual(spikes, []);
+  // History now covers 1h, so change1h comes from it.
+  assert.ok(Math.abs(d.change1h('s') - (0.6 - (0.3 + 340 * 0.0005))) < 0.01);
+  // Volatility uses the seeded series.
+  assert.ok(Number.isFinite(d._realizedVol('s', now + TICK)));
+  // Real moves after seeding still fire.
+  const later = [0.6, 0.6, 0.6, 0.72].map((p, i) => d.ingest([mkt('s', p)], now + (2 + i) * TICK)).flat();
+  assert.equal(later.length, 1);
+  assert.equal(later[0].from, 0.6);
+});
+
+test('seedHistory on a market with no live data yet', () => {
+  const d = new Detector();
+  assert.equal(d.seedHistory('x', [{ t: T0, p: 0.4 }, { t: T0 + 60_000, p: 0.45 }], T0 + 120_000), 2);
+  assert.deepEqual(d.history('x').map((q) => q.p), [0.4, 0.45]);
+  assert.equal(d.seedHistory('x', []), 2);
+});
+
+test('price spikes carry kind "price"', () => {
+  const d = new Detector();
+  const res = feed(d, 'k', [0.4, 0.4, 0.4, 0.5]).flat();
+  assert.equal(res.length, 1);
+  assert.equal(res[0].kind, 'price');
+  assert.equal(makeSpike(mkt('x', 0.5), 0.4, 0.5).kind, 'price');
+});
+
+function thrash(d, id, baseTicks = 200) {
+  // > 1h of near-flat baseline, then a thrashing 5 minutes with no committed direction.
+  const calm = Array.from({ length: baseTicks }, (_, i) => 0.5 + (i % 2 ? 0.001 : -0.001));
+  const wild = [0.5, 0.515, 0.53, 0.515, 0.53, 0.545, 0.53, 0.515, 0.53, 0.515, 0.5, 0.515, 0.53, 0.545, 0.53];
+  return feed(d, id, [...calm, ...wild]).flat();
+}
+
+test('volatility spike: short vol ≥ 3× own baseline fires kind "volatility"', () => {
+  const d = new Detector();
+  const spikes = thrash(d, 'v');
+  assert.ok(spikes.length >= 1, 'fired');
+  const s = spikes[0];
+  assert.equal(s.kind, 'volatility');
+  assert.ok(s.volRatio >= 3, String(s.volRatio));
+  assert.ok(s.volShort > s.volBase);
+  assert.ok(Math.abs(s.delta) < 0.05, 'no committed direction needed');
+  assert.ok(['info', 'notable', 'major'].includes(s.severity));
+  // cooldown: thrashing on doesn't refire at the same severity
+  const more = feed(d, 'v', [0.515, 0.53, 0.515, 0.53], T0 + 215 * TICK).flat();
+  assert.equal(more.filter((x) => x.kind === 'volatility' && x.severity === s.severity).length, 0);
+});
+
+test('volatility spike needs ≥ 1h of baseline and real travel', () => {
+  // too little baseline history
+  assert.equal(thrash(new Detector(), 'short', 60).filter((s) => s.kind === 'volatility').length, 0);
+  // baseline already as wild as the short window: no spike
+  const d = new Detector();
+  const wildAll = Array.from({ length: 230 }, (_, i) => [0.5, 0.515, 0.53, 0.515][i % 4]);
+  assert.equal(feed(d, 'w', wildAll).flat().filter((s) => s.kind === 'volatility').length, 0);
+});

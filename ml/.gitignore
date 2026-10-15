@@ -3,3 +3,4 @@ data/*
 !data/spikes_sample.csv
 !data/results.json
 __pycache__/
+!data/forecast_results.json

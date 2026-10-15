@@ -117,6 +117,50 @@ function computeLive(category, endMs, now) {
   return endMs > now && endMs - now <= HOUR;
 }
 
+const MONTHS = { JAN: 0, FEB: 1, MAR: 2, APR: 3, MAY: 4, JUN: 5, JUL: 6, AUG: 7, SEP: 8, OCT: 9, NOV: 10, DEC: 11 };
+
+/** UTC offset (minutes) of America/New_York at a given instant. Falls back to a US-DST approximation. */
+function nyOffsetMin(ms) {
+  try {
+    const name = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', timeZoneName: 'shortOffset' })
+      .formatToParts(new Date(ms))
+      .find((x) => x.type === 'timeZoneName')?.value; // "GMT-4"
+    const mm = /GMT([+-]\d+)(?::(\d+))?/.exec(name || '');
+    if (mm) return Number(mm[1]) * 60 + (mm[1].startsWith('-') ? -1 : 1) * Number(mm[2] || 0);
+  } catch {}
+  const mo = new Date(ms).getUTCMonth();
+  return mo >= 2 && mo <= 10 ? -240 : -300;
+}
+
+const GAME_SERIES = /(GAME|MATCH|FIGHT|BOUT)$/;
+const GAME_LEN_MS = 3 * HOUR;
+
+/**
+ * Best-effort scheduled start for a Kalshi event. Kalshi has no start-time field, but
+ * game event tickers embed the date and often the ET start time, e.g.
+ * KXMLBGAME-26OCT151800TBCLE = 2026-10-15 18:00 ET. For single-game series without a
+ * time in the ticker, the start is estimated as expected expiration minus ~3h.
+ * Returns ISO string or null.
+ */
+export function kalshiStartTime(m, ev) {
+  const eventTicker = String(m?.event_ticker || ev?.event_ticker || '');
+  const mm = /-(\d{2})([A-Z]{3})(\d{2})(\d{4})?(?=[A-Z]|$)/.exec(eventTicker);
+  if (!mm || !(mm[2] in MONTHS)) return null;
+  const [, yy, mon, dd, hhmm] = mm;
+  const y = 2000 + Number(yy);
+  if (hhmm) {
+    const h = Number(hhmm.slice(0, 2));
+    const mi = Number(hhmm.slice(2));
+    if (h > 23 || mi > 59) return null;
+    const naive = Date.UTC(y, MONTHS[mon], Number(dd), h, mi);
+    return new Date(naive - nyOffsetMin(naive) * 60_000).toISOString();
+  }
+  const series = String(ev?.series_ticker || eventTicker.split('-')[0]);
+  const exp = Date.parse(m?.occurrence_datetime || m?.expected_expiration_time || '');
+  if (GAME_SERIES.test(series) && Number.isFinite(exp)) return new Date(exp - GAME_LEN_MS).toISOString();
+  return null;
+}
+
 export function normalizeKalshi(m, ev, now = Date.now()) {
   if (!m || isCombo(m, ev)) return null;
   if (m.market_type && m.market_type !== 'binary') return null;
@@ -143,6 +187,10 @@ export function normalizeKalshi(m, ev, now = Date.now()) {
     url: `https://kalshi.com/markets/${String(m.event_ticker || ev?.event_ticker || '').toLowerCase()}`,
     endDate,
     live: computeLive(category, endMs, now),
+    startTime: kalshiStartTime(m, ev),
+    eventKey: m.event_ticker || ev?.event_ticker || null,
+    eventTitle: ev?.title || null,
+    groupTitle: m.yes_sub_title || null,
   };
   if (Number.isFinite(prev) && prev > 0) market.change24h = +(probability - prev).toFixed(4);
   return market;

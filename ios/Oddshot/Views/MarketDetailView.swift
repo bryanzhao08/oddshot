@@ -15,6 +15,18 @@ struct MarketDetailView: View {
     @State private var selected: Date?
     @State private var loading = true
     @State private var watchBusy = false
+    @State private var forecast: Forecast?
+    @State private var forecastState: LoadState = .idle
+    @State private var liveContext: LiveContext?
+    @State private var rec: Recommendation?
+    @AppStorage(Prefs.shotPersona) private var roleRaw = Persona.general.rawValue
+    private var role: Persona { Persona(rawValue: roleRaw) ?? .general }
+
+    init(ref: MarketRef) {
+        self.init(marketId: ref.id, title: ref.title, outcome: ref.outcome, source: ref.source,
+                  url: ref.url, probability: ref.probability, category: ref.category)
+        self.market = ref.market
+    }
 
     init(market: Market) {
         self.init(marketId: market.id, title: market.title, outcome: market.outcome, source: market.source,
@@ -30,6 +42,8 @@ struct MarketDetailView: View {
 
     private var points: [PricePoint] { model.histories[marketId] ?? [] }
     private var spikes: [Spike] { model.spikes.filter { $0.marketId == marketId } }
+    private var marketInsights: [Insight] { model.insights(for: marketId) }
+    private var shot: Shot? { model.shots.first { $0.marketId == marketId } }
     private var current: Double { points.last?.p ?? probability }
     private var selectedPoint: PricePoint? {
         guard let selected, !points.isEmpty else { return nil }
@@ -45,9 +59,20 @@ struct MarketDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 headerBlock
+                if let liveContext { ContextChips(context: liveContext) }
+                if let r = model.recommendation(id: marketId, marketId: nil, RecommendationSet(), role: role) ?? rec {
+                    RecommendationView(rec: r, role: role)
+                }
                 chartBlock.panel(padding: 14)
                 statsBlock
+                forecastBlock
                 actions
+                if !marketInsights.isEmpty {
+                    VStack(alignment: .leading, spacing: 10) {
+                        SectionLabel(text: "Insights on this market", symbol: "lightbulb.max.fill")
+                        ForEach(marketInsights) { InsightCard(insight: $0) }
+                    }
+                }
                 if !spikes.isEmpty {
                     VStack(alignment: .leading, spacing: 10) {
                         SectionLabel(text: "Spikes on this market", symbol: "bolt.fill")
@@ -60,13 +85,24 @@ struct MarketDetailView: View {
         .oddshotScreen()
         .navigationTitle(Market.sourceLabel(source))
         .navigationBarTitleDisplayMode(.inline)
+        .task(id: roleRaw) {
+            guard let api = model.api else { return }
+            rec = nil
+            // Role-specific recommendation may call Claude server-side; it's optional, so failures are silent.
+            async let c = try? api.context(marketId: marketId)
+            rec = try? await api.recommendation(marketId: marketId, role: role)
+            if let ctx = await c, !ctx.isEmpty { liveContext = ctx }
+        }
         .task {
+            async let f: Void = loadForecast()
             await model.loadHistory(marketId, force: true)
             loading = false
+            await f
             if model.subsState == .idle { await model.loadSubscriptions() }
             while !Task.isCancelled {
                 try? await Task.sleep(for: .seconds(20))
                 await model.loadHistory(marketId, force: true)
+                await loadForecast()
             }
         }
     }
@@ -183,6 +219,64 @@ struct MarketDetailView: View {
         .panel(padding: 12)
     }
 
+    private func loadForecast() async {
+        guard let api = model.api else { return }
+        if forecast == nil { forecastState = .loading }
+        do {
+            forecast = try await api.forecast(marketId: marketId)
+            forecastState = .loaded
+        } catch {
+            if forecast == nil {
+                forecastState = .failed(error.isNotFound ? "Forecasts aren’t available on this server yet." : error.localizedDescription)
+            }
+        }
+    }
+
+    @ViewBuilder private var forecastBlock: some View {
+        let f = forecast ?? shot?.forecast
+        let color = shot?.kind.color ?? Theme.accent
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                SectionLabel(text: "Next 30 min", symbol: "sparkles")
+                Spacer()
+                if let f { Badge(text: f.isHeuristic ? "HEURISTIC" : "ML", color: f.isHeuristic ? Theme.dim : Theme.accent) }
+            }
+            if let f {
+                HStack(spacing: 14) {
+                    if let shot {
+                        ScoreRing(score: shot.dramaScore, color: color).frame(width: 56, height: 56)
+                    }
+                    ForecastMeter(forecast: f, color: color)
+                }
+                if let shot {
+                    HStack(spacing: 8) {
+                        Badge(text: shot.kind.label.uppercased(), color: shot.kind.color, filled: true, symbol: shot.kind.symbol)
+                        Text(shot.headline).font(.system(size: 13, weight: .semibold)).foregroundStyle(.white).lineLimit(2)
+                    }
+                }
+                if !f.drivers.isEmpty {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("WHAT’S DRIVING IT").font(Theme.mono(9, .heavy)).tracking(1).foregroundStyle(Theme.faint)
+                        let maxImpact = max(f.drivers.map { abs($0.impact) }.max() ?? 1, 0.0001)
+                        ForEach(f.drivers.prefix(5)) { d in
+                            DriverRow(driver: d, maxImpact: maxImpact)
+                        }
+                    }
+                }
+                Text("Model \(f.modelLabel)" + (f.historyMinutes.map { " · \(Int($0)) min of history" } ?? ""))
+                    .font(Theme.mono(9)).foregroundStyle(Theme.faint)
+            } else {
+                switch forecastState {
+                case .failed(let msg):
+                    Label(msg, systemImage: "exclamationmark.circle").font(.footnote).foregroundStyle(Theme.dim)
+                default:
+                    HStack { ProgressView().tint(Theme.accent); Text("Forecasting…").font(.footnote).foregroundStyle(Theme.dim) }
+                }
+            }
+        }
+        .panel(padding: 14)
+    }
+
     private var actions: some View {
         let watching = model.isWatching(marketId)
         return VStack(spacing: 10) {
@@ -219,6 +313,32 @@ struct MarketDetailView: View {
             }
             .tint(Theme.dim)
             .padding(.top, 2)
+        }
+    }
+}
+
+struct DriverRow: View {
+    let driver: ForecastDriver
+    let maxImpact: Double
+
+    var body: some View {
+        let frac = min(abs(driver.impact) / maxImpact, 1)
+        let color = driver.impact >= 0 ? Theme.up : Theme.down
+        HStack(spacing: 8) {
+            Image(systemName: driver.impact >= 0 ? "plus.circle.fill" : "minus.circle.fill")
+                .font(.system(size: 11)).foregroundStyle(color)
+            Text(driver.label).font(.system(size: 12, weight: .semibold)).foregroundStyle(.white.opacity(0.85)).lineLimit(1)
+            if let v = driver.valueLabel {
+                Text(v).font(Theme.mono(10)).foregroundStyle(Theme.faint).lineLimit(1)
+            }
+            Spacer(minLength: 4)
+            GeometryReader { g in
+                ZStack(alignment: .leading) {
+                    Capsule().fill(Color.white.opacity(0.06))
+                    Capsule().fill(color).frame(width: max(3, g.size.width * frac))
+                }
+            }
+            .frame(width: 70, height: 5)
         }
     }
 }

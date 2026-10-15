@@ -30,12 +30,16 @@ async function readJSON(file, fallback) {
 }
 
 export class Store {
-  constructor({ dir = DEFAULT_DATA_DIR, maxAlerts = 500, alertFlushMs = 1000 } = {}) {
+  constructor({ dir = DEFAULT_DATA_DIR, maxAlerts = 500, maxInsights = 300, alertFlushMs = 1000 } = {}) {
     this.dir = dir;
     this.maxAlerts = maxAlerts;
     this.alertFlushMs = alertFlushMs;
     this.subsFile = join(dir, 'subscriptions.json');
     this.alertsFile = join(dir, 'alerts.json');
+    this.insightsFile = join(dir, 'insights.json');
+    this.maxInsights = maxInsights;
+    this.insights = []; // newest first
+    this._insightTimer = null;
     this.subs = [];
     this.alerts = []; // newest first
     this._chains = new Map();
@@ -48,6 +52,8 @@ export class Store {
     const alerts = await readJSON(this.alertsFile, []);
     this.subs = Array.isArray(subs) ? subs : [];
     this.alerts = Array.isArray(alerts) ? alerts.slice(0, this.maxAlerts) : [];
+    const insights = await readJSON(this.insightsFile, []);
+    this.insights = Array.isArray(insights) ? insights.slice(0, this.maxInsights) : [];
     return this;
   }
 
@@ -120,8 +126,35 @@ export class Store {
     return this._write(this.alertsFile, () => this.alerts);
   }
 
+  // ---- insights ring buffer ----
+  addInsight(insight) {
+    this.insights.unshift(insight);
+    if (this.insights.length > this.maxInsights) this.insights.length = this.maxInsights;
+    if (!this._insightTimer) {
+      this._insightTimer = setTimeout(() => {
+        this._insightTimer = null;
+        this.flushInsights().catch((e) => console.warn('[store] insight flush failed:', e.message));
+      }, this.alertFlushMs);
+      this._insightTimer.unref?.();
+    }
+    return insight;
+  }
+
+  listInsights(limit = 50) {
+    return this.insights.slice(0, Math.max(0, limit));
+  }
+
+  flushInsights() {
+    return this._write(this.insightsFile, () => this.insights);
+  }
+
   /** Flush pending writes; call on shutdown. */
   async close() {
+    if (this._insightTimer) {
+      clearTimeout(this._insightTimer);
+      this._insightTimer = null;
+      await this.flushInsights().catch(() => {});
+    }
     if (this._alertTimer) {
       clearTimeout(this._alertTimer);
       this._alertTimer = null;

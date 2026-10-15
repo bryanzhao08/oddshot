@@ -22,6 +22,7 @@ struct SearchView: View {
             .listStyle(.insetGrouped)
             .oddshotScreen()
             .navigationTitle("Search")
+            .toolbar { ToolbarItem(placement: .topBarTrailing) { RoleMenu() } }
             .searchable(text: $query, placement: .navigationBarDrawer(displayMode: .always), prompt: "Lakers, Fed, Taylor Swift…")
             .navigationDestination(for: Market.self) { MarketDetailView(market: $0) }
             .task(id: Key(q: query, c: category, server: model.serverURL)) {

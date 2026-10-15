@@ -133,3 +133,144 @@ Single page, dark "terminal/broadcast" aesthetic, responsive. Talks to the API a
 - Subscriptions panel: create/edit/delete, persona presets (Photographer: sports+entertainment, liveOnly, minDelta .05; Trader: all, minDelta .03; Fan; Journalist: politics+economics), webhook config + "Send test".
 - "Simulate spike" button → `POST /api/demo/spike` so it's demoable when markets are quiet.
 - Connection status indicator; reconnects SSE automatically.
+
+---
+
+# v2: Shot List & Insights (Oddshot is a recommender, not just a tracker)
+
+Oddshot reads market *fluctuations* to recommend **what to watch next** ("shots") and to explain
+what the crowd is thinking ("insights"). Reactive spike alerts remain, but the hero of the
+product is now the forward-looking **Shot List**.
+
+## Market additions
+- `startTime: ISO|null`: scheduled start of the underlying event (Polymarket `gameStartTime` /
+  `eventStartTime` / events[0].startTime; Kalshi: best available, else null).
+- `eventKey: string|null`: groups sibling markets of the same event (Polymarket `events[0].slug`,
+  Kalshi `event_ticker`). Used for Stories.
+
+## Moment Forecaster (`server/ml/forecaster.js`, browser-compatible like scorer.js)
+```js
+loadForecaster(path?) → model|null          // Node: reads forecaster.json; browser: setForecaster(obj)
+setForecaster(obj)
+forecastMove(market, history, now = Date.now()) → {
+  pMove30: 0..1,          // P(|Δp| ≥ 0.05 at some point in the next 30 min)
+  expectedMovePts: number,// expected max |Δp| over next 30 min, in pts
+  drivers: [{feature, impact, value}],   // top 3
+  model: 'xgboost-forecast@<date>' | 'heuristic',
+  historyMinutes: number
+} | null
+```
+If the trained model is missing or history is < 30 min, return a calibrated **heuristic** (recent realized
+vol, distance from 50%, live flag, time to start/end) with `model: 'heuristic'`. Never throws.
+
+## Shot
+```js
+{
+  id, marketId, market,                       // full Market (with change1h)
+  kind: 'tension' | 'turning-point' | 'decisive' | 'closing' | 'upcoming' | 'momentum',
+  headline: "Gea vs Fokina is on a knife-edge",        // plain English, ≤ 70 chars
+  why: "50/50 with volatility rising 3× in the last 15 min",
+  forecast: { pMove30, expectedMovePts, model },
+  dramaScore: 0..100,                         // ranking score (forecast × uncertainty × liveness × interest)
+  window: { startsAt: ISO, endsAt: ISO|null },// when to be there / watching
+  tips: { photographer, trader, fan, journalist, general },   // one-line, persona-specific action
+  rank: 1..N
+}
+```
+Kinds:
+- **tension**: near 50/50, rising volatility.
+- **turning-point**: just crossed 50%, or the lead is changing.
+- **decisive**: probability ≥ 0.85 and climbing ("celebration shot incoming").
+- **closing**: resolves within 1h.
+- **upcoming**: starts within 3h and is pre-game balanced.
+- **momentum**: sustained one-way drift.
+
+## Insight (narrative card, emitted when detected; deduped per market+type for 30 min)
+```js
+{ id, type: 'lead-change'|'upset-brewing'|'lock-in'|'calm-before-storm'|'belief-shift'|'story'|'divergence',
+  title, body,                     // plain English
+  marketIds: [], category, severity: 'info'|'notable'|'major', createdAt, data: {} }
+```
+
+## Story (co-movement cluster)
+```js
+{ id, title, summary, eventKey|null, category, direction: 'up'|'down'|'mixed',
+  markets: [{id, title, from, to, delta}], strength: 0..1, startedAt, updatedAt }
+```
+Formed when ≥ 2 markets sharing an `eventKey` (or strongly overlapping tags/keywords in the same category)
+move ≥ 3 pts within the same 15-min window.
+
+## Briefing
+`{ generatedAt, headline, bullets: [string], biggestShifts: [{marketId, title, from, to, delta}] }`.
+A plain-English digest of the biggest belief changes over the last 24h (use change1h/ history/ spikes).
+
+## API additions
+- `GET /api/shots?persona=&category=&limit=20` → Shot[] ranked
+- `GET /api/insights?limit=50` → Insight[] newest first
+- `GET /api/stories` → Story[] active (updated in last 2h), strongest first
+- `GET /api/briefing` → Briefing
+- `GET /api/markets/:id/forecast` → forecast object
+- SSE: `insight` (Insight), `shots` (top 20 Shot[] after each tick)
+
+On startup the server **backfills** ~6h of 1-min history for the top ~80 Polymarket markets
+(CLOB prices-history, concurrency ≤ 4) via `detector.seedHistory(marketId, points)` so shots,
+forecasts and pReal work immediately rather than after an hour of polling.
+`public/standalone.js` (GitHub Pages browser mode) must support all new routes, using the same
+`server/insights/*` modules (keep them browser-compatible: no node: imports).
+
+---
+
+# v3: Volatility-spike alerts, live context, role-specific & agentic recommendations
+
+## Roles
+`role` = persona: `photographer | trader | fan | journalist | general`. The UI has a one-tap role switcher
+(always visible); every alert, shot and recommendation is worded for the active role.
+
+## Volatility spike (new Spike `kind`)
+Spike gains `kind: 'price' | 'volatility'` (default 'price'). A **volatility spike** fires when a market's
+short-window realized volatility (e.g. last 5 min) jumps ≥ 3× its own 1h–6h baseline with enough
+points, even if the price hasn't committed to a direction yet ("this market just started thrashing").
+Fields: `volRatio`, `volShort`, `volBase` added; `from/to/delta` still describe the net move.
+
+## Live context (`server/context/`, pure ESM, fetch injectable, no node: imports)
+```js
+getLiveContext(market) → Promise<null | {
+  kind: 'game' | 'asset',
+  // game (ESPN public scoreboard JSON, site.api.espn.com/apis/site/v2/sports/{sport}/{league}/scoreboard):
+  league, status: 'pre'|'in'|'post', clock, period, score: {home, away, homeTeam, awayTeam},
+  situation: "1st & Goal at KC 4" | "Runners on 2nd & 3rd, 1 out" | "Power play, BOS" | null,
+  imminent: { type: 'score'|'goal'|'touchdown'|'run'|'break-point'|'shot'|null, team, confidence: 0..1, text },
+  lastPlay: string|null, source: 'espn', fetchedAt,
+  // asset (crypto spot, Coinbase public API api.coinbase.com/v2/prices/{SYM}-USD/spot or exchange ticker):
+  symbol, price, change5m, change1h, source: 'coinbase', fetchedAt
+}>
+```
+Matches markets to games by team names/abbreviations in the market title (conservative). Cache per
+league scoreboard ~15 s. Never throws.
+
+## Recommendation (`server/agent/`)
+```js
+recommend(spikeOrShot, { market, role, history, context, forecast, related }) → Promise<{
+  role, headline,          // ≤ 80 chars, concrete: "Chiefs 1st & goal at the 4 — get the end-zone shot"
+  action,                  // one imperative line for this role
+  confidence: 'low'|'medium'|'high',
+  reasoning: [string],     // 1–3 short bullets citing the numbers / game situation
+  disclaimer?: string,     // trader role: "Signal, not financial advice."
+  source: 'claude' | 'rules', model?: 'claude-opus-5-5'
+}>
+```
+- **rules** (`server/agent/rules.js`, browser-safe): deterministic per-role templates using context + numbers. Always available.
+- **claude** (`server/agent/claude.js`, Node only, `@anthropic-ai/sdk`): used when an Anthropic credential is
+  available and `OD_AGENT=claude` (default on if credentials exist). Agentic tool loop with tools
+  `get_market_history`, `get_live_context`, `get_related_markets`, `get_forecast`; model `claude-opus-5-5`,
+  low effort, short output, server-side refusal fallback. Only for notable+ spikes/top shots, cached per
+  market+role 10 min, global budget (e.g. ≤ 60 calls/hour), timeout ~20 s → falls back to rules.
+
+## API / SSE additions
+- Spikes, insights and shots carry `context` (when matched) and `recommendations: {[role]: Recommendation}`
+  (rules for all roles immediately; the claude version replaces the subscriber/active role's entry when ready,
+  pushed via SSE `recommendation` event `{targetId, role, recommendation}`).
+- `GET /api/markets/:id/context`, `GET /api/markets/:id/recommendation?role=` (may trigger Claude).
+- Notifications/webhooks use the subscription's persona to pick the recommendation text, e.g. photographer:
+  "📸 Chiefs 1st & goal at the 4 — touchdown likely, get the end-zone shot", trader: "📈 BTC >$80k odds
+  +15 pts in 10 min, spot +1.2% — bullish momentum; consider reviewing (not financial advice)".

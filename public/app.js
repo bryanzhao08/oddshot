@@ -21,7 +21,48 @@
   };
   const VIX_WINDOW_MS = 6 * 3600 * 1000;
   const MAX_ALERTS = 300;
-  const LS = { onboarded: 'oddshot.onboarded', sound: 'oddshot.sound', cat: 'oddshot.cat', muted: 'oddshot.muted', noise: 'oddshot.hideNoise' };
+  const LS = { onboarded: 'oddshot.onboarded', sound: 'oddshot.sound', cat: 'oddshot.cat', muted: 'oddshot.muted', noise: 'oddshot.hideNoise',
+    persona: 'oddshot.persona', briefDismissed: 'oddshot.briefingDismissed', lastVisit: 'oddshot.lastVisit', wire: 'oddshot.wire' };
+  // Persona switcher order (general = "Everyone").
+  const PERSONA_ORDER = ['photographer', 'trader', 'fan', 'journalist', 'general'];
+  const PERSONA_SHORT = { photographer: 'Photographer', trader: 'Trader', fan: 'Fan', journalist: 'Journalist', general: 'Everyone' };
+  // Inline icon paths (24x24, stroked). Rendered with s(), never innerHTML.
+  const ICONS = {
+    scales: 'M12 4v16M8 20h8M5 7h14M5 7l-3 6a3 3 0 0 0 6 0zM19 7l-3 6a3 3 0 0 0 6 0z',
+    swap: 'M7 4 3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7',
+    trophy: 'M8 4h8v5a4 4 0 0 1-8 0zM8 6H4a3 3 0 0 0 4 4M16 6h4a3 3 0 0 1-4 4M12 13v4M8 20h8M10 17h4v3h-4z',
+    hourglass: 'M6 3h12M6 21h12M8 3v3l4 6-4 6v3M16 3v3l-4 6 4 6v3',
+    calendar: 'M4 6h16v14H4zM4 10h16M8 3v4M16 3v4M12 13v3l2 1',
+    trend: 'M3 17l6-6 4 4 8-8M15 7h6v6',
+    flame: 'M12 3c1 4 5 5.5 5 10a5 5 0 0 1-10 0c0-2.5 1.5-3.5 2-5.5 1 1 1.7 2 1.7 3.2C12 9 12.6 6 12 3z',
+    lock: 'M6 11h12v10H6zM8 11V7a4 4 0 0 1 8 0v4M12 15v2',
+    storm: 'M7 16a4 4 0 1 1 .9-7.9A5 5 0 0 1 17.6 9 3.5 3.5 0 0 1 17 16M12.5 12l-2 4h3l-2 4',
+    compass: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM15.5 8.5l-2 5-5 2 2-5z',
+    story: 'M3 7a2 2 0 1 0 4 0 2 2 0 1 0-4 0M17 5a2 2 0 1 0 4 0 2 2 0 1 0-4 0M10 18a2 2 0 1 0 4 0 2 2 0 1 0-4 0M7 6.6l10-1.2M6.2 8.6l4.9 7.8M17.9 7l-5 9.2',
+    fork: 'M12 21v-7M12 14 5 4M12 14l7-10M5 4v4M5 4h4M19 4v4M19 4h-4',
+    bolt: 'M13 2 4 14h7l-1 8 9-12h-7z',
+    seismic: 'M2 12h3l2-6 3 13 3-16 3 14 2-8 1.5 3H22',
+    eye: 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z',
+  };
+  const SHOT_KINDS = {
+    tension: { label: 'Tension', color: '#ffd84d', icon: 'scales' },
+    'turning-point': { label: 'Turning point', color: '#b794ff', icon: 'swap' },
+    decisive: { label: 'Decisive', color: '#c6ff3d', icon: 'trophy' },
+    closing: { label: 'Closing', color: '#ff5d7a', icon: 'hourglass' },
+    upcoming: { label: 'Upcoming', color: '#6aa8ff', icon: 'calendar' },
+    momentum: { label: 'Momentum', color: '#3ee0b5', icon: 'trend' },
+  };
+  const INSIGHT_TYPES = {
+    'lead-change': { label: 'Lead change', color: '#b794ff', icon: 'swap' },
+    'upset-brewing': { label: 'Upset brewing', color: '#ff8a3d', icon: 'flame' },
+    'lock-in': { label: 'Lock-in', color: '#c6ff3d', icon: 'lock' },
+    'calm-before-storm': { label: 'Calm before the storm', color: '#5ad1ff', icon: 'storm' },
+    'belief-shift': { label: 'Belief shift', color: '#6aa8ff', icon: 'compass' },
+    story: { label: 'Story', color: '#f0abfc', icon: 'story' },
+    divergence: { label: 'Divergence', color: '#ffd84d', icon: 'fork' },
+  };
+  const kindMeta = (k) => SHOT_KINDS[k] || { label: cap(String(k || 'Shot').replace(/-/g, ' ')), color: '#c6ff3d', icon: 'eye' };
+  const insMeta = (t) => INSIGHT_TYPES[t] || { label: cap(String(t || 'Insight').replace(/-/g, ' ')), color: '#8a97a8', icon: 'eye' };
 
   // ------------------------------------------------------------------ state
   const state = {
@@ -48,6 +89,22 @@
     hideNoise: false,
     muted: new Map(),           // marketId -> until (ms)
     unread: 0,
+    // v2
+    persona: 'general',
+    shots: [],                  // current ranked list for persona+category
+    shotsStatus: 'loading',     // loading | ok | empty | unavailable
+    shotsAt: 0,
+    shotsExpanded: false,
+    shotsBaseline: null,        // Set of top-3 keys to diff against (null = do not notify yet)
+    shotRanks: new Map(),       // key -> last rank (for rank-change chips)
+    shotDrama: new Map(),       // key -> last drama (ring animation)
+    insights: [],               // newest first
+    insightIds: new Set(),
+    insightsAvailable: null,
+    stories: [],
+    briefing: null,
+    wire: 'all',                // all | spikes | insights
+    forecasts: new Map(),       // marketId -> {fc, at} | {missing:true, at}
   };
   const THIN_LIQUIDITY = 10000;
 
@@ -400,8 +457,11 @@
   function systemNotify(sp) {
     if (!notifySupported() || Notification.permission !== 'granted') return;
     try {
-      const n = new Notification(`${sp.delta >= 0 ? '▲' : '▼'} ${pct(sp.to)} ${sp.title || 'Market spike'}`, {
-        body: `${sp.outcome ? sp.outcome + ': ' : ''}${pct(sp.from)} → ${pct(sp.to)} (${pts(sp.delta)}) ${windowText(sp.windowMs)}${sp.live ? ' · LIVE' : ''}`,
+      const fb = { title: `${isVol(sp) ? '〰 ' + volLabel(sp) + ' · ' : `${sp.delta >= 0 ? '▲' : '▼'} ${pct(sp.to)} `}${sp.title || 'Market spike'}`,
+        body: `${sp.outcome ? sp.outcome + ': ' : ''}${pct(sp.from)} → ${pct(sp.to)} (${pts(sp.delta)}) ${windowText(sp.windowMs)}${sp.live ? ' · LIVE' : ''}` };
+      const rn = roleNotice(sp, fb.title, fb.body);
+      const n = new Notification(rn.title, {
+        body: rn.title === fb.title ? fb.body : `${rn.body}${rn.body ? '\n' : ''}${truncate(sp.title, 80)} · ${pct(sp.from)} → ${pct(sp.to)}`,
         tag: sp.id,
         icon: 'favicon.svg',
         renotify: false,
@@ -456,6 +516,9 @@
     renderFeed();
     renderMovers();
     runSearch();
+    state.shotsBaseline = null;
+    renderStories();
+    loadShots(true);
   }
 
   // ------------------------------------------------------------------ line chart (shared by seismograph + drawer)
@@ -645,6 +708,7 @@
 
   // ------------------------------------------------------------------ alert feed
   function passesFeed(sp) {
+    if (state.wire === 'insights') return false;
     if (isMuted(sp.marketId)) return false;
     if (state.hideNoise && isNoise(sp)) return false;
     if (state.category && sp.category !== state.category) return false;
@@ -661,7 +725,7 @@
     const mk = state.markets.get(sp.marketId);
     const startT = (Date.parse(sp.detectedAt) || Date.now()) - (Number(sp.windowMs) || 0);
     const li = h('li', {
-      class: `spike ${d} sev-${sp.severity || 'info'}${mine ? ' mine' : ''}${animate ? ' arrive' : ''}${isNoise(sp) ? ' is-noise' : ''}`,
+      class: `spike ${d} sev-${sp.severity || 'info'}${isVol(sp) ? ' vol' : ''}${mine ? ' mine' : ''}${animate ? ' arrive' : ''}${isNoise(sp) ? ' is-noise' : ''}`,
       dataset: { id: sp.id || '', market: sp.marketId || '' },
       attrs: { tabindex: 0, 'aria-label': `${sp.title || 'Market'} moved ${pts(sp.delta)}` },
       onclick: (e) => { if (!e.target.closest('a')) openDrawer(sp.marketId, sp); },
@@ -669,6 +733,7 @@
     },
       sp.severity === 'major' ? h('span', { class: 'ring', attrs: { 'aria-hidden': 'true' } }) : null,
       h('div', { class: 'spike-meta' },
+        isVol(sp) ? h('span', { class: 'badge thrash', attrs: { title: isNum(sp.volShort) && isNum(sp.volBase) ? `Short-window volatility ${(sp.volShort * 100).toFixed(2)} vs baseline ${(sp.volBase * 100).toFixed(2)}` : 'Volatility spike' } }, icon('seismic'), volLabel(sp)) : null,
         sp.severity && sp.severity !== 'info' ? h('span', { class: `badge sev-${sp.severity}`, text: sp.severity }) : null,
         sp.live ? h('span', { class: 'badge live', text: 'Live' }) : null,
         sp.demo ? h('span', { class: 'badge demo', text: 'Demo' }) : null,
@@ -687,7 +752,9 @@
       h('div', { class: 'probbar', attrs: { 'aria-hidden': 'true' } },
         h('i', { class: 'from', style: `width:${(lo * 100).toFixed(1)}%` }),
         h('i', { class: 'span', style: `left:${(lo * 100).toFixed(1)}%;width:${Math.max(0.6, (hi - lo) * 100).toFixed(1)}%` })),
-      h('div', { class: 'spike-headline', text: headline(sp) }),
+      h('div', { class: 'spike-headline', text: isVol(sp) ? `Market just started thrashing: volatility ${isNum(sp.volRatio) ? `×${Number(sp.volRatio).toFixed(1)} its usual` : 'well above its usual'}${isNum(sp.delta) && Math.abs(sp.delta) >= 0.005 ? `, net ${pts(sp.delta)}` : ', no direction yet'}.` : headline(sp) }),
+      contextChips(sp.context),
+      recBlock(recFor(sp), sp.id, { compact: true }),
       signalBlock(sp),
       h('div', { class: 'spike-foot' },
         h('span', { class: 'fromto', text: `from ${pct(sp.from)} at ${clock(startT)}` }),
@@ -711,10 +778,12 @@
     return out;
   }
   function renderFeed() {
-    const threads = feedThreads().slice(0, 150);
-    $('#feed').replaceChildren(...threads.map((t) => spikeCard(t.sp, false, t.more)));
-    $('#feed-count').textContent = String(threads.length);
-    renderFeedEmpty(threads.length);
+    const items = feedThreads().map((t) => ({ t: toT(t.sp.detectedAt) || 0, node: () => spikeCard(t.sp, false, t.more) }))
+      .concat(state.insights.filter(passesInsight).map((ins) => ({ t: toT(ins.createdAt) || 0, node: () => insightCard(ins, false) })))
+      .sort((a, b) => b.t - a.t).slice(0, 150);
+    $('#feed').replaceChildren(...items.map((it) => it.node()));
+    $('#feed-count').textContent = String(items.length);
+    renderFeedEmpty(items.length);
     renderMutedInfo();
   }
   function renderFeedEmpty(n) {
@@ -725,6 +794,7 @@
     const count = (state.lastTick && state.lastTick.marketCount) || (state.health && state.health.marketCount);
     if (state.backendUp === false) title.textContent = 'Waiting for the Oddshot server…';
     else if (state.feedFilter === 'mine' && !state.subs.length) title.textContent = 'Set up an alert to see your matches here';
+    else if (state.wire === 'insights') title.textContent = state.insightsAvailable === false ? 'Insights aren\'t available on this server yet' : 'No insights yet. They appear as the crowd changes its mind.';
     else if (state.alerts.length && (state.category || state.feedFilter !== 'all')) title.textContent = `No ${state.category ? state.category + ' ' : ''}${state.feedFilter === 'notable' ? 'notable ' : state.feedFilter === 'mine' ? 'matching ' : ''}spikes yet`;
     else if (count) title.textContent = `Watching ${count.toLocaleString()} markets. Quiet so far.`;
     else title.textContent = state.connected ? 'Watching the markets. Quiet so far.' : 'Connecting to the markets…';
@@ -768,14 +838,14 @@
     const host = $('#island');
     const d = dir(sp.delta);
     const pill = h('div', {
-      class: `pill ${d} sev-${sp.severity || 'info'}`,
+      class: `pill ${d} sev-${sp.severity || 'info'}${isVol(sp) ? ' vol' : ''}`,
       attrs: { role: 'button', tabindex: 0 },
       onclick: () => { openDrawer(sp.marketId, sp); dismiss(); },
     },
-      h('div', { class: 'p-ico', text: d === 'down' ? '▼' : '▲' }),
+      isVol(sp) ? h('div', { class: 'p-ico' }, icon('seismic')) : h('div', { class: 'p-ico', text: d === 'down' ? '▼' : '▲' }),
       h('div', { class: 'p-body' },
-        h('div', { class: 'p-kicker', text: `${sp.severity === 'major' ? 'Major spike' : 'Spike'}${sp.live ? ' · Live' : ''}${sp.demo ? ' · Demo' : ''} · ${sp.category || ''}` }),
-        h('div', { class: 'p-title', text: sp.title || 'Market moved' })),
+        h('div', { class: 'p-kicker', text: `${isVol(sp) ? volLabel(sp) : sp.severity === 'major' ? 'Major spike' : 'Spike'}${sp.live ? ' · Live' : ''}${sp.demo ? ' · Demo' : ''} · ${sp.category || ''}` }),
+        h('div', { class: 'p-title', text: (recFor(sp) && recFor(sp).headline) || sp.title || 'Market moved' })),
       h('div', { class: 'p-num' },
         h('div', { class: 'p-to', text: pct(sp.to) }),
         h('div', { class: 'p-d', text: pts(sp.delta) })));
@@ -955,6 +1025,7 @@
   const truncate = (t, n) => { const x = String(t || ''); return x.length > n ? `${x.slice(0, n - 1)}…` : x; };
   function refreshWatchButtons() {
     renderMovers();
+    if (state.shots.length) renderShots();
     runSearch(true);
     if (state.drawerId) renderDrawerWatch();
   }
@@ -1192,6 +1263,7 @@
   async function pickPersona(key) {
     const p = PERSONAS[key];
     closeModal('onboard');
+    setPersona(key, { quiet: true });
     localStorage.setItem(LS.onboarded, '1');
     // Ask for notifications while we still have the user gesture.
     if (notifySupported() && Notification.permission === 'default') enableNotifications();
@@ -1228,6 +1300,13 @@
     renderDrawerSpikes();
     renderDrawerWatch();
     renderDrawerMute();
+    renderDrawerShot();
+    renderDrawerInsights();
+    $('#drawer-rec').hidden = true;
+    $('#drawer-ctx').replaceChildren();
+    renderDrawerContext();
+    $('#drawer-fc').hidden = true;
+    renderDrawerForecast();
     $('#drawer-traj').replaceChildren();
     const svg = $('#drawer-chart');
     svg.replaceChildren();
@@ -1347,6 +1426,710 @@
     $('#drawer-scrim').hidden = true;
   }
 
+  // ================================================================== v2: icons + shared bits
+  function icon(name, cls = 'ico') {
+    const d = ICONS[name] || ICONS.eye;
+    return s('svg', { class: cls, viewBox: '0 0 24 24', 'aria-hidden': 'true' },
+      s('path', { d, fill: name === 'bolt' ? 'currentColor' : 'none', stroke: 'currentColor', 'stroke-width': 1.9, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }));
+  }
+  function kindBadge(kind) {
+    const k = kindMeta(kind);
+    return h('span', { class: 'kind-badge', style: `--k:${k.color}` }, icon(k.icon), k.label);
+  }
+  function durShort(ms) {
+    const sec = Math.max(0, Math.round(ms / 1000));
+    if (sec < 60) return `${sec}s`;
+    const m = Math.floor(sec / 60);
+    if (m < 60) return `${m}m ${String(sec % 60).padStart(2, '0')}s`;
+    const hr = Math.floor(m / 60);
+    return `${hr}h ${String(m % 60).padStart(2, '0')}m`;
+  }
+  const toT = (x) => (typeof x === 'number' ? x : Date.parse(x));
+  /** Plain-English time window for a shot. */
+  function windowInfo(w, now = Date.now()) {
+    if (!w) return null;
+    const st = toT(w.startsAt), en = w.endsAt ? toT(w.endsAt) : NaN;
+    if (!isNum(st)) return null;
+    const range = isNum(en) ? `${clock(st)}–${clock(en)}` : `from ${clock(st)}`;
+    if (st > now) {
+      if (st - now <= 3 * 3600e3) return { state: 'soon', until: st, main: `Starts in ${durShort(st - now)}`, sub: `Be there ${range}` };
+      return { state: 'later', main: `Be there ${range}`, sub: new Date(st).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' }) };
+    }
+    if (!isNum(en) || en > now) {
+      const progress = isNum(en) ? clamp((now - st) / Math.max(1, en - st), 0, 1) : null;
+      return { state: 'now', main: 'Be there now', sub: isNum(en) ? `window closes ${clock(en)}` : `since ${clock(st)}`, progress };
+    }
+    return { state: 'past', main: `Window closed ${clock(en)}`, sub: range };
+  }
+  function tipFor(shot, persona = state.persona) {
+    const t = shot && shot.tips;
+    if (!t || typeof t !== 'object') return '';
+    return String(t[persona] || t.general || Object.values(t).find(Boolean) || '');
+  }
+  const shotKey = (sh) => String(sh.marketId || sh.id || '');
+  /** Rate limiter for recommendation notifications: per-key + per-channel spacing. */
+  const gates = new Map();
+  function gate(key, perKeyMs, channel, channelMs) {
+    const now = Date.now();
+    if (now - (gates.get(`k:${key}`) || 0) < perKeyMs) return false;
+    if (now - (gates.get(`c:${channel}`) || 0) < channelMs) return false;
+    gates.set(`k:${key}`, now); gates.set(`c:${channel}`, now);
+    return true;
+  }
+  function pageHidden() { return document.visibilityState !== 'visible' || !document.hasFocus(); }
+  function sysNotify(title, body, tag, onclick) {
+    if (!notifySupported() || Notification.permission !== 'granted') return;
+    try {
+      const n = new Notification(title, { body, tag, icon: 'favicon.svg', renotify: false });
+      n.onclick = () => { window.focus(); if (onclick) onclick(); n.close(); };
+    } catch { /* ignore */ }
+  }
+
+  // ================================================================== v2: persona
+  function renderPersonaSwitch() {
+    const host = $('#persona-switch');
+    host.replaceChildren(...PERSONA_ORDER.map((key) => {
+      const on = state.persona === key;
+      return h('button', {
+        type: 'button', class: `ps-btn${on ? ' active' : ''}`, dataset: { persona: key },
+        attrs: { role: 'radio', 'aria-checked': String(on), title: `Recommend for ${PERSONA_SHORT[key]} (p cycles)` },
+        onclick: () => setPersona(key),
+      }, h('span', { class: 'ps-emo', attrs: { 'aria-hidden': 'true' }, text: PERSONAS[key].emoji }), h('span', { class: 'ps-lbl', text: PERSONA_SHORT[key] }));
+    }));
+  }
+  function setPersona(key, { quiet = false } = {}) {
+    if (!PERSONAS[key]) return;
+    const changed = state.persona !== key;
+    state.persona = key;
+    localStorage.setItem(LS.persona, key);
+    renderPersonaSwitch();
+    if (!changed) return;
+    state.shotsBaseline = null; // don't notify for re-ranks caused by switching
+    renderShots(); // re-word every card immediately from recommendations[role]
+    renderFeed();
+    if (state.drawerId) { renderDrawerShot(); renderDrawerSpikes(); renderDrawerContext(); }
+    loadShots(true);
+    if (!quiet) toast(`${PERSONAS[key].emoji} Recommending for ${PERSONA_SHORT[key] === 'Everyone' ? 'everyone' : PERSONA_SHORT[key].toLowerCase() + 's'}.`, 'ok', 2200);
+  }
+  function cyclePersona() {
+    const i = PERSONA_ORDER.indexOf(state.persona);
+    setPersona(PERSONA_ORDER[(i + 1) % PERSONA_ORDER.length]);
+  }
+
+  // ================================================================== v2: shot list
+  let shotsInflight = false, shotsQueued = false, shotsLastFetch = 0, shotsTimer = null;
+  async function loadShots(force = false) {
+    if (shotsInflight) { shotsQueued = true; return; }
+    if (!force && Date.now() - shotsLastFetch < 3000) {
+      if (!shotsTimer) shotsTimer = setTimeout(() => { shotsTimer = null; loadShots(true); }, 3200 - (Date.now() - shotsLastFetch));
+      return;
+    }
+    shotsInflight = true; shotsLastFetch = Date.now();
+    const persona = state.persona, cat = state.category;
+    try {
+      const params = new URLSearchParams({ persona, limit: '20' });
+      if (cat) params.set('category', cat);
+      const data = await api(`/api/shots?${params}`);
+      if (persona !== state.persona || cat !== state.category) { shotsQueued = true; return; }
+      applyShots(Array.isArray(data) ? data : []);
+    } catch (err) {
+      if (!state.shots.length) { state.shotsStatus = /404|no route|not found/i.test(err.message) ? 'unavailable' : state.backendUp === false ? 'unavailable' : 'empty'; renderShots(); }
+    } finally {
+      shotsInflight = false;
+      if (shotsQueued) { shotsQueued = false; loadShots(true); }
+    }
+  }
+  function validShot(sh) { return sh && (sh.marketId || sh.id) && (sh.headline || (sh.market && sh.market.title)); }
+  function applyShots(list) {
+    const clean = list.filter(validShot)
+      .filter((sh) => !state.category || !sh.market || !sh.market.category || sh.market.category === state.category)
+      .sort((a, b) => (isNum(a.rank) && isNum(b.rank) ? a.rank - b.rank : (b.dramaScore || 0) - (a.dramaScore || 0)))
+      .slice(0, 20);
+    clean.forEach((sh) => { if (sh.market) rememberMarket({ ...sh.market, id: sh.market.id || sh.marketId }); });
+    state.shotRanks = new Map(state.shots.map((sh, i) => [shotKey(sh), i + 1]));
+    state.shots = clean;
+    state.shotsStatus = clean.length ? 'ok' : 'empty';
+    state.shotsAt = Date.now();
+    const upd = $('#shots-updated');
+    upd.dataset.ts = String(state.shotsAt); upd.dataset.prefix = '· '; upd.textContent = `· ${ago(state.shotsAt)}`;
+    renderShots();
+    checkTopThree();
+    if (state.drawerId) renderDrawerShot();
+  }
+  function onShotsEvent(list) {
+    if (!Array.isArray(list)) return;
+    // The stream carries the default ranking; persona-specific ranking comes from the REST route.
+    if (state.persona === 'general' && !state.category) applyShots(list);
+    else loadShots();
+  }
+  function checkTopThree() {
+    const top = state.shots.slice(0, 3);
+    const keys = new Set(top.map(shotKey));
+    const base = state.shotsBaseline;
+    state.shotsBaseline = keys;
+    if (!base) return; // first load / persona switch: establish baseline silently
+    for (const sh of top) {
+      const k = shotKey(sh);
+      if (base.has(k) || isMuted(sh.marketId)) continue;
+      if (!gate(`shot:${k}`, 20 * 60e3, 'shot', 90e3)) continue;
+      const km = kindMeta(sh.kind);
+      const tip = tipFor(sh);
+      islandShow({ tone: 'shot', color: km.color, iconName: km.icon, kicker: `New top-3 shot · ${km.label}`, title: (recFor(sh) && recFor(sh).headline) || sh.headline || (sh.market && sh.market.title) || 'New shot',
+        big: isNum(sh.dramaScore) ? String(Math.round(sh.dramaScore)) : '', small: 'drama', onclick: () => openDrawer(sh.marketId), ms: 7000 });
+      beep('up');
+      if (pageHidden()) {
+        const rn = roleNotice(sh, `🎯 ${sh.headline || 'New shot'}`, `${km.label}${sh.forecast && isNum(sh.forecast.pMove30) ? ` · ${pct(sh.forecast.pMove30)} chance of a 5+ pt swing` : ''}${tip ? ` · ${tip}` : ''}`);
+        sysNotify(rn.title, rn.body, `shot-${k}`, () => openDrawer(sh.marketId));
+        setUnread(state.unread + 1);
+      }
+      break; // at most one per update
+    }
+  }
+  function visibleShots() {
+    const list = state.shots.filter((sh) => !isMuted(sh.marketId));
+    const small = matchMedia('(max-width: 820px)').matches;
+    const n = state.shotsExpanded ? list.length : small ? 5 : 8;
+    return { list: list.slice(0, n), total: list.length };
+  }
+  function dramaRing(score, key) {
+    const v = clamp(Number(score) || 0, 0, 100);
+    const C = 2 * Math.PI * 21;
+    const prev = state.shotDrama.has(key) ? state.shotDrama.get(key) : 0;
+    state.shotDrama.set(key, v);
+    const arc = s('circle', { class: 'ring-val', cx: 26, cy: 26, r: 21, 'stroke-dasharray': `${(C * prev / 100).toFixed(1)} ${C.toFixed(1)}` });
+    requestAnimationFrame(() => requestAnimationFrame(() => arc.setAttribute('stroke-dasharray', `${(C * v / 100).toFixed(1)} ${C.toFixed(1)}`)));
+    return h('div', { class: 'drama', attrs: { title: `Drama score ${Math.round(v)}/100: forecast × uncertainty × liveness × interest` } },
+      s('svg', { viewBox: '0 0 52 52', 'aria-hidden': 'true' },
+        s('circle', { class: 'ring-bg', cx: 26, cy: 26, r: 21 }), arc),
+      h('div', { class: 'drama-num num', text: String(Math.round(v)) }),
+      h('div', { class: 'drama-lbl', text: 'drama' }));
+  }
+  function forecastMeter(p, segs = 20) {
+    const on = Math.round(clamp(p, 0, 1) * segs);
+    return h('div', { class: 'fmeter', attrs: { 'aria-hidden': 'true' } }, Array.from({ length: segs }, (_, i) => h('i', { class: i < on ? 'on' : '' })));
+  }
+  function shotCard(sh, idx) {
+    const key = shotKey(sh);
+    const m = { ...(state.markets.get(sh.marketId) || {}), ...(sh.market || {}) };
+    const km = kindMeta(sh.kind);
+    const rank = idx + 1;
+    const prevRank = state.shotRanks.get(key);
+    const fc = sh.forecast || {};
+    const win = windowInfo(sh.window);
+    const tip = tipFor(sh);
+    const url = safeUrl(m.url);
+    const lead = idx === 0;
+    const pMove = isNum(fc.pMove30) ? clamp(fc.pMove30, 0, 1) : null;
+    const spark = s('svg', { class: 'spark loading', viewBox: '0 0 88 28', preserveAspectRatio: 'none', 'data-id': sh.marketId, 'aria-hidden': 'true' }, s('path', { d: 'M0,14L88,14' }));
+    const li = h('li', {
+      class: `shot${lead ? ' lead' : ''}${win && win.state === 'now' ? ' on-air' : ''}`,
+      style: `--k:${km.color}`,
+      dataset: { key, rank: String(rank) },
+      attrs: { tabindex: 0, 'aria-label': `Rank ${rank}: ${sh.headline || m.title || 'shot'}` },
+      onclick: (e) => { if (!e.target.closest('button,a')) openDrawer(sh.marketId); },
+      onkeydown: (e) => { if (e.key === 'Enter' && e.target === e.currentTarget) openDrawer(sh.marketId); },
+    },
+      lead ? h('span', { class: 'vf', attrs: { 'aria-hidden': 'true' } }, h('i'), h('i'), h('i'), h('i')) : null,
+      h('div', { class: 'shot-top' },
+        h('span', { class: 'shot-rank num', text: String(rank).padStart(2, '0') }),
+        isNum(prevRank) && prevRank !== rank ? h('span', { class: `rank-chg ${prevRank > rank ? 'up' : 'down'}`, text: `${prevRank > rank ? '▲' : '▼'}${Math.abs(prevRank - rank)}`, attrs: { title: `Was #${prevRank}` } })
+          : !isNum(prevRank) && state.shotRanks.size ? h('span', { class: 'rank-chg new', text: 'NEW' }) : null,
+        kindBadge(sh.kind),
+        m.live ? h('span', { class: 'badge live', text: 'Live' }) : null,
+        h('span', { class: 'shot-tags' }, m.category ? h('span', { class: 'cat-chip', text: m.category }) : null, venueBadge(m.source)),
+        dramaRing(sh.dramaScore, key)),
+      contextChips(sh.context),
+      ...leadCols(lead, [
+      h('h3', { class: 'shot-headline', text: sh.headline || m.title || 'Untitled' }),
+      sh.why ? h('p', { class: 'shot-why', text: sh.why }) : null,
+      h('div', { class: 'shot-mkt' },
+        h('div', { class: 'shot-spark' }, spark),
+        h('div', { class: 'shot-prob' },
+          h('span', { class: 'num p', text: pct(m.probability) }),
+          isNum(m.change1h) ? h('span', { class: `chg ${dir(m.change1h)}`, text: `${ptsShort(m.change1h)} 1h` }) : null),
+        h('div', { class: 'shot-mtitle', attrs: { title: m.title || '' }, text: `${m.title || ''}${m.outcome && !/^yes$/i.test(m.outcome) ? ` · ${m.outcome}` : ''}` })),
+      pMove != null ? h('div', { class: 'shot-fc', attrs: { title: `Forecast model: ${fc.model || 'unknown'}` } },
+        forecastMeter(pMove),
+        h('div', { class: 'fc-text' }, h('b', { class: 'num', text: pct(pMove) }), ' chance of a 5+ pt swing in 30 min',
+          isNum(fc.expectedMovePts) ? h('span', { class: 'muted' }, ' · expect ', h('b', { class: 'num', text: `±${Number(fc.expectedMovePts).toFixed(1)}` }), ' pts') : null)) : null], [
+      win ? h('div', { class: `shot-win ${win.state}` },
+        h('span', { class: 'win-dot', attrs: { 'aria-hidden': 'true' } }),
+        h('span', { class: 'win-main num', dataset: win.until ? { until: String(win.until) } : {}, text: win.main }),
+        win.sub ? h('span', { class: 'win-sub', text: win.sub }) : null,
+        win.state === 'now' && isNum(win.progress) ? h('span', { class: 'win-prog', attrs: { 'aria-hidden': 'true' } }, h('i', { style: `width:${(win.progress * 100).toFixed(0)}%` })) : null) : null,
+      recBlock(recFor(sh), sh.id || sh.marketId, { fallbackTip: tip })]),
+      h('div', { class: 'shot-actions' },
+        watchButton({ ...m, id: sh.marketId }),
+        h('button', { type: 'button', class: 'btn btn-small btn-ghost', text: 'Details', onclick: (e) => { e.stopPropagation(); openDrawer(sh.marketId); } }),
+        url ? h('a', { class: 'btn btn-small btn-ghost', href: url, target: '_blank', rel: 'noopener noreferrer', text: `${m.source === 'kalshi' ? 'Kalshi' : m.source === 'polymarket' ? 'Polymarket' : 'Venue'} ↗` }) : null));
+    return li;
+  }
+  /** Lead card splits into story (left) and action (right) columns; others stay a single stack. */
+  function leadCols(lead, left, right) {
+    if (!lead) return [...left, ...right];
+    return [h('div', { class: 'lead-cols' }, h('div', { class: 'lead-l' }, left), h('div', { class: 'lead-r' }, right))];
+  }
+  function renderShots() {
+    const host = $('#shots');
+    const { list, total } = visibleShots();
+    // FLIP: First
+    const first = new Map();
+    for (const el of host.children) if (el.dataset.key) first.set(el.dataset.key, el.getBoundingClientRect());
+    const nodes = list.map((sh, i) => shotCard(sh, i));
+    host.replaceChildren(...nodes);
+    // Last + Invert + Play
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    nodes.forEach((el, i) => {
+      const was = first.get(el.dataset.key);
+      if (reduce || !el.animate) return;
+      if (was) {
+        const now = el.getBoundingClientRect();
+        const dx = was.left - now.left, dy = was.top - now.top;
+        if (Math.abs(dx) > 1 || Math.abs(dy) > 1) el.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'none' }], { duration: 650, easing: 'cubic-bezier(.2,.9,.25,1)' });
+      } else if (first.size) {
+        el.animate([{ opacity: 0, transform: 'translateY(14px) scale(.98)' }, { opacity: 1, transform: 'none' }], { duration: 500, delay: i * 25, easing: 'cubic-bezier(.34,1.56,.64,1)', fill: 'backwards' });
+      }
+    });
+    $$('svg.spark', host).forEach((svg) => {
+      const c = state.histCache.get(svg.dataset.id);
+      if (c && Date.now() - c.at < 60000) drawSpark(svg, c.points);
+      else if (sparkObserver) sparkObserver.observe(svg); else queueSpark(svg);
+    });
+    const more = $('#shots-more');
+    more.hidden = total <= list.length && !state.shotsExpanded;
+    more.textContent = state.shotsExpanded ? 'Show fewer' : `Show all ${total} shots`;
+    const empty = $('#shots-empty');
+    empty.hidden = list.length > 0;
+    if (!list.length) {
+      const t = $('#shots-empty-title'), x = $('#shots-empty-text');
+      if (state.backendUp === false) { t.textContent = 'Waiting for the Oddshot server…'; x.textContent = 'The shot list comes back the moment we reconnect.'; }
+      else if (state.shotsStatus === 'loading') { t.textContent = 'Lining up the first shots…'; x.textContent = 'Reading the markets for what is about to move.'; }
+      else if (state.shotsStatus === 'unavailable') { t.textContent = 'The shot list is warming up'; x.textContent = 'This server doesn\'t serve recommendations yet. Spikes, movers and alerts below work as usual.'; }
+      else if (state.category) { t.textContent = `Nothing worth framing in ${state.category} right now`; x.textContent = 'Try All categories, or check back as events go live.'; }
+      else { t.textContent = 'Quiet on set'; x.textContent = 'No market looks ready to move yet. Shots appear as events approach and odds start to wobble.'; }
+    }
+  }
+
+  // ================================================================== v2: insights (Live wire)
+  async function loadInsights() {
+    try {
+      const data = await api('/api/insights?limit=50');
+      state.insightsAvailable = true;
+      (Array.isArray(data) ? data : []).slice().reverse().forEach((ins) => addInsight(ins, { live: false, render: false }));
+      state.insights.sort((a, b) => (toT(b.createdAt) || 0) - (toT(a.createdAt) || 0));
+    } catch { state.insightsAvailable = false; }
+    renderFeed();
+  }
+  function insightMarkets(ins) { return (Array.isArray(ins.marketIds) ? ins.marketIds : []).filter(Boolean); }
+  function isMineInsight(ins) {
+    return insightMarkets(ins).some((id) => {
+      const m = state.markets.get(id) || {};
+      const sp = { marketId: id, title: m.title || ins.title, category: ins.category || m.category, tags: m.tags || [], source: m.source, delta: 1, severity: ins.severity || 'info', live: !!m.live };
+      return state.subs.some((sub) => matchSub(sub, sp));
+    });
+  }
+  function passesInsight(ins) {
+    if (state.wire === 'spikes') return false;
+    const ids = insightMarkets(ins);
+    if (ids.length && ids.every(isMuted)) return false;
+    if (state.category && ins.category && ins.category !== state.category) return false;
+    if (state.feedFilter === 'notable' && (SEV_RANK[ins.severity] ?? 0) < 1) return false;
+    if (state.feedFilter === 'mine' && !isMineInsight(ins)) return false;
+    return true;
+  }
+  function insightCard(ins, animate) {
+    const im = insMeta(ins.type);
+    const ids = insightMarkets(ins);
+    return h('li', {
+      class: `insight sev-${ins.severity || 'info'}${animate ? ' arrive' : ''}`, style: `--k:${im.color}`,
+      dataset: { ins: ins.id || '' },
+      attrs: { tabindex: 0, 'aria-label': `${im.label}: ${ins.title || ''}` },
+      onclick: (e) => { if (!e.target.closest('button,a') && ids[0]) openDrawer(ids[0]); },
+      onkeydown: (e) => { if (e.key === 'Enter' && e.target === e.currentTarget && ids[0]) openDrawer(ids[0]); },
+    },
+      h('div', { class: 'ins-glyph' }, icon(im.icon)),
+      h('div', { class: 'ins-body' },
+        h('div', { class: 'ins-kicker' },
+          h('span', { class: 'ins-type', text: im.label }),
+          ins.severity && ins.severity !== 'info' ? h('span', { class: `badge sev-${ins.severity}`, text: ins.severity }) : null,
+          ins.category ? h('span', { class: 'cat-chip', text: ins.category }) : null,
+          h('span', { class: 'ago', dataset: { ts: ins.createdAt || '' }, text: ago(ins.createdAt) })),
+        h('div', { class: 'ins-title', text: ins.title || im.label }),
+        ins.body ? h('p', { class: 'ins-text', text: ins.body }) : null,
+        contextChips(ins.context),
+        recBlock(recFor(ins), ins.id, { compact: true }),
+        ids.length ? h('div', { class: 'ins-mkts' }, ids.slice(0, 4).map((id) => {
+          const m = state.markets.get(id);
+          return h('button', { type: 'button', class: 'ins-mkt', onclick: (e) => { e.stopPropagation(); openDrawer(id); } },
+            h('span', { class: 't', text: m && m.title ? truncate(m.title, 46) : 'Open related market' }), m && isNum(m.probability) ? h('b', { class: 'num', text: pct(m.probability) }) : null);
+        })) : null));
+  }
+  function addInsight(ins, { live = false, render = true } = {}) {
+    if (!ins || !ins.id || state.insightIds.has(ins.id)) return;
+    state.insightIds.add(ins.id);
+    state.insights.unshift(ins);
+    if (state.insights.length > 200) { const gone = state.insights.pop(); state.insightIds.delete(gone.id); }
+    if (!render) return;
+    state.insightsAvailable = true;
+    const visible = passesInsight(ins);
+    if (visible) {
+      const feed = $('#feed');
+      feed.prepend(insightCard(ins, live));
+      while (feed.children.length > 150) feed.lastElementChild.remove();
+      $('#feed-count').textContent = String(feed.children.length);
+      renderFeedEmpty(feed.children.length);
+    }
+    if (live && (SEV_RANK[ins.severity] ?? 0) >= 1 && !insightMarkets(ins).some(isMuted)) {
+      const im = insMeta(ins.type);
+      const ch = insightMarkets(ins)[0];
+      if (gate(`ins:${ins.type}:${ch || ins.id}`, 10 * 60e3, 'insight', ins.severity === 'major' ? 15e3 : 45e3)) {
+        islandShow({ tone: 'insight', color: im.color, iconName: im.icon, kicker: `${im.label}${ins.severity === 'major' ? ' · Major' : ''}`, title: ins.title || im.label, onclick: () => ch && openDrawer(ch), ms: ins.severity === 'major' ? 7000 : 5000 });
+        if (pageHidden()) { const rn = roleNotice(ins, `${im.label}: ${ins.title || ''}`, ins.body || ''); sysNotify(rn.title, rn.body, `ins-${ins.id}`, () => ch && openDrawer(ch)); setUnread(state.unread + 1); }
+      }
+    }
+    if (live && state.drawerId && insightMarkets(ins).includes(state.drawerId)) renderDrawerInsights();
+  }
+
+  // ================================================================== v2: stories
+  let storiesLast = 0;
+  async function loadStories(force = false) {
+    if (!force && Date.now() - storiesLast < 15000) return;
+    storiesLast = Date.now();
+    try {
+      const data = await api('/api/stories');
+      state.stories = Array.isArray(data) ? data.filter((st) => st && Array.isArray(st.markets) && st.markets.length) : [];
+    } catch { state.stories = []; }
+    renderStories();
+  }
+  function renderStories() {
+    const list = state.stories.filter((st) => !state.category || !st.category || st.category === state.category).slice(0, 12);
+    $('#stories-card').hidden = !list.length;
+    $('#stories-count').textContent = String(list.length);
+    $('#stories').replaceChildren(...list.map((st) => {
+      const d = st.direction === 'up' ? 'up' : st.direction === 'down' ? 'down' : 'mixed';
+      const strength = isNum(st.strength) ? clamp(st.strength, 0, 1) : null;
+      return h('article', { class: `story ${d}` },
+        h('div', { class: 'story-head' },
+          h('span', { class: 'story-ico' }, icon('story')),
+          h('span', { class: 'story-dir', text: d === 'up' ? '▲ Moving up together' : d === 'down' ? '▼ Falling together' : '⇅ Pulling apart' }),
+          st.category ? h('span', { class: 'cat-chip', text: st.category }) : null),
+        h('h3', { class: 'story-title', text: st.title || 'Markets moving together' }),
+        st.summary ? h('p', { class: 'story-sum', text: st.summary }) : null,
+        h('ul', { class: 'story-mkts' }, st.markets.slice(0, 5).map((mk) => {
+          const from = clamp(Number(mk.from) || 0, 0, 1), to = clamp(Number(mk.to) || 0, 0, 1);
+          const lo = Math.min(from, to), hi = Math.max(from, to);
+          const delta = isNum(mk.delta) ? mk.delta : to - from;
+          return h('li', { class: dir(delta), attrs: { tabindex: 0, role: 'button' }, onclick: () => openDrawer(mk.id), onkeydown: (e) => { if (e.key === 'Enter') openDrawer(mk.id); } },
+            h('div', { class: 'sm-row' }, h('span', { class: 'sm-title', text: mk.title || mk.id }), h('span', { class: `chg ${dir(delta)}`, text: ptsShort(delta) })),
+            h('div', { class: 'sm-bar', attrs: { 'aria-hidden': 'true' } },
+              h('i', { class: 'base', style: `width:${(lo * 100).toFixed(1)}%` }),
+              h('i', { class: 'span', style: `left:${(lo * 100).toFixed(1)}%;width:${Math.max(0.8, (hi - lo) * 100).toFixed(1)}%` }),
+              h('b', { style: `left:${(to * 100).toFixed(1)}%` })),
+            h('div', { class: 'sm-ft num', text: `${pct(from)} → ${pct(to)}` }));
+        })),
+        h('div', { class: 'story-foot' },
+          strength != null ? h('span', { class: 'story-str', attrs: { title: 'How tightly these markets moved together' } }, 'Strength', h('span', { class: 'meter' }, h('i', { style: `width:${(strength * 100).toFixed(0)}%` }))) : null,
+          h('span', { class: 'muted small', dataset: { ts: st.updatedAt || st.startedAt || '' }, text: ago(st.updatedAt || st.startedAt) })));
+    }));
+  }
+
+  // ================================================================== v2: briefing
+  const todayKey = () => { const d = new Date(); return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`; };
+  async function loadBriefing() {
+    try {
+      const b = await api('/api/briefing');
+      state.briefing = b && (b.headline || (Array.isArray(b.bullets) && b.bullets.length)) ? b : null;
+    } catch { state.briefing = null; }
+    $('#btn-brief').hidden = !state.briefing;
+    if (state.briefing && localStorage.getItem(LS.briefDismissed) !== todayKey()) renderBriefing(true);
+  }
+  function briefingMasthead() {
+    const hr = new Date().getHours();
+    const last = Number(localStorage.getItem(LS.lastVisit) || 0);
+    if (last && Date.now() - last > 4 * 3600e3 && hr >= 11) return 'While you were away';
+    if (hr < 12) return 'The Morning Line';
+    if (hr < 18) return 'The Afternoon Line';
+    return 'The Evening Line';
+  }
+  function renderBriefing(show) {
+    const el = $('#briefing');
+    const b = state.briefing;
+    if (!b || !show) { el.hidden = true; return; }
+    const bullets = (Array.isArray(b.bullets) ? b.bullets : []).filter(Boolean).slice(0, 6);
+    const shifts = (Array.isArray(b.biggestShifts) ? b.biggestShifts : []).filter((x) => x && x.marketId).slice(0, 4);
+    const gen = toT(b.generatedAt);
+    fill(el,
+      h('div', { class: 'brief-mast' },
+        h('span', { class: 'brief-name', text: briefingMasthead() }),
+        h('span', { class: 'brief-date', text: `${new Date().toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' })}${isNum(gen) ? ` · as of ${clock(gen)}` : ''}` }),
+        h('button', { type: 'button', class: 'icon-btn brief-x', attrs: { 'aria-label': 'Dismiss briefing for today', title: 'Dismiss for today' }, text: '✕', onclick: dismissBriefing })),
+      h('div', { class: 'brief-grid' },
+        h('div', { class: 'brief-story' },
+          h('h2', { id: 'brief-h', class: 'brief-headline', text: b.headline || 'Your briefing' }),
+          bullets.length ? h('ul', { class: 'brief-bullets' }, bullets.map((t) => h('li', { text: String(t) }))) : null),
+        shifts.length ? h('div', { class: 'brief-shifts' },
+          h('div', { class: 'eyebrow', text: 'Biggest shifts · 24h' }),
+          shifts.map((x) => {
+            const delta = isNum(x.delta) ? x.delta : (Number(x.to) || 0) - (Number(x.from) || 0);
+            return h('button', { type: 'button', class: `shift ${dir(delta)}`, onclick: () => openDrawer(x.marketId) },
+              h('span', { class: 'shift-t', text: x.title || x.marketId }),
+              h('span', { class: 'shift-n num' }, `${pct(x.from)} → `, h('b', { text: pct(x.to) })),
+              h('span', { class: `chg ${dir(delta)}`, text: pts(delta, true) }));
+          })) : null),
+      h('div', { class: 'brief-actions' }, h('button', { type: 'button', class: 'btn btn-small', text: 'Got it, show me the shots', onclick: () => { dismissBriefing(); $('.shots-card').scrollIntoView({ behavior: 'smooth', block: 'start' }); } })));
+    el.hidden = false;
+  }
+  function dismissBriefing() {
+    localStorage.setItem(LS.briefDismissed, todayKey());
+    const el = $('#briefing');
+    if (el.hidden) return;
+    if (el.animate && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      el.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(-8px)' }], { duration: 220, easing: 'ease-in' }).onfinish = () => { el.hidden = true; };
+    } else el.hidden = true;
+  }
+  function toggleBriefing() {
+    if (!state.briefing) { toast('No briefing yet. Check back after the markets have moved.', 'warn'); return; }
+    const el = $('#briefing');
+    if (el.hidden) { renderBriefing(true); el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } else dismissBriefing();
+  }
+
+  // ================================================================== v2: drawer additions
+  const FC_DRIVERS = [
+    [/realized|vol|stdev|sigma/i, 'prices have been jumpy lately', 'prices have been unusually steady'],
+    [/dist.*50|uncert|entropy|near.?50|balance|coin/i, 'odds are close to 50/50, so there\'s room to swing', 'odds are lopsided, so there\'s less room to swing'],
+    [/live|in.?play/i, 'the event is live right now', 'the event isn\'t live'],
+    [/start|kick|tip.?off|until.?start/i, 'the event starts soon', 'the start is still a while away'],
+    [/end|resol|expir|close|remaining/i, 'resolution is close', 'resolution is far off'],
+    [/volume/i, 'trading is heavy', 'trading is light'],
+    [/liquid|depth|spread/i, 'the order book is thin, so prices move easily', 'the order book is deep'],
+    [/momentum|trend|drift|slope/i, 'a steady one-way drift is building', 'no trend is building'],
+    [/spike|recent.?move|jump|change/i, 'it has moved sharply in the last hour', 'it has barely moved recently'],
+    [/hour|time.?of.?day|weekday/i, 'this is a busy time of day for it', 'this is a quiet time of day'],
+  ];
+  function fcDriverText(d) {
+    if (d.label || d.text) return String(d.label || d.text);
+    const f = String(d.feature || '');
+    const neg = isNum(d.impact) && d.impact < 0;
+    for (const [re, pos, negTxt] of FC_DRIVERS) if (re.test(f)) return neg ? negTxt : pos;
+    return driverText(d);
+  }
+  async function getForecast(id) {
+    const c = state.forecasts.get(id);
+    if (c && Date.now() - c.at < 30000) return c.fc;
+    try {
+      const fc = await api(`/api/markets/${encodeURIComponent(id)}/forecast`, { timeout: 8000 });
+      const ok = fc && isNum(fc.pMove30) ? fc : null;
+      state.forecasts.set(id, { fc: ok, at: Date.now() });
+      return ok;
+    } catch { state.forecasts.set(id, { fc: null, at: Date.now() }); return null; }
+  }
+  async function renderDrawerForecast() {
+    const id = state.drawerId;
+    const box = $('#drawer-fc');
+    const sh = state.shots.find((x) => x.marketId === id);
+    let fc = await getForecast(id);
+    if (state.drawerId !== id) return;
+    if (!fc && sh && sh.forecast && isNum(sh.forecast.pMove30)) fc = sh.forecast;
+    if (!fc) { box.hidden = true; return; }
+    box.hidden = false;
+    const p = clamp(fc.pMove30, 0, 1);
+    $('#fc-p').textContent = pct(p);
+    fill($('#fc-line'), 'chance of a ', h('b', { text: '5+ point swing' }), ' in the next 30 min',
+      isNum(fc.expectedMovePts) ? h('span', { class: 'muted' }, ' · expected move ', h('b', { class: 'num', text: `±${Number(fc.expectedMovePts).toFixed(1)} pts` })) : null);
+    fill($('#fc-meter'), forecastMeter(p, 30));
+    const model = String(fc.model || '');
+    const mEl = $('#fc-model');
+    mEl.textContent = /heuristic/i.test(model) ? 'rule of thumb' : model ? 'ML model' : '';
+    mEl.title = model ? `${model}${isNum(fc.historyMinutes) ? ` · ${Math.round(fc.historyMinutes)} min of history` : ''}` : '';
+    const drivers = (Array.isArray(fc.drivers) ? fc.drivers : []).filter((d) => d && (d.feature || d.label || d.text)).slice(0, 3);
+    fill($('#fc-drivers'), drivers.length ? h('li', { class: 'fc-why', text: 'Why:' }) : null, drivers.map((d) => {
+      const neg = isNum(d.impact) && d.impact < 0;
+      return h('li', { class: neg ? 'neg' : 'pos', attrs: { title: `${d.feature || ''}${isNum(d.value) ? ` = ${Number(d.value).toFixed(3)}` : ''}` } },
+        h('span', { class: 'fd-arrow', attrs: { 'aria-hidden': 'true' }, text: neg ? '↓' : '↑' }), cap(fcDriverText(d)));
+    }));
+  }
+  function renderDrawerShot() {
+    const id = state.drawerId; if (!id) return;
+    const el = $('#drawer-shot');
+    const i = state.shots.findIndex((x) => x.marketId === id);
+    if (i < 0) { el.hidden = true; return; }
+    const sh = state.shots[i];
+    const km = kindMeta(sh.kind);
+    const win = windowInfo(sh.window);
+    const tip = tipFor(sh);
+    el.style.setProperty('--k', km.color);
+    fill(el,
+      h('div', { class: 'ds-top' }, h('span', { class: 'ds-rank num', text: `#${i + 1} on your shot list` }), kindBadge(sh.kind)),
+      h('div', { class: 'ds-head', text: sh.headline || '' }),
+      sh.why ? h('div', { class: 'ds-why', text: sh.why }) : null,
+      win ? h('div', { class: `shot-win ${win.state}` }, h('span', { class: 'win-dot' }), h('span', { class: 'win-main num', dataset: win.until ? { until: String(win.until) } : {}, text: win.main }), win.sub ? h('span', { class: 'win-sub', text: win.sub }) : null) : null,
+      contextChips(sh.context),
+      recBlock(recFor(sh), sh.id || sh.marketId, { fallbackTip: tip }));
+    el.hidden = false;
+  }
+  function renderDrawerInsights() {
+    const id = state.drawerId; if (!id) return;
+    const list = state.insights.filter((ins) => insightMarkets(ins).includes(id)).slice(0, 8);
+    $('#drawer-ins-wrap').hidden = !list.length;
+    $('#drawer-insights').replaceChildren(...list.map((ins) => {
+      const im = insMeta(ins.type);
+      return h('li', { style: `--k:${im.color}` },
+        h('span', { class: 'ins-glyph sm' }, icon(im.icon)),
+        h('div', {}, h('div', { class: 'im-title' }, h('b', { text: ins.title || im.label }), ' ', h('span', { class: 'muted small', dataset: { ts: ins.createdAt || '' }, text: ago(ins.createdAt) })),
+          ins.body ? h('div', { class: 'muted small', text: ins.body }) : null));
+    }));
+  }
+
+  // ================================================================== v3: role recommendations + live context
+  const ROLE_EMOJI = { photographer: '📸', trader: '📈', fan: '🏟️', journalist: '📰', general: '✨' };
+  function recFor(item, role = state.persona) {
+    const r = item && item.recommendations;
+    if (!r || typeof r !== 'object') return null;
+    const rec = r[role] || r.general || null;
+    return rec && (rec.headline || rec.action) ? rec : null;
+  }
+  /** Prominent recommendation block. data-rec-for lets SSE `recommendation` events swap it in place. */
+  function recBlock(rec, targetId, { compact = false, fallbackTip = '' } = {}) {
+    const role = state.persona;
+    const who = h('span', { class: 'tip-who' }, h('span', { attrs: { 'aria-hidden': 'true' }, text: ROLE_EMOJI[role] || '✨' }), role === 'general' ? 'The move' : `For ${PERSONA_SHORT[role].toLowerCase()}s`);
+    if (!rec) {
+      if (!fallbackTip) return null;
+      return h('div', { class: 'shot-tip rec', dataset: { recFor: targetId || '' } }, who, h('span', { class: 'tip-text', text: fallbackTip }));
+    }
+    const src = rec.source === 'claude' ? 'claude' : 'rules';
+    const conf = ['low', 'medium', 'high'].includes(rec.confidence) ? rec.confidence : null;
+    const reasons = (Array.isArray(rec.reasoning) ? rec.reasoning : []).filter(Boolean).slice(0, 3);
+    const disclaimer = rec.disclaimer || (role === 'trader' ? 'Signal, not financial advice.' : '');
+    return h('div', { class: `shot-tip rec src-${src}${compact ? ' compact' : ''}`, dataset: { recFor: targetId || '' } },
+      h('div', { class: 'rec-top' }, who,
+        conf ? h('span', { class: `conf conf-${conf}`, attrs: { title: 'Recommendation confidence' } }, h('i'), h('i'), h('i'), `${cap(conf)}`) : null,
+        h('span', { class: `src-badge ${src}`, attrs: { title: src === 'claude' ? `Written by Claude${rec.model ? ` (${rec.model})` : ''} from live data` : 'Deterministic rules from live numbers' }, text: src === 'claude' ? '✦ Claude' : 'Rules' })),
+      rec.headline ? h('div', { class: 'rec-head', text: rec.headline }) : null,
+      rec.action ? h('div', { class: 'rec-action' }, h('span', { class: 'rec-arrow', attrs: { 'aria-hidden': 'true' }, text: '→' }), h('span', { text: rec.action })) : null,
+      reasons.length ? h('details', { class: 'rec-why', onclick: (e) => e.stopPropagation() },
+        h('summary', { text: `Why${reasons.length > 1 ? ` · ${reasons.length} reasons` : ''}` }),
+        h('ul', {}, reasons.map((r) => h('li', { text: String(r) })))) : null,
+      disclaimer && role === 'trader' ? h('div', { class: 'rec-disc', text: disclaimer }) : null);
+  }
+  function fmtMoney(v) {
+    if (!isNum(v)) return '';
+    return v >= 1000 ? `$${Math.round(v).toLocaleString()}` : `$${v.toLocaleString(undefined, { maximumFractionDigits: v < 10 ? 4 : 2 })}`;
+  }
+  /** Live context chips: game scoreboard / situation / imminent, or asset spot price. */
+  function contextChips(ctx) {
+    if (!ctx || typeof ctx !== 'object') return null;
+    const kids = [];
+    if (ctx.kind === 'game') {
+      const sc = ctx.score || {};
+      const st = ctx.status === 'in' ? 'in' : ctx.status === 'post' ? 'post' : 'pre';
+      if (sc.homeTeam || sc.awayTeam) {
+        kids.push(h('span', { class: `ctx-chip score ${st}` },
+          st === 'in' ? h('i', { class: 'ctx-live', attrs: { 'aria-hidden': 'true' } }) : null,
+          h('b', { text: String(sc.awayTeam || 'Away') }), h('span', { class: 'num', text: ` ${sc.away ?? '–'}` }), h('span', { class: 'ctx-sep', text: ' – ' }),
+          h('span', { class: 'num', text: `${sc.home ?? '–'} ` }), h('b', { text: String(sc.homeTeam || 'Home') }),
+          st === 'post' ? h('span', { class: 'ctx-clock', text: 'Final' })
+            : (ctx.period || ctx.clock) ? h('span', { class: 'ctx-clock num', text: [ctx.period != null ? (/^\d+$/.test(String(ctx.period)) ? `P${ctx.period}` : String(ctx.period)) : '', ctx.clock || ''].filter(Boolean).join(' ') }) : null));
+      }
+      if (ctx.situation) kids.push(h('span', { class: 'ctx-chip sit', text: String(ctx.situation) }));
+      const im = ctx.imminent;
+      if (im && (im.type || im.text)) {
+        kids.push(h('span', { class: 'ctx-chip imminent', attrs: { title: `${im.text || ''}${isNum(im.confidence) ? ` (${Math.round(im.confidence * 100)}% confidence)` : ''}` } },
+          h('i', { attrs: { 'aria-hidden': 'true' } }), `Imminent: ${im.type || 'play'}${im.team ? ` · ${im.team}` : ''}`));
+      }
+      if (ctx.lastPlay) kids.push(h('span', { class: 'ctx-chip last', attrs: { title: String(ctx.lastPlay) }, text: `Last: ${truncate(ctx.lastPlay, 60)}` }));
+    } else if (ctx.kind === 'asset' && ctx.symbol) {
+      const c = isNum(ctx.change1h) ? ctx.change1h : ctx.change5m;
+      const lbl = isNum(ctx.change1h) ? '1h' : '5m';
+      // asset changes may be fractions (0.012) or percents (1.2); treat |x| < 1 as a fraction
+      const pctv = isNum(c) ? (Math.abs(c) < 1 ? c * 100 : c) : null;
+      kids.push(h('span', { class: 'ctx-chip asset' }, h('b', { text: String(ctx.symbol).toUpperCase() }), ' ', h('span', { class: 'num', text: fmtMoney(Number(ctx.price)) }),
+        pctv != null ? h('span', { class: `chg ${dir(pctv)}`, text: ` ${pctv >= 0 ? '▲' : '▼'}${Math.abs(pctv).toFixed(1)}% ${lbl}` }) : null));
+    }
+    return kids.length ? h('div', { class: 'ctx-row' }, kids) : null;
+  }
+  const isVol = (sp) => sp && sp.kind === 'volatility';
+  function volLabel(sp) { return isNum(sp.volRatio) ? `Thrashing ×${Number(sp.volRatio).toFixed(1)}` : 'Thrashing'; }
+  function findRecTarget(id) {
+    return state.alerts.find((x) => x.id === id) || state.shots.find((x) => x.id === id || x.marketId === id) || state.insights.find((x) => x.id === id) || null;
+  }
+  function onRecommendation(d) {
+    if (!d || !d.targetId || !d.role || !d.recommendation) return;
+    const item = findRecTarget(d.targetId);
+    if (item) item.recommendations = { ...(item.recommendations || {}), [d.role]: d.recommendation };
+    if (d.role !== state.persona && !(state.persona !== 'general' && d.role === 'general' && item && !(item.recommendations || {})[state.persona])) return;
+    const rec = item ? recFor(item) : d.recommendation;
+    $$('[data-rec-for]').filter((el) => el.dataset.recFor === String(d.targetId)).forEach((el) => {
+      const nb = recBlock(rec, d.targetId, { compact: el.classList.contains('compact') });
+      if (!nb) return;
+      nb.classList.add('shimmer');
+      el.replaceWith(nb);
+    });
+  }
+  /** Notification copy for the active role: "📸 Chiefs 1st & goal at the 4 — get the end-zone shot". */
+  function roleNotice(item, fallbackTitle, fallbackBody) {
+    const rec = recFor(item);
+    if (!rec) return { title: fallbackTitle, body: fallbackBody };
+    const em = ROLE_EMOJI[state.persona] || '✨';
+    const body = [rec.action && rec.action !== rec.headline ? rec.action : '', state.persona === 'trader' ? (rec.disclaimer || 'Signal, not financial advice.') : ''].filter(Boolean).join(' · ');
+    return { title: `${em} ${rec.headline || rec.action}`, body: body || fallbackBody };
+  }
+
+  // ---------- drawer: live context + role recommendation (REST fallbacks, 404-safe)
+  const ctxCache = new Map(), recCache = new Map();
+  async function cachedGet(cache, key, path, ttl) {
+    const c = cache.get(key);
+    if (c && Date.now() - c.at < ttl) return c.v;
+    let v = null;
+    try { v = await api(path, { timeout: 25000 }); } catch { v = null; }
+    cache.set(key, { v, at: Date.now() });
+    return v;
+  }
+  function drawerItems(id) {
+    return [state.shots.find((x) => x.marketId === id), state.alerts.find((x) => x.marketId === id), state.insights.find((x) => insightMarkets(x).includes(id))].filter(Boolean);
+  }
+  async function renderDrawerContext() {
+    const id = state.drawerId; if (!id) return;
+    const items = drawerItems(id);
+    const role = state.persona;
+    const ctxEl = $('#drawer-ctx'), recEl = $('#drawer-rec');
+    let ctx = (items.find((x) => x.context) || {}).context || null;
+    fill(ctxEl, contextChips(ctx));
+    const shotHasRec = state.shots.some((x) => x.marketId === id && recFor(x));
+    let recItem = items.find((x) => recFor(x));
+    const paint = (rec) => {
+      if (state.drawerId !== id || state.persona !== role) return;
+      // the shot section already shows the shot's recommendation
+      if (!rec || shotHasRec) { recEl.hidden = true; return; }
+      fill(recEl, recBlock(rec, recItem ? (recItem.id || id) : `market:${id}`));
+      recEl.hidden = false;
+    };
+    paint(recItem ? recFor(recItem) : null);
+    if (!ctx) {
+      const c = await cachedGet(ctxCache, id, `/api/markets/${encodeURIComponent(id)}/context`, 15000);
+      if (state.drawerId === id && c && c.kind) fill(ctxEl, contextChips(c));
+    }
+    if (!recItem && !shotHasRec) {
+      const r = await cachedGet(recCache, `${id}|${role}`, `/api/markets/${encodeURIComponent(id)}/recommendation?role=${encodeURIComponent(role)}`, 120000);
+      const rec = r && (r.headline || r.action) ? r : r && r.recommendation && (r.recommendation.headline || r.recommendation.action) ? r.recommendation : null;
+      paint(rec);
+    }
+  }
+
+  // ================================================================== generic island
+  function islandShow({ tone = 'shot', color = '#c6ff3d', iconName = 'eye', kicker = '', title = '', big = '', small = '', onclick = null, ms = 5000 }) {
+    const host = $('#island');
+    const pill = h('div', { class: `pill pill-${tone}`, style: `--k:${color}`, attrs: { role: 'button', tabindex: 0 },
+      onclick: () => { if (onclick) onclick(); dismiss(); } },
+      h('div', { class: 'p-ico' }, icon(iconName)),
+      h('div', { class: 'p-body' }, h('div', { class: 'p-kicker', text: kicker }), h('div', { class: 'p-title', text: title })),
+      big ? h('div', { class: 'p-num' }, h('div', { class: 'p-to', text: big }), small ? h('div', { class: 'p-d', text: small }) : null) : h('div'));
+    host.prepend(pill);
+    while (host.children.length > 2) host.lastElementChild.remove();
+    let gone = false;
+    function dismiss() { if (gone) return; gone = true; pill.classList.add('out'); setTimeout(() => pill.remove(), 400); }
+    setTimeout(dismiss, ms);
+  }
+
   // ------------------------------------------------------------------ health
   async function loadHealth() {
     try {
@@ -1365,7 +2148,7 @@
     if (!up) { b.hidden = false; b.textContent = 'Can\'t reach the Oddshot server. Retrying automatically…'; }
     else b.hidden = true;
     if (was === false && up) { toast('Back online.'); bootData(); }
-    if (was !== up) { renderFeedEmpty($('#feed').children.length); renderSeismo(); if (!state.movers.length) renderMovers(); }
+    if (was !== up) { renderFeedEmpty($('#feed').children.length); renderSeismo(); if (!state.movers.length) renderMovers(); if (!state.shots.length) renderShots(); }
   }
   function renderHealth() {
     const el = $('#health');
@@ -1453,7 +2236,7 @@
       esRetry = 0;
       setConn('connected');
       setBackend(true);
-      if (wasRetry) { loadAlerts(); loadVix(); loadMovers(true); loadHealth(); }
+      if (wasRetry) { loadAlerts(); loadVix(); loadMovers(true); loadHealth(); loadShots(true); loadInsights(); loadStories(true); }
       renderFeedEmpty($('#feed').children.length);
     };
     es.onerror = () => {
@@ -1469,10 +2252,14 @@
     };
     es.addEventListener('spike', (e) => { const sp = parse(e); if (sp) addSpike(sp, { live: true }); });
     es.addEventListener('vix', (e) => onVixEvent(parse(e)));
+    es.addEventListener('insight', (e) => { const ins = parse(e); if (ins) addInsight(ins, { live: true }); });
+    es.addEventListener('shots', (e) => onShotsEvent(parse(e)));
+    es.addEventListener('recommendation', (e) => onRecommendation(parse(e)));
     es.addEventListener('tick', (e) => {
       const d = parse(e);
       if (d) { state.lastTick = d; renderHealth(); renderFeedEmpty($('#feed').children.length); }
       loadMovers();
+      loadStories();
     });
   }
 
@@ -1497,6 +2284,15 @@
       const t = /^\d+$/.test(ts) ? Number(ts) : ts;
       el.textContent = `${el.dataset.prefix || ''}${ago(t)}`;
     });
+    const now = Date.now();
+    let expired = false;
+    $$('[data-until]').forEach((el) => {
+      const u = Number(el.dataset.until);
+      if (!isNum(u)) return;
+      if (u <= now) { expired = true; delete el.dataset.until; el.textContent = 'Starting now'; return; }
+      el.textContent = `Starts in ${durShort(u - now)}`;
+    });
+    if (expired) setTimeout(() => { renderShots(); renderDrawerShot(); }, 1500);
   }
 
   // ------------------------------------------------------------------ keyboard
@@ -1518,13 +2314,16 @@
     else if (k === 's' || k === 'S') simulate();
     else if (k === 'n' || k === 'N') enableNotifications();
     else if (k === 'm' || k === 'M') setSound(!state.sound);
+    else if (k === 'p' || k === 'P') cyclePersona();
+    else if (k === 'b' || k === 'B') toggleBriefing();
     else if (k === '?') { if ($('#help').hidden) openModal('help'); else closeModal('help'); }
     else if (/^[0-9]$/.test(k)) { const i = Number(k); setCategory(i === 0 ? '' : CATEGORIES[i - 1] || state.category); }
   }
 
   // ------------------------------------------------------------------ boot
   async function bootData() {
-    await Promise.all([loadVix(), loadAlerts(), loadMovers(true), loadSubs(), loadHealth()]);
+    await Promise.all([loadVix(), loadAlerts(), loadMovers(true), loadSubs(), loadHealth(), loadShots(true), loadStories(true)]);
+    await loadInsights();
     runSearch(true);
   }
   function wire() {
@@ -1535,11 +2334,23 @@
     $$('[data-close]').forEach((b) => b.addEventListener('click', () => closeModal(b.dataset.close)));
     $$('.modal').forEach((m) => m.addEventListener('click', (e) => { if (e.target === m) { closeModal(m.id); if (m.id === 'onboard') localStorage.setItem(LS.onboarded, '1'); } }));
     $('#onboard-skip').addEventListener('click', () => { closeModal('onboard'); localStorage.setItem(LS.onboarded, '1'); });
-    $$('.feed-card .seg-btn').forEach((b) => b.addEventListener('click', () => {
-      $$('.feed-card .seg-btn').forEach((x) => x.classList.toggle('active', x === b));
+    $$('#filter-seg .seg-btn').forEach((b) => b.addEventListener('click', () => {
+      $$('#filter-seg .seg-btn').forEach((x) => x.classList.toggle('active', x === b));
       state.feedFilter = b.dataset.filter;
       renderFeed();
     }));
+    $$('#wire-seg .seg-btn').forEach((b) => {
+      b.classList.toggle('active', b.dataset.wire === state.wire);
+      b.addEventListener('click', () => {
+        $$('#wire-seg .seg-btn').forEach((x) => x.classList.toggle('active', x === b));
+        state.wire = b.dataset.wire;
+        localStorage.setItem(LS.wire, state.wire);
+        renderFeed();
+      });
+    });
+    $('#shots-more').addEventListener('click', () => { state.shotsExpanded = !state.shotsExpanded; renderShots(); });
+    $('#btn-brief').addEventListener('click', toggleBriefing);
+    window.addEventListener('pagehide', () => localStorage.setItem(LS.lastVisit, String(Date.now())));
     $('#search-q').addEventListener('input', () => runSearch());
     $('#sub-form').addEventListener('submit', saveSub);
     $('#sub-form').minDelta.addEventListener('input', (e) => { $('#mindelta-out').textContent = e.target.value; });
@@ -1567,11 +2378,18 @@
     document.addEventListener('visibilitychange', clearUnread);
     $('#drawer-watch').addEventListener('click', () => { if (state.drawerId) toggleWatch(marketFor(state.drawerId), $('#drawer-watch')); });
     document.addEventListener('keydown', onKey);
+    const tb = $('.topbar');
+    const setTb = () => document.documentElement.style.setProperty('--tb', `${tb.offsetHeight}px`);
+    setTb();
+    if ('ResizeObserver' in window) new ResizeObserver(setTb).observe(tb);
     let rz = null;
+    let lastSmall = matchMedia('(max-width: 820px)').matches;
     window.addEventListener('resize', () => {
       clearTimeout(rz);
       rz = setTimeout(() => {
         renderSeismo();
+        const small = matchMedia('(max-width: 820px)').matches;
+        if (small !== lastSmall) { lastSmall = small; renderShots(); }
         if (state.drawerId) { const c = state.histCache.get(state.drawerId); if (c) drawDrawerChart(c.points); }
       }, 150);
     });
@@ -1583,6 +2401,12 @@
     state.hideNoise = localStorage.getItem(LS.noise) === '1';
     const savedCat = localStorage.getItem(LS.cat) || '';
     state.category = CATEGORIES.includes(savedCat) ? savedCat : '';
+    const savedPersona = localStorage.getItem(LS.persona);
+    state.persona = PERSONAS[savedPersona] ? savedPersona : 'general';
+    const savedWire = localStorage.getItem(LS.wire);
+    state.wire = ['all', 'spikes', 'insights'].includes(savedWire) ? savedWire : 'all';
+    renderPersonaSwitch();
+    renderShots();
     renderPersonaRow();
     renderOnboarding();
     resetForm();
@@ -1595,7 +2419,10 @@
     connectStream();
     bootData().then(() => {
       if (!localStorage.getItem(LS.onboarded) && state.backendUp && !state.subs.length) openModal('onboard');
+      loadBriefing();
     });
+    setInterval(() => loadShots(true), 60000);
+    setInterval(() => loadStories(true), 60000);
     setInterval(tickClocks, 1000);
     setInterval(() => loadMovers(true), 30000);
     setInterval(loadHealth, 30000);

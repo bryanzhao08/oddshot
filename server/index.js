@@ -7,8 +7,9 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { randomUUID } from 'node:crypto';
 
 import { Store } from './store.js';
-import { matchSubscriptions, validateSubscription, severityRank } from './match.js';
-import { deliver, notifySubscriptions, sampleSpike, formatMessage } from './notify.js';
+import { matchSubscriptions, matchInsightSubscriptions, validateSubscription, severityRank } from './match.js';
+import { deliver, notifySubscriptions, sampleSpike, formatMessage, formatInsight } from './notify.js';
+import { buildShots, InsightEngine, StoryEngine, storyInsight, buildBriefing, heuristicForecast } from './insights/index.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = resolve(HERE, '..', 'public');
@@ -135,9 +136,18 @@ export function createApp({
   marketLimit = 300,
   sourceStatus = null, // optional live status object from sources/index.js ({name: {ok, count, error}})
   scoreSpike = null, // optional ML scorer (server/ml/scorer.js): (spike, market, history) => {pReal, label, drivers} | null
+  forecast = heuristicForecast, // Moment Forecaster: (market, history, now) => forecast | null
+  backfill = null, // optional async (markets, detector, log) => stats; runs once after the first poll
+  getLiveContext = null, // optional (market) => Promise<context|null> (server/context), sports/crypto only
+  recommender = null, // optional instance from server/agent createRecommender()
+  createRecommender = null, // ...or a factory: ({tools}) => recommender (gets app-backed tools)
+  contextBudgetMs = 2000, // max time a poll waits for live context before moving on
   logger = console,
 } = {}) {
   const detector = new Detector();
+  const insightEngine = new InsightEngine();
+  const storyEngine = new StoryEngine();
+  let forecastMemo = new Map(); // marketId -> forecast, cleared every tick
   const state = {
     markets: [],
     marketById: new Map(),
@@ -146,6 +156,9 @@ export function createApp({
     polls: 0,
     sources: Object.fromEntries(KNOWN_SOURCES.map((s) => [s, { ok: false, count: 0, error: 'not polled yet' }])),
     vixHistory: [],
+    shots: [], // top Shot[] (general persona) from the latest tick
+    shotsAt: 0,
+    backfill: { status: backfill ? 'pending' : 'disabled' },
   };
   const clients = new Set();
   let pollTimer = null;
@@ -177,28 +190,231 @@ export function createApp({
     pingTimer.unref?.();
   }
 
+  // ---------- live context (ESPN game state / crypto spot), cached, never blocks for long ----------
+  const CONTEXT_TTL_MS = 15_000;
+  const contextCache = new Map(); // marketId -> {at, value, inflight}
+  const wantsContext = (m) => Boolean(getLiveContext && m && (m.category === 'sports' || m.category === 'crypto'));
+
+  function refreshContext(m) {
+    if (!wantsContext(m)) return Promise.resolve(null);
+    const hit = contextCache.get(m.id);
+    if (hit?.inflight) return hit.inflight;
+    if (hit && Date.now() - hit.at < CONTEXT_TTL_MS) return Promise.resolve(hit.value);
+    const inflight = Promise.race([
+      Promise.resolve().then(() => getLiveContext(m)).catch(() => null),
+      new Promise((r) => setTimeout(() => r(undefined), 8000).unref?.()),
+    ]).then((value) => {
+      const v = value === undefined ? hit?.value ?? null : value || null;
+      contextCache.set(m.id, { at: Date.now(), value: v });
+      return v;
+    });
+    contextCache.set(m.id, { at: hit?.at || 0, value: hit?.value ?? null, inflight });
+    return inflight;
+  }
+
+  /** Cached context right now (kicks a background refresh when stale). */
+  function contextNow(m) {
+    if (!wantsContext(m)) return null;
+    const hit = contextCache.get(m.id);
+    if (!hit || Date.now() - hit.at >= CONTEXT_TTL_MS) refreshContext(m);
+    return hit?.value ?? null;
+  }
+
+  /** Refresh context for these markets, waiting at most `budget` ms in total. */
+  async function prefetchContext(markets, budget = contextBudgetMs) {
+    const list = [...new Map(markets.filter(wantsContext).map((m) => [m.id, m])).values()].slice(0, 40);
+    if (!list.length) return;
+    await Promise.race([Promise.allSettled(list.map(refreshContext)), new Promise((r) => setTimeout(r, budget).unref?.())]);
+  }
+
+  // ---------- recommendations (rules now, Claude upgrade later) ----------
+  const ROLES = ['photographer', 'trader', 'fan', 'journalist', 'general'];
+  const upgrades = new Map(); // `${targetId}|${role}` -> Claude recommendation
+  const relatedOf = (m) =>
+    m?.eventKey ? state.markets.filter((x) => x.eventKey === m.eventKey && x.id !== m.id).slice(0, 10) : [];
+  let rec = recommender;
+  if (!rec && typeof createRecommender === 'function') {
+    try {
+      rec = createRecommender({
+        tools: {
+          getMarketHistory: (id, { minutes = 60 } = {}) => historyOf(id).filter((q) => q.t >= Date.now() - minutes * 60_000),
+          getLiveContext: (m) => refreshContext(m),
+          getRelatedMarkets: (m) => relatedOf(typeof m === 'string' ? state.marketById.get(m) : m),
+          getForecast: (m) => {
+            const mk = typeof m === 'string' ? state.marketById.get(m) : m;
+            return mk ? forecastFor(mk) : null;
+          },
+          getMarket: (id) => state.marketById.get(id) || null,
+        },
+      });
+    } catch (err) {
+      logger.warn('[agent] recommender failed to start:', err?.message || err);
+      rec = null;
+    }
+  }
+
+  function recContext(market) {
+    const history = market ? historyOf(market.id) : [];
+    return { market, history, context: contextNow(market), forecast: market ? forecastFor(market, history) : null, related: relatedOf(market) };
+  }
+
+  function rememberUpgrade(targetId, role, r) {
+    upgrades.set(`${targetId}|${role}`, r);
+    if (upgrades.size > 1000) upgrades.delete(upgrades.keys().next().value);
+  }
+
+  /** Attach context + per-role recommendations to a spike/shot/insight (mutates and returns target). */
+  function enrich(target, market) {
+    if (!market) return target;
+    const ctx = recContext(market);
+    if (ctx.context) target.context = ctx.context;
+    if (rec) {
+      try {
+        const recs = rec.recommendNow(target, ctx) || {};
+        for (const role of ROLES) {
+          const up = upgrades.get(`${target.id}|${role}`);
+          if (up) recs[role] = up;
+        }
+        target.recommendations = recs;
+      } catch (err) {
+        logger.warn('[agent] recommendNow failed:', err?.message || err);
+      }
+    }
+    return target;
+  }
+
+  /** Ask Claude to upgrade these roles; resolves when done or after `waitMs`. */
+  function upgradeRoles(target, market, roles, waitMs = 8000) {
+    if (!rec?.available || !market || !target.recommendations) return Promise.resolve();
+    const ctx = recContext(market);
+    const jobs = [...new Set(roles)].map((role) =>
+      rec.recommendSmart(target, ctx, role, (r) => {
+        rememberUpgrade(target.id, role, r);
+        target.recommendations[role] = r;
+        broadcast('recommendation', { targetId: target.id, role, recommendation: r });
+      }),
+    );
+    return Promise.race([Promise.allSettled(jobs), new Promise((r) => setTimeout(r, waitMs).unref?.())]);
+  }
+
+  /** Notify matched subscribers, after giving Claude a few seconds to upgrade their personas' copy. */
+  function deliverTo(target, market, matched) {
+    const roles = matched.length ? matched.map((s) => s.persona || 'general') : ['general'];
+    const withHooks = matched.filter((s) => s.webhook?.url);
+    upgradeRoles(target, market, roles, withHooks.length ? 8000 : 0)
+      .catch(() => {})
+      .then(() => {
+        if (withHooks.length) notifySubscriptions(target, withHooks);
+      });
+  }
+
   // ---------- pipeline ----------
   function handleSpike(spike) {
     try {
       const subs = store.listSubscriptions();
+      const market = state.marketById.get(spike.marketId);
       if (typeof scoreSpike === 'function' && !spike.ml) {
-        const market = state.marketById.get(spike.marketId);
         const ml = market ? scoreSpike(spike, market, detector.history(spike.marketId) || []) : null;
         if (ml) spike = { ...spike, ml };
       }
       const matchedIds = matchSubscriptions(spike, subs);
-      const enriched = { ...spike, matchedSubscriptions: matchedIds };
+      const enriched = enrich({ kind: 'price', ...spike, matchedSubscriptions: matchedIds }, market);
       store.addAlert(enriched);
       broadcast('spike', enriched);
-      if (matchedIds.length) {
-        const matched = subs.filter((s) => matchedIds.includes(s.id));
-        notifySubscriptions(enriched, matched);
-      }
+      deliverTo(enriched, market, subs.filter((s) => matchedIds.includes(s.id)));
       logger.log(`[spike] ${formatMessage(enriched)}${matchedIds.length ? ` → ${matchedIds.length} sub(s)` : ''}`);
       return enriched;
     } catch (err) {
       logger.warn('[spike] pipeline error:', err?.message || err);
       return null;
+    }
+  }
+
+  // ---------- recommender ----------
+  const historyOf = (id) => {
+    try {
+      return detector.history(id) || [];
+    } catch {
+      return [];
+    }
+  };
+
+  function forecastFor(market, history, now = Date.now()) {
+    const hit = forecastMemo.get(market.id);
+    if (hit) return hit;
+    let fc = null;
+    try {
+      fc = forecast ? forecast(market, history ?? historyOf(market.id), now) : null;
+    } catch {
+      fc = null;
+    }
+    if (!fc) fc = heuristicForecast(market, history ?? historyOf(market.id), now);
+    if (fc) forecastMemo.set(market.id, fc);
+    return fc;
+  }
+
+  const currentMarkets = () => state.markets.map(marketWithChange);
+
+  function computeShots(opts = {}) {
+    const shots = buildShots(currentMarkets(), { history: historyOf, forecast: forecastFor, now: Date.now(), limit: 20, ...opts });
+    for (const sh of shots) enrich(sh, sh.market);
+    return shots;
+  }
+
+  function handleInsight(ins) {
+    try {
+      const market = state.marketById.get(ins.marketIds?.[0]);
+      enrich(ins, market);
+      store.addInsight?.(ins);
+      broadcast('insight', ins);
+      if (severityRank(ins.severity) >= severityRank('notable')) {
+        const subs = store.listSubscriptions();
+        const ids = matchInsightSubscriptions(ins, subs, state.marketById);
+        if (ids.length) deliverTo(ins, market, subs.filter((s) => ids.includes(s.id)));
+      }
+      logger.log(`[insight] ${formatInsight(ins)}`);
+    } catch (err) {
+      logger.warn('[insight] pipeline error:', err?.message || err);
+    }
+  }
+
+  function runRecommender(spikes, now) {
+    forecastMemo = new Map();
+    const markets = currentMarkets();
+    try {
+      const fresh = insightEngine.update(markets, { history: historyOf, spikes, now });
+      const { created } = storyEngine.update(markets, { history: historyOf, now });
+      for (const st of created) {
+        const ins = insightEngine.add(storyInsight(st, now), now);
+        if (ins) fresh.push(ins);
+      }
+      for (const ins of fresh) handleInsight(ins);
+    } catch (err) {
+      logger.warn('[insights] update failed:', err?.message || err);
+    }
+    try {
+      state.shots = computeShots();
+      state.shotsAt = now;
+      broadcast('shots', state.shots);
+    } catch (err) {
+      logger.warn('[shots] build failed:', err?.message || err);
+    }
+  }
+
+  async function runBackfill() {
+    if (!backfill || state.backfill.status !== 'pending' || !state.markets.length) return;
+    state.backfill = { status: 'running', startedAt: new Date().toISOString() };
+    try {
+      const stats = await backfill(state.markets, detector, (msg) => logger.log(msg));
+      state.backfill = { status: 'done', ...stats, finishedAt: new Date().toISOString() };
+      logger.log(`[backfill] seeded ${stats?.polymarket ?? 0} Polymarket + ${stats?.kalshi ?? 0} Kalshi markets (${stats?.points ?? 0} points) in ${Math.round((stats?.ms ?? 0) / 1000)}s`);
+      recomputeChange1h();
+      forecastMemo = new Map();
+      state.shots = computeShots();
+      broadcast('shots', state.shots);
+    } catch (err) {
+      state.backfill = { status: 'failed', error: err?.message || String(err) };
+      logger.warn('[backfill] failed:', err?.message || err);
     }
   }
 
@@ -276,7 +492,13 @@ export function createApp({
         logger.warn('[poll] volatilityIndex failed:', err?.message || err);
       }
 
+      try {
+        // Live context for markets we're about to alert on / recommend (bounded wait).
+        const ids = new Set([...spikes.map((s) => s.marketId), ...state.shots.map((x) => x.marketId)]);
+        await prefetchContext([...ids].map((id) => state.marketById.get(id)).filter(Boolean));
+      } catch {}
       for (const s of spikes) handleSpike(s);
+      runRecommender(spikes, now);
     } catch (err) {
       logger.warn('[poll] unexpected error:', err?.message || err);
     } finally {
@@ -389,6 +611,10 @@ export function createApp({
         sources: state.sources,
         clients: clients.size,
         subscriptions: store.listSubscriptions().length,
+        backfill: state.backfill,
+        forecaster: forecast === heuristicForecast ? 'heuristic' : 'ml',
+        context: Boolean(getLiveContext),
+        agent: rec ? { available: Boolean(rec.available), model: rec.model || null, ...(rec.stats?.() || {}) } : { available: false, loaded: false },
       });
     }
 
@@ -426,6 +652,80 @@ export function createApp({
       } catch {}
       if (!points.length && !state.marketById.has(id)) throw new HttpError(404, `unknown market "${id}"`);
       return sendJSON(res, 200, { marketId: id, points });
+    }
+
+    if (method === 'GET' && a === 'markets' && c === 'forecast' && parts.length === 3) {
+      let id;
+      try {
+        id = decodeURIComponent(b);
+      } catch {
+        throw new HttpError(400, 'bad market id');
+      }
+      const market = state.marketById.get(id);
+      if (!market) throw new HttpError(404, `unknown market "${id}"`);
+      const fc = forecastFor(marketWithChange(market), historyOf(id), Date.now());
+      if (!fc) throw new HttpError(503, 'forecast unavailable');
+      return sendJSON(res, 200, { marketId: id, ...fc });
+    }
+
+    if (method === 'GET' && a === 'markets' && (c === 'context' || c === 'recommendation') && parts.length === 3) {
+      let id;
+      try {
+        id = decodeURIComponent(b);
+      } catch {
+        throw new HttpError(400, 'bad market id');
+      }
+      const market0 = state.marketById.get(id);
+      if (!market0) throw new HttpError(404, `unknown market "${id}"`);
+      const market = marketWithChange(market0);
+      if (c === 'context') {
+        const context = wantsContext(market) ? await Promise.race([refreshContext(market), new Promise((r) => setTimeout(() => r(contextNow(market)), 5000).unref?.())]) : null;
+        return sendJSON(res, 200, { marketId: id, context: context || null });
+      }
+      if (!rec) throw new HttpError(503, 'recommendations unavailable (server/agent not loaded)');
+      const role = ROLES.includes(q.get('role')) ? q.get('role') : 'general';
+      if (wantsContext(market)) await Promise.race([refreshContext(market), new Promise((r) => setTimeout(r, 3000).unref?.())]);
+      // Latest thing we said about this market: a recent spike, else its shot, else the bare market.
+      const recentSpike = store.listAlerts(500).find((x) => x.marketId === id && Date.now() - Date.parse(x.detectedAt) < 30 * 60_000);
+      const target = recentSpike || state.shots.find((x) => x.marketId === id) || { id: `market:${id}`, marketId: id, market, title: market.title };
+      const ctx = recContext(market);
+      const recommendation = await rec.recommend(target, { ...ctx, role }, { force: true });
+      if (recommendation?.source === 'claude' && target.id) rememberUpgrade(target.id, role, recommendation);
+      return sendJSON(res, 200, { marketId: id, targetId: target.id || null, role, recommendation, context: ctx.context || null });
+    }
+
+    if (method === 'GET' && a === 'shots' && parts.length === 1) {
+      const persona = (q.get('persona') || 'general').trim().toLowerCase();
+      const category = (q.get('category') || '').trim().toLowerCase();
+      const limit = intParam(q.get('limit'), 20, 1, 100);
+      if (persona === 'general' && !category && limit <= state.shots.length && Date.now() - state.shotsAt < pollMs * 2) {
+        return sendJSON(res, 200, state.shots.slice(0, limit));
+      }
+      return sendJSON(res, 200, computeShots({ persona, category, limit }));
+    }
+
+    if (method === 'GET' && a === 'insights' && parts.length === 1) {
+      const limit = intParam(q.get('limit'), 50, 1, 300);
+      let list = insightEngine.list(300);
+      const type = q.get('type');
+      if (type) list = list.filter((i) => i.type === type);
+      const minSev = q.get('severity');
+      if (minSev) list = list.filter((i) => severityRank(i.severity) >= severityRank(minSev));
+      return sendJSON(res, 200, list.slice(0, limit));
+    }
+
+    if (method === 'GET' && a === 'stories' && parts.length === 1) {
+      return sendJSON(res, 200, storyEngine.list(Date.now()));
+    }
+
+    if (method === 'GET' && a === 'briefing' && parts.length === 1) {
+      return sendJSON(res, 200, buildBriefing(currentMarkets(), {
+        history: historyOf,
+        spikes: store.listAlerts(500),
+        insights: insightEngine.list(300),
+        stories: storyEngine.list(Date.now()),
+        now: Date.now(),
+      }));
     }
 
     if (method === 'GET' && a === 'movers' && parts.length === 1) {
@@ -505,6 +805,7 @@ export function createApp({
       try {
         sseWrite(res, 'vix', detector.volatilityIndex());
       } catch {}
+      if (state.shots.length) sseWrite(res, 'shots', state.shots);
       const cleanup = () => clients.delete(res);
       req.on('close', cleanup);
       res.on('close', cleanup);
@@ -544,13 +845,17 @@ export function createApp({
 
   async function start(port = 8787, host) {
     await store.load();
+    insightEngine.restore(store.listInsights?.(300) || []);
     await new Promise((r, j) => {
       server.once('error', j);
       server.listen(port, host, r);
     });
     startPing();
     // First poll immediately (don't block startup on it).
-    pollOnce().finally(scheduleNext);
+    pollOnce().finally(() => {
+      scheduleNext();
+      runBackfill(); // non-blocking: shots/forecasts get ~6h of history within a minute
+    });
     return server.address();
   }
 
@@ -576,15 +881,36 @@ export function createApp({
     await store.close();
   }
 
-  return { server, start, stop, pollOnce, handleSpike, state, detector, store, clients };
+  return { server, start, stop, pollOnce, handleSpike, handleInsight, runBackfill, state, detector, store, clients, insightEngine, storyEngine, recommender: rec };
 }
 
 async function main() {
-  const [sources, engine, ml] = await Promise.all([
+  const [sources, engine, ml, fcMod, hist] = await Promise.all([
     import('./sources/index.js'),
     import('./engine/detector.js'),
     import('./ml/scorer.js').catch(() => null),
+    import('./ml/forecaster.js').catch(() => null),
+    import('./sources/history.js'),
   ]);
+  const [ctxMod, agentMod] = await Promise.all([
+    import('./context/index.js').catch(() => null),
+    import('./agent/index.js').catch((err) => {
+      console.warn('[agent] not loaded:', err?.message || err);
+      return null;
+    }),
+  ]);
+  const getLiveContext = typeof ctxMod?.getLiveContext === 'function' ? ctxMod.getLiveContext : null;
+  console.log(getLiveContext ? '[context] live context enabled (ESPN / Coinbase)' : '[context] no context module; running without live game/asset context');
+  let forecastFn = heuristicForecast;
+  try {
+    const fm = fcMod?.loadForecaster?.();
+    if (fcMod?.forecastMove) {
+      forecastFn = (m, h, now) => fcMod.forecastMove(m, h, now) || heuristicForecast(m, h, now);
+      console.log(fm ? `[ml] moment forecaster loaded (${fm.meta?.model || fm.model || 'xgboost-forecast'})` : '[ml] forecaster module loaded (no trained model; using its heuristic)');
+    } else console.log('[ml] no forecaster module; using built-in heuristic forecasts');
+  } catch (err) {
+    console.warn('[ml] forecaster failed to load:', err?.message || err);
+  }
   const mlModel = ml?.loadModel?.();
   console.log(mlModel ? `[ml] spike classifier loaded (${mlModel.meta?.model || mlModel.model || 'xgboost'})` : '[ml] no model loaded; spikes will be unscored');
   const port = Number(process.env.PORT) || 8787;
@@ -595,10 +921,16 @@ async function main() {
     makeSpike: engine.makeSpike,
     sourceStatus: sources.sourceStatus,
     scoreSpike: mlModel ? ml.scoreSpike : null,
+    forecast: forecastFn,
+    getLiveContext,
+    createRecommender: agentMod?.createRecommender ? (opts) => agentMod.createRecommender(opts) : null,
+    backfill: process.env.BACKFILL === '0' ? null : (markets, detector, log) =>
+      hist.backfillHistory(markets, detector, { polymarket: 80, kalshi: 30, hours: 6, concurrency: 4, log }),
     store: new Store({ dir: process.env.DATA_DIR ? resolve(process.env.DATA_DIR) : undefined }),
     pollMs,
   });
   await app.start(port, process.env.HOST);
+  console.log(app.recommender ? `[agent] recommendations: ${app.recommender.available ? `rules + Claude (${app.recommender.model})` : 'rules only (no Anthropic credentials or OD_AGENT=rules)'}` : '[agent] recommendations disabled');
   console.log(`Oddshot — the odds move before the headlines do.`);
   console.log(`Listening on http://localhost:${port}  (polling every ${Math.round(pollMs / 1000)}s)`);
 

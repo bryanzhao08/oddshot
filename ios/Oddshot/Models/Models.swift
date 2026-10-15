@@ -133,9 +133,14 @@ struct Market: Decodable, Identifiable, Hashable, Sendable {
     let endDate: Date?
     let live: Bool
     let change1h: Double?
+    /// v2: scheduled start of the underlying event, if known.
+    let startTime: Date?
+    /// v2: groups sibling markets of the same event.
+    let eventKey: String?
 
     enum CodingKeys: String, CodingKey {
-        case id, source, title, outcome, probability, volume24h, liquidity, category, tags, url, endDate, live, change1h
+        case id, source, title, outcome, probability, volume24h, liquidity, category, tags, url, endDate, live, change1h,
+             startTime, eventKey
     }
 
     init(from decoder: Decoder) throws {
@@ -153,6 +158,8 @@ struct Market: Decodable, Identifiable, Hashable, Sendable {
         endDate = DateParsing.flexible(c, .endDate)
         live = c.bool(.live) ?? false
         change1h = c.double(.change1h)
+        startTime = DateParsing.flexible(c, .startTime)
+        eventKey = c.string(.eventKey)
     }
 
     var sourceLabel: String { Market.sourceLabel(source) }
@@ -311,10 +318,19 @@ struct Spike: Decodable, Identifiable, Hashable, Sendable {
     let detectedAt: Date
     let matchedSubscriptions: [String]
     let ml: MLSignal?
+    // v3
+    /// "price" (default) or "volatility".
+    let kind: String
+    let volRatio: Double?
+    let volShort: Double?
+    let volBase: Double?
+    let context: LiveContext?
+    let recommendations: RecommendationSet
 
     enum CodingKeys: String, CodingKey {
         case id, marketId, title, source, category, tags, url, outcome, from, to, delta, windowMs, zScore,
-             severity, live, demo, detectedAt, matchedSubscriptions, ml
+             severity, live, demo, detectedAt, matchedSubscriptions, ml,
+             kind, volRatio, volShort, volBase, context, recommendations
     }
 
     init(from decoder: Decoder) throws {
@@ -338,7 +354,15 @@ struct Spike: Decodable, Identifiable, Hashable, Sendable {
         detectedAt = DateParsing.flexible(c, .detectedAt) ?? Date()
         matchedSubscriptions = c.strings(.matchedSubscriptions)
         ml = c.lenient(MLSignal.self, .ml)
+        kind = (c.string(.kind) ?? "price").lowercased()
+        volRatio = c.double(.volRatio)
+        volShort = c.double(.volShort)
+        volBase = c.double(.volBase)
+        context = c.lenient(LiveContext.self, .context).flatMap { $0.isEmpty ? nil : $0 }
+        recommendations = c.lenient(RecommendationSet.self, .recommendations) ?? RecommendationSet()
     }
+
+    var isVolatility: Bool { kind == "volatility" }
 
     var points: Int { Int((delta * 100).rounded()) }
     var signedPoints: String { points >= 0 ? "+\(points)" : "−\(abs(points))" }
@@ -398,6 +422,9 @@ enum Persona: String, CaseIterable, Codable, Sendable, Identifiable {
     case photographer, trader, fan, journalist, general
     var id: String { rawValue }
     var label: String { rawValue.capitalized }
+    /// Label used by the Shot List persona picker ("general" reads as "Everyone" there).
+    var shotLabel: String { self == .general ? "Everyone" : label }
+    var shotSymbol: String { self == .general ? "person.3.fill" : symbol }
     var symbol: String {
         switch self {
         case .photographer: "camera.fill"

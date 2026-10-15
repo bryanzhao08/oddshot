@@ -8,7 +8,9 @@ struct OddshotApp: App {
 
     init() {
         UNUserNotificationCenter.current().delegate = NotificationDelegate.shared
-        UserDefaults.standard.register(defaults: [Prefs.sound: true, Prefs.haptics: true])
+        UserDefaults.standard.register(defaults: [Prefs.sound: true, Prefs.haptics: true,
+                                                  Prefs.notifyTopShots: true, Prefs.notifyInsights: true,
+                                                  Prefs.shotPersona: Persona.general.rawValue])
     }
 
     var body: some Scene {
@@ -21,6 +23,9 @@ struct OddshotApp: App {
         .onChange(of: scenePhase, initial: true) { _, phase in
             switch phase {
             case .active:
+                model.start()
+            case .inactive where !model.isRunning:
+                // A system alert at launch can hold the scene in .inactive; don't sit offline behind it.
                 model.start()
             case .background:
                 model.stop()
@@ -44,17 +49,19 @@ struct RootView: View {
 
     var body: some View {
         TabView(selection: $tab) {
+            ShotsView()
+                .tabItem { Label("Shots", systemImage: "scope") }.tag(0)
             PulseView()
-                .tabItem { Label("Pulse", systemImage: "waveform.path.ecg") }.tag(0)
+                .tabItem { Label("Pulse", systemImage: "waveform.path.ecg") }.tag(1)
             MoversView()
-                .tabItem { Label("Movers", systemImage: "chart.line.uptrend.xyaxis") }.tag(1)
+                .tabItem { Label("Movers", systemImage: "chart.line.uptrend.xyaxis") }.tag(2)
             SearchView()
-                .tabItem { Label("Search", systemImage: "magnifyingglass") }.tag(2)
+                .tabItem { Label("Search", systemImage: "magnifyingglass") }.tag(3)
             AlertsView()
-                .tabItem { Label("Alerts", systemImage: "bell.badge.fill") }.tag(3)
+                .tabItem { Label("Alerts", systemImage: "bell.badge.fill") }.tag(4)
                 .badge(model.subscriptions.count)
             SettingsView()
-                .tabItem { Label("Settings", systemImage: "gearshape.fill") }.tag(4)
+                .tabItem { Label("Settings", systemImage: "gearshape.fill") }.tag(5)
         }
         .overlay(alignment: .top) {
             if let t = model.toast {
@@ -67,7 +74,8 @@ struct RootView: View {
         .task {
             // Ask in context: only prompt once the user has alerts that could notify them.
             await model.loadSubscriptions()
-            if !model.subscriptions.isEmpty, await Notifier.authorizationStatus() == .notDetermined {
+            // `-skipNotificationPrompt YES` keeps the system alert out of screenshots / UI tests.
+            if !model.subscriptions.isEmpty, !UserDefaults.standard.bool(forKey: "skipNotificationPrompt"), await Notifier.authorizationStatus() == .notDetermined {
                 await Notifier.requestAuthorization()
             }
         }

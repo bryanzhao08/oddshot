@@ -31,6 +31,15 @@ export const DEFAULTS = Object.freeze({
   staleMs: 10 * 60_000, // markets not seen for this long are excluded from movers/VIX
   majorDelta: 0.15,
   notableDelta: 0.08,
+  // Volatility spikes: short-window realized vol vs the market's own baseline.
+  volShortMs: 5 * 60_000,
+  volBaseMinMs: 60 * 60_000, // need ≥ 1h of baseline history (up to the 6h window)
+  volRatio: 3, // fire when short vol ≥ 3× baseline
+  volMinShortReturns: 6,
+  volMinBaseReturns: 30,
+  volBaseFloor: 0.002, // per-√min floor so dead-flat markets don't give infinite ratios
+  volMinShort: 0.008, // short vol must also be big in absolute terms (≈ 0.8 pt per √min)
+  volMinRange: 0.03, // and the price must have actually travelled ≥ 3 pts within the short window
 });
 
 /** Severity from absolute delta (probability units) and |z|. */
@@ -54,6 +63,7 @@ export function makeSpike(market, from, to, windowMs = 300_000, extra = {}) {
   const z = Number.isFinite(zScore) ? zScore : Math.abs(delta) / DEFAULTS.defaultSigma;
   return {
     id: randomUUID(),
+    kind: 'price',
     marketId: market.id,
     title: market.title,
     source: market.source,
@@ -87,6 +97,7 @@ export class Detector {
     this.markets = new Map(); // id -> latest Market
     this.lastSeen = new Map(); // id -> ms
     this.lastSpike = new Map(); // id -> { t, severity }
+    this.seededUntil = new Map(); // id -> latest backfilled t (spikes never measure from seeded points)
     this.lastTickAt = 0;
     this.vix = { overall: 0, byCategory: Object.fromEntries(CATEGORIES.map((c) => [c, 0])), updatedAt: null };
     this.vixInitialized = false;
@@ -123,11 +134,46 @@ export class Detector {
         this.series.delete(id);
         this.markets.delete(id);
         this.lastSpike.delete(id);
+        this.seededUntil.delete(id);
       }
     }
     this.lastTickAt = now;
     this._updateVix(now);
     return spikes;
+  }
+
+  /**
+   * Merge backfilled history ([{t, p}], t in ms) for a market without firing spikes.
+   * Points are validated, merged with live points (live wins on equal timestamps),
+   * sorted, de-duplicated and pruned to the history window. Returns points stored.
+   */
+  seedHistory(marketId, points, now = this.lastTickAt || Date.now()) {
+    if (!marketId || !Array.isArray(points) || !points.length) return (this.series.get(marketId) || []).length;
+    const o = this.opts;
+    const existing = this.series.get(marketId) || [];
+    const prevSeeded = this.seededUntil.get(marketId) ?? -Infinity;
+    // Seeds only fill the past before our first live tick; live data is never overwritten
+    // or interleaved with a backfill that may use a slightly different price basis.
+    const firstLive = existing.find((q) => q.t > prevSeeded)?.t ?? Infinity;
+    const byT = new Map();
+    let seedMax = -Infinity;
+    for (const q of points) {
+      const t = typeof q?.t === 'number' ? q.t : Date.parse(q?.t);
+      const p = Number(q?.p);
+      if (!Number.isFinite(t) || !(p >= 0 && p <= 1)) continue;
+      if (t >= firstLive) continue;
+      byT.set(t, p);
+      if (t > seedMax) seedMax = t;
+    }
+    for (const q of existing) byT.set(q.t, q.p);
+    const latest = Math.max(now, ...(byT.size ? [Math.max(...byT.keys())] : []));
+    const cutoff = latest - o.historyWindowMs;
+    const merged = [...byT].map(([t, p]) => ({ t, p })).filter((q) => q.t >= cutoff).sort((a, b) => a.t - b.t);
+    if (!merged.length) return 0;
+    this.series.set(marketId, merged);
+    if (Number.isFinite(seedMax)) this.seededUntil.set(marketId, Math.max(this.seededUntil.get(marketId) || 0, seedMax));
+    if (!this.lastSeen.has(marketId)) this.lastSeen.set(marketId, merged[merged.length - 1].t);
+    return merged.length;
   }
 
   _returns(pts, upto = pts.length) {
@@ -142,10 +188,14 @@ export class Detector {
     const L = pts[pts.length - 1];
 
     // Largest move into the latest point from any point within the short window.
+    // Backfilled points are never used as the "from" side: their price basis may differ
+    // slightly from live quotes, which would otherwise fire false spikes after a backfill.
+    const seededUntil = this.seededUntil.get(m.id) || -Infinity;
     let from = null;
     for (let i = pts.length - 2; i >= 0; i--) {
       const q = pts[i];
       if (L.t - q.t > o.spikeWindowMs) break;
+      if (q.t <= seededUntil) break;
       if (!from || Math.abs(L.p - q.p) > Math.abs(L.p - from.p)) from = q;
     }
     if (!from) return null;
@@ -160,8 +210,8 @@ export class Detector {
 
     const absMove = Math.abs(L.p - from.p);
     const absFire = absMove >= o.minDelta - 1e-9;
-    const zFire = haveSigma && Math.abs(zLast) >= o.zThreshold && Math.abs(lastRet) >= o.zMinDelta - 1e-9;
-    if (!absFire && !zFire) return null;
+    const zFire = pts[pts.length - 2].t > seededUntil && haveSigma && Math.abs(zLast) >= o.zThreshold && Math.abs(lastRet) >= o.zMinDelta - 1e-9;
+    if (!absFire && !zFire) return this._detectVol(m, pts, now, seededUntil);
 
     let f, windowMs, z;
     if (absFire) {
@@ -182,6 +232,67 @@ export class Detector {
     if (prev && now - prev.t < o.cooldownMs && SEVERITY_RANK[severity] <= SEVERITY_RANK[prev.severity]) return null;
     this.lastSpike.set(m.id, { t: now, severity });
     return makeSpike(m, f.p, L.p, windowMs, { zScore: z, severity, now });
+  }
+
+  /** Per-√minute realized vol of returns among points in (t0, t1]; {vol, n}. */
+  _volBetween(pts, t0, t1) {
+    let sumSq = 0;
+    let n = 0;
+    let first = null;
+    let last = null;
+    for (let i = 1; i < pts.length; i++) {
+      if (pts[i - 1].t < t0 || pts[i].t > t1) continue;
+      sumSq += (pts[i].p - pts[i - 1].p) ** 2;
+      n++;
+      if (first === null) first = pts[i - 1].t;
+      last = pts[i].t;
+    }
+    if (!n) return { vol: NaN, n: 0 };
+    const spanMin = Math.max((last - first) / 60_000, 1 / 3);
+    return { vol: Math.sqrt(sumSq / spanMin), n };
+  }
+
+  /** Volatility spike: the market just started thrashing, whether or not it has picked a direction. */
+  _detectVol(m, pts, now, seededUntil = -Infinity) {
+    const o = this.opts;
+    const L = pts[pts.length - 1];
+    const shortStart = L.t - o.volShortMs;
+    // The short window must be all live ticks (never measure against backfilled points).
+    if (shortStart <= seededUntil && pts.some((q) => q.t >= shortStart && q.t <= seededUntil)) return null;
+    const short = this._volBetween(pts, shortStart, L.t);
+    if (short.n < o.volMinShortReturns || !(short.vol >= o.volMinShort)) return null;
+    const baseStart = Math.max(pts[0].t, L.t - o.historyWindowMs);
+    if (shortStart - baseStart < o.volBaseMinMs) return null;
+    const base = this._volBetween(pts, baseStart, shortStart);
+    if (base.n < o.volMinBaseReturns || !Number.isFinite(base.vol)) return null;
+    const volBase = Math.max(base.vol, o.volBaseFloor);
+    const ratio = short.vol / volBase;
+    if (ratio < o.volRatio) return null;
+    let lo = Infinity;
+    let hi = -Infinity;
+    let first = null;
+    for (const q of pts) {
+      if (q.t < shortStart) continue;
+      if (!first) first = q;
+      lo = Math.min(lo, q.p);
+      hi = Math.max(hi, q.p);
+    }
+    if (hi - lo < o.volMinRange) return null;
+    const range = hi - lo;
+    const severity = ratio >= 8 && range >= 0.1 ? 'major' : ratio >= 5 && range >= 0.06 ? 'notable' : 'info';
+    const prev = this.lastSpike.get(m.id);
+    if (prev && now - prev.t < o.cooldownMs && SEVERITY_RANK[severity] <= SEVERITY_RANK[prev.severity]) return null;
+    this.lastSpike.set(m.id, { t: now, severity });
+    return makeSpike(m, first.p, L.p, L.t - first.t, {
+      kind: 'volatility',
+      zScore: round(ratio, 2),
+      severity,
+      now,
+      volRatio: round(ratio, 2),
+      volShort: round(short.vol, 4),
+      volBase: round(volBase, 4),
+      range: round(range, 4),
+    });
   }
 
   /** Realized hourly vol (prob units) for a market over the VIX window, or NaN. */

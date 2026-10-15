@@ -5,12 +5,53 @@ struct PulseView: View {
     @Environment(AppModel.self) private var model
     @AppStorage(Prefs.haptics) private var hapticsOn = true
     @State private var simulating = false
+    @State private var filter: FeedFilter = .all
+    @State private var path = NavigationPath()
+
+    enum FeedFilter: String, CaseIterable, Identifiable {
+        case all = "All", spikes = "Spikes", insights = "Insights"
+        var id: String { rawValue }
+    }
+
+    enum FeedItem: Identifiable {
+        case spike(Spike), insight(Insight)
+        var id: String {
+            switch self {
+            case .spike(let s): "s-\(s.id)"
+            case .insight(let i): "i-\(i.id)"
+            }
+        }
+        var date: Date {
+            switch self {
+            case .spike(let s): s.detectedAt
+            case .insight(let i): i.createdAt
+            }
+        }
+    }
+
+    private var items: [FeedItem] {
+        let sp = filter == .insights ? [] : model.spikes.map(FeedItem.spike)
+        let ins = filter == .spikes ? [] : model.insights.map(FeedItem.insight)
+        return (sp + ins).sorted { $0.date > $1.date }
+    }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             ScrollView {
                 VStack(spacing: 14) {
                     header
+                    if let b = model.briefing {
+                        BriefingCard(briefing: b) { shift in
+                            path.append(model.ref(for: shift.marketId, title: shift.title, probability: shift.to ?? 0))
+                        }
+                    }
+                    if !model.stories.isEmpty {
+                        StoriesCarousel(stories: model.stories) { story in
+                            if let m = story.markets.first {
+                                path.append(model.ref(for: m.id, title: m.title, probability: m.to ?? 0, category: story.category))
+                            }
+                        }
+                    }
                     VolatilityGauge(value: model.vix.overall, history: model.vixHistory)
                         .panel(padding: 18)
                     CategoryBars(byCategory: model.vix.byCategory)
@@ -24,13 +65,16 @@ struct PulseView: View {
             .oddshotScreen()
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) { Wordmark() }
-                ToolbarItem(placement: .topBarTrailing) { ConnectionPill(state: model.connection) }
+                ToolbarItem(placement: .topBarTrailing) {
+                    HStack(spacing: 8) { ConnectionPill(state: model.connection); RoleMenu(compact: true) }
+                }
             }
             .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(for: Spike.self) { s in
                 MarketDetailView(marketId: s.marketId, title: s.title, outcome: s.outcome, source: s.source,
                                  url: s.url, probability: s.to, category: s.category)
             }
+            .navigationDestination(for: MarketRef.self) { r in MarketDetailView(ref: r) }
         }
         .sensoryFeedback(trigger: model.majorSpikeTick) { _, _ in
             hapticsOn ? .impact(weight: .heavy, intensity: 1) : nil
@@ -56,7 +100,7 @@ struct PulseView: View {
     @ViewBuilder private var feed: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                SectionLabel(text: "Spike feed", symbol: "bolt.fill")
+                SectionLabel(text: "Live feed", symbol: "bolt.fill")
                 Spacer()
                 Button {
                     simulating = true
@@ -69,35 +113,64 @@ struct PulseView: View {
                 .tint(Theme.accent)
                 .disabled(simulating)
             }
+            Picker("Feed", selection: $filter) {
+                ForEach(FeedFilter.allCases) { f in Text(f.rawValue).tag(f) }
+            }
+            .pickerStyle(.segmented)
             switch model.feedState {
-            case .loading where model.spikes.isEmpty, .idle where model.spikes.isEmpty:
+            case .loading where items.isEmpty, .idle where items.isEmpty:
                 ForEach(0..<3, id: \.self) { _ in SpikeCardPlaceholder() }
-            case .failed(let msg) where model.spikes.isEmpty:
+            case .failed(let msg) where items.isEmpty:
                 StateMessage(symbol: "antenna.radiowaves.left.and.right.slash", title: "Can’t reach Oddshot server",
                              message: msg, actionTitle: "Retry") {
                     model.start()
                 }
                 .panel()
             default:
-                if model.spikes.isEmpty {
-                    StateMessage(symbol: "waveform.path.ecg", title: "Quiet for now",
-                                 message: "No spikes yet. Markets are being watched — big moves will land here instantly. Tap Simulate to see one.")
-                        .panel()
+                if items.isEmpty {
+                    emptyState.panel()
                 } else {
                     LazyVStack(spacing: 10) {
-                        ForEach(model.spikes) { spike in
-                            NavigationLink(value: spike) {
-                                SpikeCard(spike: spike, isFresh: model.freshSpikeIds.contains(spike.id))
-                            }
-                            .buttonStyle(.plain)
-                            .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity), removal: .opacity))
+                        ForEach(items) { item in
+                            row(item)
+                                .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity), removal: .opacity))
                         }
                     }
-                    .animation(.spring(response: 0.45, dampingFraction: 0.8), value: model.spikes.map(\.id))
+                    .animation(.spring(response: 0.45, dampingFraction: 0.8), value: items.map(\.id))
                 }
             }
         }
         .padding(.top, 6)
+    }
+
+    @ViewBuilder private func row(_ item: FeedItem) -> some View {
+        switch item {
+        case .spike(let spike):
+            NavigationLink(value: spike) {
+                SpikeCard(spike: spike, isFresh: model.freshSpikeIds.contains(spike.id))
+            }
+            .buttonStyle(.plain)
+        case .insight(let insight):
+            if let id = insight.marketIds.first {
+                NavigationLink(value: model.ref(for: id, title: insight.title, category: insight.category)) {
+                    InsightCard(insight: insight, isFresh: model.freshInsightIds.contains(insight.id))
+                }
+                .buttonStyle(.plain)
+            } else {
+                InsightCard(insight: insight, isFresh: model.freshInsightIds.contains(insight.id))
+            }
+        }
+    }
+
+    @ViewBuilder private var emptyState: some View {
+        switch filter {
+        case .insights:
+            StateMessage(symbol: "lightbulb.max", title: "No insights yet",
+                         message: model.insightsState.error ?? "Lead changes, upsets brewing and belief shifts will be explained here as they happen.")
+        case .spikes, .all:
+            StateMessage(symbol: "waveform.path.ecg", title: "Quiet for now",
+                         message: "No spikes yet. Markets are being watched — big moves will land here instantly. Tap Simulate to see one.")
+        }
     }
 }
 

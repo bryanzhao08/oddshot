@@ -95,11 +95,14 @@ export function normalizePolymarket(m, now = Date.now()) {
 
   const slug = ev?.slug || m.slug;
   const change1h = num(m.oneHourPriceChange, NaN);
+  const change24h = num(m.oneDayPriceChange, NaN);
+  const startMs = parseTime(m.gameStartTime || m.eventStartTime || ev?.startTime);
   const market = {
     id: `polymarket:${m.id}`,
     source: 'polymarket',
     title: m.question || ev?.title || m.slug,
     outcome: String(outcomes[idx]),
+    otherOutcome: outcomes.length === 2 ? String(outcomes[1 - idx]) : null, // "Under" for an O/U market, "No" for Yes/No
     probability,
     volume24h: num(m.volume24hr ?? m.volume24hrClob),
     liquidity: num(m.liquidityNum ?? m.liquidity),
@@ -108,10 +111,15 @@ export function normalizePolymarket(m, now = Date.now()) {
     url: `https://polymarket.com/event/${slug}`,
     endDate: m.endDate || null,
     live: computeLive(m, ev, category, now),
+    startTime: Number.isFinite(startMs) ? new Date(startMs).toISOString() : null,
+    eventKey: ev?.slug || null,
+    eventTitle: ev?.title || null, // parent event title ("Fed decision in October")
+    groupTitle: m.groupItemTitle || null, // short label inside a multi-market event ("25 bps decrease")
     tokenId: parseJsonArray(m.clobTokenIds)[idx] || null, // CLOB token, for price-history lookups
   };
   // oneHourPriceChange is in price units of the first outcome (Yes).
   if (Number.isFinite(change1h)) market.change1h = idx === 0 ? change1h : -change1h;
+  if (Number.isFinite(change24h)) market.change24h = idx === 0 ? change24h : -change24h;
   return market;
 }
 

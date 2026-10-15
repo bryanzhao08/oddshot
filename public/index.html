@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#07090d">
-  <meta name="description" content="Oddshot: live prediction-market spike alerts. The odds move before the headlines do.">
+  <meta name="description" content="Oddshot reads live prediction markets and tells you what to watch next. The odds move before the headlines do.">
   <title>Oddshot · The odds move before the headlines do.</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
@@ -32,6 +32,7 @@
         <span class="tagline">The odds move before the headlines do.</span>
       </span>
     </a>
+    <div class="persona-switch" role="radiogroup" aria-label="Recommend for" id="persona-switch"></div>
     <div class="topbar-actions">
       <span id="conn" class="conn" data-state="connecting" title="Stream status">
         <span class="dot"></span><span class="conn-label">Connecting</span>
@@ -42,6 +43,10 @@
       <button id="btn-notify" class="icon-btn" type="button" title="Enable browser alerts (n)">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
         <span class="lbl">Enable alerts</span>
+      </button>
+      <button id="btn-brief" class="icon-btn" type="button" title="Today's briefing (b)" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h13v14H6a2 2 0 0 1-2-2zM17 9h3v8a2 2 0 0 1-2 2M7 9h7M7 12h7M7 15h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>
+        <span class="lbl">Briefing</span>
       </button>
       <button id="btn-help" class="icon-btn hide-sm" type="button" title="Keyboard shortcuts (?)">?</button>
       <button id="btn-simulate" class="btn btn-accent" type="button" title="Inject a synthetic demo spike (s)">
@@ -56,6 +61,38 @@
   </nav>
 
   <div id="banner" class="banner" hidden></div>
+
+  <div class="stage">
+    <!-- Morning-paper briefing -->
+    <section id="briefing" class="briefing" hidden aria-labelledby="brief-h"></section>
+
+    <!-- Shot list: the hero -->
+    <section class="shots-card" aria-labelledby="shots-h">
+      <div class="clapper" aria-hidden="true"></div>
+      <div class="shots-head">
+        <div class="shots-title">
+          <h2 class="eyebrow"><span class="rec-dot"></span>Shot list <span id="shots-updated" class="num shots-upd"></span></h2>
+          <p id="shots-h" class="shots-h">Where to look next</p>
+          <p class="shots-sub muted">Ranked by what the crowd is about to move. Updated live.</p>
+        </div>
+      </div>
+      <ol id="shots" class="shots" aria-live="polite"></ol>
+      <div id="shots-empty" class="empty shots-empty" hidden>
+        <div class="viewfinder-empty" aria-hidden="true"><i></i><i></i><i></i><i></i><b></b></div>
+        <p class="empty-title" id="shots-empty-title">Lining up the first shots…</p>
+        <p class="muted small" id="shots-empty-text">Recommendations appear once we have enough price history to see what's about to move.</p>
+      </div>
+      <div class="shots-more"><button id="shots-more" class="btn btn-ghost btn-small" type="button" hidden>Show all</button></div>
+    </section>
+
+    <!-- Stories: markets moving together -->
+    <section id="stories-card" class="stories-card" hidden aria-labelledby="stories-h">
+      <div class="card-head">
+        <h2 id="stories-h" class="eyebrow">Stories · markets moving together <span id="stories-count" class="count-pill num">0</span></h2>
+      </div>
+      <div id="stories" class="stories"></div>
+    </section>
+  </div>
 
   <main class="layout">
     <!-- Pulse index / seismograph -->
@@ -89,14 +126,19 @@
     <!-- Live feed -->
     <section class="card feed-card" aria-labelledby="feed-h">
       <div class="card-head">
-        <h2 id="feed-h" class="eyebrow">Live spikes <span id="feed-count" class="count-pill num">0</span></h2>
-        <div class="seg" role="group" aria-label="Filter alerts">
-          <button type="button" class="seg-btn active" data-filter="all">All</button>
-          <button type="button" class="seg-btn" data-filter="notable">Notable+</button>
-          <button type="button" class="seg-btn" data-filter="mine">Mine</button>
+        <h2 id="feed-h" class="eyebrow"><span class="wire-dot"></span>Live wire <span id="feed-count" class="count-pill num">0</span></h2>
+        <div class="seg" role="group" aria-label="Show" id="wire-seg">
+          <button type="button" class="seg-btn active" data-wire="all">All</button>
+          <button type="button" class="seg-btn" data-wire="spikes">Spikes</button>
+          <button type="button" class="seg-btn" data-wire="insights">Insights</button>
         </div>
       </div>
       <div class="feed-tools">
+        <div class="seg seg-sm" role="group" aria-label="Filter" id="filter-seg">
+          <button type="button" class="seg-btn active" data-filter="all">Everything</button>
+          <button type="button" class="seg-btn" data-filter="notable">Notable+</button>
+          <button type="button" class="seg-btn" data-filter="mine">Mine</button>
+        </div>
         <label class="toggle small-toggle" title="Hide spikes the signal model labels as likely noise">
           <input id="hide-noise" type="checkbox">
           <span class="switch" aria-hidden="true"></span>
@@ -108,7 +150,7 @@
       <div id="feed-empty" class="empty">
         <div class="radar-ping" aria-hidden="true"><i></i><i></i><i></i></div>
         <p class="empty-title" id="feed-empty-title">Connecting to the markets…</p>
-        <p class="muted small">Spikes land here the instant a probability jumps. Press <kbd>S</kbd> to simulate one.</p>
+        <p class="muted small">Spikes and plain-English insights land here the instant the crowd changes its mind. Press <kbd>S</kbd> to simulate a spike.</p>
       </div>
     </section>
 
@@ -229,6 +271,7 @@
     <div class="drawer-meta" id="drawer-meta"></div>
     <h2 id="drawer-title" class="drawer-title"></h2>
     <div class="drawer-outcome muted" id="drawer-outcome"></div>
+    <div id="drawer-ctx" class="drawer-ctx"></div>
     <div class="drawer-price">
       <span id="drawer-prob" class="drawer-prob num">--</span>
       <span id="drawer-chg" class="chg num"></span>
@@ -247,10 +290,27 @@
       <div id="drawer-tip" class="chart-tip" hidden></div>
       <div id="drawer-chart-empty" class="chart-empty muted small" hidden>Not enough history yet. Points accrue every poll.</div>
     </div>
+    <div id="drawer-shot" class="drawer-shot" hidden></div>
+    <div id="drawer-rec" class="drawer-rec" hidden></div>
+    <section id="drawer-fc" class="fc" hidden aria-label="Forecast">
+      <h3 class="eyebrow">Next 30 minutes <span id="fc-model" class="fc-model"></span></h3>
+      <div class="fc-main">
+        <div class="fc-big num" id="fc-p">--</div>
+        <div class="fc-body">
+          <div class="fc-line" id="fc-line"></div>
+          <div class="fc-meter" id="fc-meter" aria-hidden="true"></div>
+        </div>
+      </div>
+      <ul id="fc-drivers" class="fc-drivers"></ul>
+    </section>
     <div class="drawer-actions">
       <button id="drawer-watch" class="btn btn-accent" type="button">Watch this market</button>
       <button id="drawer-mute" class="btn" type="button">Mute 1h</button>
       <a id="drawer-link" class="btn" href="#" target="_blank" rel="noopener noreferrer">Open on source &#8599;</a>
+    </div>
+    <div id="drawer-ins-wrap" hidden>
+      <h3 class="eyebrow">What the crowd is saying</h3>
+      <ol id="drawer-insights" class="ins-mini"></ol>
     </div>
     <h3 class="eyebrow">Recent spikes</h3>
     <ol id="drawer-spikes" class="mini-feed"></ol>
@@ -260,8 +320,8 @@
   <div id="onboard" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="onboard-h">
     <div class="modal-card">
       <div class="onboard-mark" aria-hidden="true"><i></i><i></i><i></i></div>
-      <h2 id="onboard-h">What don't you want to miss?</h2>
-      <p class="muted">Oddshot watches hundreds of live prediction markets and pings you the second the odds jump. Pick a starting point; you can fine-tune it anytime.</p>
+      <h2 id="onboard-h">We'll tell you where to look before it happens.</h2>
+      <p class="muted">Oddshot reads hundreds of live prediction markets and turns their swings into a ranked shot list: what to watch, when to be there, and what to do about it. Who are we recommending for?</p>
       <div id="onboard-cards" class="persona-cards"></div>
       <button id="onboard-skip" class="btn btn-ghost" type="button">Skip for now</button>
     </div>
@@ -273,6 +333,8 @@
       <h2 id="help-h">Keyboard shortcuts</h2>
       <dl class="keys">
         <dt><kbd>/</kbd></dt><dd>Search markets</dd>
+        <dt><kbd>P</kbd></dt><dd>Cycle persona (re-ranks the shot list)</dd>
+        <dt><kbd>B</kbd></dt><dd>Today's briefing</dd>
         <dt><kbd>S</kbd></dt><dd>Simulate a spike</dd>
         <dt><kbd>N</kbd></dt><dd>Enable notifications</dd>
         <dt><kbd>M</kbd></dt><dd>Toggle sound</dd>

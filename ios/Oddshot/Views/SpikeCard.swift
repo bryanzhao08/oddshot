@@ -4,8 +4,15 @@ struct SpikeCard: View {
     let spike: Spike
     var isFresh = false
     @State private var glow = false
+    @Environment(AppModel.self) private var model
+    @AppStorage(Prefs.shotPersona) private var roleRaw = Persona.general.rawValue
 
-    private var sevColor: Color { Theme.severity(spike.severity) }
+    private var role: Persona { Persona(rawValue: roleRaw) ?? .general }
+    /// Volatility spikes get their own violet identity regardless of severity.
+    private var sevColor: Color { spike.isVolatility ? Theme.violet : Theme.severity(spike.severity) }
+    private var rec: Recommendation? {
+        model.recommendation(id: spike.id, marketId: spike.marketId, spike.recommendations, role: role)
+    }
 
     var body: some View {
         HStack(spacing: 0) {
@@ -13,7 +20,12 @@ struct SpikeCard: View {
             VStack(alignment: .leading, spacing: 10) {
                 // Top meta row
                 HStack(spacing: 6) {
-                    Badge(text: spike.severity.label.uppercased(), color: sevColor, filled: spike.severity == .major)
+                    if spike.isVolatility {
+                        Badge(text: "VOLATILITY", color: Theme.violet, filled: true, symbol: "waveform.path")
+                        Badge(text: spike.severity.label.uppercased(), color: Theme.severity(spike.severity))
+                    } else {
+                        Badge(text: spike.severity.label.uppercased(), color: sevColor, filled: spike.severity == .major)
+                    }
                     if spike.live { LiveBadge() }
                     if spike.demo { Badge(text: "DEMO", color: .white.opacity(0.7)) }
                     if !spike.matchedSubscriptions.isEmpty { Badge(text: "MATCH", color: Theme.accent, symbol: "bell.fill") }
@@ -55,6 +67,16 @@ struct SpikeCard: View {
                             .contentTransition(.numericText(value: spike.to))
                     }
                     Spacer()
+                    if spike.isVolatility, let r = spike.volRatio {
+                        VStack(alignment: .trailing, spacing: 1) {
+                            Text(String(format: "%.1f× vol", r))
+                                .font(.system(size: 22, weight: .black, design: .rounded))
+                                .foregroundStyle(Theme.violet)
+                            Text("\(spike.signedPoints) pts net · \(spike.windowLabel)")
+                                .font(Theme.mono(10))
+                                .foregroundStyle(Theme.faint)
+                        }
+                    } else {
                     VStack(alignment: .trailing, spacing: 1) {
                         Text("\(spike.signedPoints) pts")
                             .font(.system(size: 22, weight: .black, design: .rounded))
@@ -64,14 +86,24 @@ struct SpikeCard: View {
                             .font(Theme.mono(10))
                             .foregroundStyle(Theme.faint)
                     }
+                    }
                 }
+                if spike.isVolatility {
+                    Text("This market just started thrashing" + (spike.volRatio.map { String(format: " — volatility %.1f× its baseline", $0) } ?? "") + ", before the price has picked a direction.")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(Theme.violet.opacity(0.9))
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                if let ctx = spike.context { ContextChips(context: ctx) }
+                if let rec { RecommendationView(rec: rec, role: role) }
 
                 if let ml = spike.ml, let p = ml.pReal { MLSignalRow(ml: ml, pReal: p) }
             }
             .padding(14)
         }
         .background(
-            LinearGradient(colors: [sevColor.opacity(spike.severity == .major ? 0.16 : 0.07), Theme.panel],
+            LinearGradient(colors: [sevColor.opacity(spike.isVolatility ? 0.18 : spike.severity == .major ? 0.16 : 0.07), Theme.panel],
                            startPoint: .topLeading, endPoint: .bottomTrailing)
         )
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
@@ -79,6 +111,12 @@ struct SpikeCard: View {
             RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .strokeBorder(glow ? sevColor : Theme.stroke, lineWidth: glow ? 1.5 : 1)
         )
+        .overlay {
+            if spike.isVolatility {
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .strokeBorder(Theme.violet.opacity(0.7), style: StrokeStyle(lineWidth: 1.2, dash: [5, 4]))
+            }
+        }
         .shadow(color: glow ? sevColor.opacity(0.5) : .clear, radius: 14)
         .onAppear {
             guard isFresh else { return }

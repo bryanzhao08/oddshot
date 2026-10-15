@@ -44,6 +44,43 @@ export function matchesSubscription(spike, sub) {
   return true;
 }
 
+/**
+ * Does an Insight satisfy a subscription? Same semantics as spikes:
+ * marketIds/sources/categories/keywords/minSeverity/liveOnly. minDelta applies only when
+ * the insight carries a numeric move (data.delta); calm-before-storm etc. have none.
+ */
+export function matchesInsight(insight, sub, marketsById = null) {
+  if (!insight || !sub) return false;
+  const m = sub.match || {};
+  const ids = insight.marketIds || [];
+  const mkts = marketsById ? ids.map((id) => marketsById.get?.(id)).filter(Boolean) : [];
+  if (nonEmpty(m.marketIds) && !ids.some((id) => m.marketIds.includes(id))) return false;
+  if (nonEmpty(m.sources)) {
+    const srcs = [insight.data?.source, ...mkts.map((x) => x.source)].filter(Boolean).map(lc);
+    if (!m.sources.map(lc).some((s) => srcs.includes(s))) return false;
+  }
+  if (nonEmpty(m.categories) && !m.categories.map(lc).includes(lc(insight.category))) return false;
+  if (nonEmpty(m.keywords)) {
+    const text = lc([insight.title, insight.body, ...mkts.map((x) => x.title)].join(' '));
+    const tags = mkts.flatMap((x) => x.tags || []).map(lc);
+    const hit = m.keywords.some((kw) => {
+      const k = lc(kw).trim();
+      return k && (text.includes(k) || tags.some((t) => t.includes(k)));
+    });
+    if (!hit) return false;
+  }
+  const d = Number(insight.data?.delta);
+  if (Number.isFinite(d) && Math.abs(d) < (Number(sub.minDelta) || 0)) return false;
+  if (severityRank(insight.severity) < severityRank(sub.minSeverity || 'info')) return false;
+  const live = insight.data?.live ?? mkts.some((x) => x.live);
+  if (sub.liveOnly && !live) return false;
+  return true;
+}
+
+export function matchInsightSubscriptions(insight, subs, marketsById = null) {
+  return (subs || []).filter((s) => matchesInsight(insight, s, marketsById)).map((s) => s.id);
+}
+
 /** → array of matching subscription ids */
 export function matchSubscriptions(spike, subs) {
   return (subs || []).filter((s) => matchesSubscription(spike, s)).map((s) => s.id);

@@ -6,6 +6,8 @@ struct SettingsView: View {
     @Environment(\.openURL) private var openURL
     @AppStorage(Prefs.sound) private var soundOn = true
     @AppStorage(Prefs.haptics) private var hapticsOn = true
+    @AppStorage(Prefs.notifyTopShots) private var notifyTopShots = true
+    @AppStorage(Prefs.notifyInsights) private var notifyInsights = true
     @State private var urlText = ServerConfig.current
     @State private var testing = false
     @State private var health: Health?
@@ -37,6 +39,7 @@ struct SettingsView: View {
             .scrollContentBackground(.hidden)
             .oddshotScreen()
             .navigationTitle("Settings")
+            .toolbar { ToolbarItem(placement: .topBarTrailing) { RoleMenu() } }
             .task { notifStatus = await Notifier.authorizationStatus() }
         }
     }
@@ -114,10 +117,14 @@ struct SettingsView: View {
             default:
                 EmptyView()
             }
+            Toggle(isOn: $notifyTopShots) { Label("New top-3 shot for my persona", systemImage: "scope") }
+                .tint(Theme.accent)
+            Toggle(isOn: $notifyInsights) { Label("Notable insights matching my alerts", systemImage: "lightbulb.max.fill") }
+                .tint(Theme.accent)
         } header: {
             Text("Notifications")
         } footer: {
-            Text("You’re notified when a spike matches one of your alerts. While the app is open this is instant via the live stream; in the background iOS only lets Oddshot check occasionally.")
+            Text("Top-shot notifications are limited to one every 10 minutes. You’re also notified when a spike matches one of your alerts. While the app is open this is instant via the live stream; in the background iOS only lets Oddshot check occasionally.")
         }
     }
 

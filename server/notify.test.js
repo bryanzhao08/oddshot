@@ -61,3 +61,37 @@ test('deliver posts, reports errors, never throws', async () => {
     srv.close();
   }
 });
+
+test('insight payloads per webhook type', async () => {
+  const { buildRequest, formatInsight, isInsight } = await import('./notify.js');
+  const ins = { id: 'i', type: 'upset-brewing', title: 'Upset brewing in Rays vs Guardians', body: 'Guardians came in at 69%.', marketIds: ['m'], category: 'sports', severity: 'major', createdAt: new Date().toISOString(), data: { url: 'https://x' } };
+  assert.equal(isInsight(ins), true);
+  assert.match(formatInsight(ins), /Upset brewing in Rays vs Guardians: Guardians came in at 69%/);
+  assert.equal(JSON.parse(buildRequest({ type: 'generic', url: 'u' }, ins).body).type, 'oddshot.insight');
+  assert.match(JSON.parse(buildRequest({ type: 'discord', url: 'u' }, ins).body).embeds[0].title, /Upset brewing/);
+  assert.match(JSON.parse(buildRequest({ type: 'slack', url: 'u' }, ins).body).text, /Rays vs Guardians/);
+  const n = buildRequest({ type: 'ntfy', url: 'u' }, ins);
+  assert.equal(n.headers.Priority, '5');
+  assert.equal(n.headers.Click, 'https://x');
+});
+
+test('webhooks use the subscriber persona recommendation', async () => {
+  const { buildRequest, recommendationLine } = await import('./notify.js');
+  const spike = {
+    ...sampleSpike(),
+    recommendations: {
+      photographer: { role: 'photographer', headline: 'Chiefs 1st & goal at the 4', action: 'Get the end-zone shot.', confidence: 'high', reasoning: [], source: 'rules' },
+      trader: { role: 'trader', headline: 'Chiefs odds +19 pts in 4 min', action: 'Momentum is with KC; review your position.', disclaimer: 'Signal, not financial advice.', confidence: 'medium', reasoning: [], source: 'rules' },
+      general: { role: 'general', headline: 'Something big just happened in Lakers vs Celtics', action: 'Tune in.', confidence: 'medium', reasoning: [], source: 'rules' },
+    },
+  };
+  assert.equal(recommendationLine(spike, { persona: 'photographer' }), '📸 Chiefs 1st & goal at the 4 — Get the end-zone shot.');
+  assert.match(recommendationLine(spike, { persona: 'trader' }), /^📈 .*\(Signal, not financial advice\)$/);
+  assert.match(recommendationLine(spike, { persona: 'fan' }), /^🔔 Something big/); // falls back to general
+  const g = JSON.parse(buildRequest({ type: 'generic', url: 'u' }, spike, { id: 's', name: 'n', persona: 'photographer' }).body);
+  assert.match(g.text, /^📸 Chiefs 1st & goal at the 4/);
+  assert.equal(g.recommendation.role, 'photographer');
+  const n = buildRequest({ type: 'ntfy', url: 'u' }, spike, { persona: 'trader' });
+  assert.match(n.body, /not financial advice/);
+  assert.equal(recommendationLine(sampleSpike(), { persona: 'trader' }), null);
+});

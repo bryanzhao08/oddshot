@@ -155,3 +155,199 @@ test('REST endpoints, static, SSE, demo spike', async () => {
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test('v2 endpoints: shots, insights, stories, briefing, forecast, SSE shots/insight, insight webhooks, backfill', async () => {
+  const { Detector } = await import('./engine/detector.js');
+  const root = await mkdtemp(join(tmpdir(), 'oddshot-v2-'));
+  const pub = join(root, 'public');
+  await mkdir(pub);
+  await writeFile(join(pub, 'index.html'), 'x');
+  // Local webhook receiver
+  const hooks = [];
+  const hookSrv = http.createServer((req, res) => {
+    let b = '';
+    req.on('data', (c) => (b += c)).on('end', () => {
+      hooks.push(JSON.parse(b));
+      res.end('ok');
+    });
+  });
+  await new Promise((r) => hookSrv.listen(0, '127.0.0.1', r));
+  const hookUrl = `http://127.0.0.1:${hookSrv.address().port}/hook`;
+
+  const now = Date.now();
+  const game = { id: 'polymarket:g', source: 'polymarket', title: 'Wuhan Open: Leylah Fernandez vs Jelena Ostapenko', outcome: 'Leylah Fernandez', otherOutcome: 'Jelena Ostapenko', probability: 0.56, volume24h: 500_000, liquidity: 0, category: 'sports', tags: ['tennis'], url: 'https://polymarket.com/event/g', endDate: null, live: true, startTime: new Date(now - 3600_000).toISOString(), eventKey: 'g', tokenId: 't' };
+  const dead = { ...game, id: 'polymarket:dead', title: 'Will aliens land by Friday?', outcome: 'Yes', otherOutcome: 'No', probability: 0.001, volume24h: 900_000, live: false, startTime: null, eventKey: 'd', tags: [] };
+  let backfilled = 0;
+  const app = createApp({
+    fetchAllMarkets: async () => [game, dead],
+    Detector,
+    store: new Store({ dir: join(root, 'data'), alertFlushMs: 10 }),
+    pollMs: 60_000,
+    publicDir: pub,
+    logger: { log() {}, warn() {}, error() {} },
+    // Backfill: 40 min at ~42%, the last 4 min at 56% → a lead change at the first tick.
+    backfill: async (markets, detector) => {
+      const pts = [];
+      for (let k = 40; k >= 1; k--) pts.push({ t: now - k * 60_000, p: k > 4 ? 0.42 : 0.56 });
+      detector.seedHistory('polymarket:g', pts);
+      backfilled++;
+      return { polymarket: 1, kalshi: 0, points: pts.length, ms: 1 };
+    },
+  });
+  await app.store.load();
+  await app.store.createSubscription({ name: 'Tennis', persona: 'photographer', match: { keywords: ['fernandez'], categories: [], marketIds: [], sources: [] }, minDelta: 0.05, minSeverity: 'info', liveOnly: false, webhook: { type: 'generic', url: hookUrl } });
+  const { port } = await app.start(0, '127.0.0.1');
+  const base = `http://127.0.0.1:${port}`;
+  try {
+    // wait for first poll + backfill
+    for (let i = 0; i < 50 && app.state.backfill.status !== 'done'; i++) await new Promise((r) => setTimeout(r, 20));
+    assert.equal(backfilled, 1);
+    let r = await j(await fetch(`${base}/api/health`));
+    assert.equal(r.body.backfill.status, 'done');
+
+    // SSE: collect events while we poll again
+    const events = [];
+    const sseReq = http.get(`http://127.0.0.1:${port}/api/stream`);
+    const sseRes = await new Promise((res) => sseReq.on('response', res));
+    let buf = '';
+    sseRes.setEncoding('utf8');
+    sseRes.on('data', (c) => {
+      buf += c;
+      let i;
+      while ((i = buf.indexOf('\n\n')) !== -1) {
+        const block = buf.slice(0, i);
+        buf = buf.slice(i + 2);
+        const ev = /event: (.*)/.exec(block)?.[1];
+        const data = /data: (.*)/.exec(block)?.[1];
+        if (ev) events.push({ ev, data: JSON.parse(data) });
+      }
+    });
+    await new Promise((r) => setTimeout(r, 30));
+    await app.pollOnce();
+    await new Promise((r) => setTimeout(r, 100));
+
+    r = await j(await fetch(`${base}/api/shots`));
+    assert.equal(r.status, 200);
+    assert.ok(r.body.length >= 1);
+    assert.equal(r.body[0].marketId, 'polymarket:g');
+    assert.ok(!r.body.some((s) => s.marketId === 'polymarket:dead'));
+    for (const k of ['id', 'marketId', 'market', 'kind', 'headline', 'why', 'forecast', 'dramaScore', 'window', 'tips', 'rank']) assert.ok(k in r.body[0], k);
+    r = await j(await fetch(`${base}/api/shots?persona=journalist&category=politics&limit=5`));
+    assert.deepEqual(r.body, []);
+
+    r = await j(await fetch(`${base}/api/insights`));
+    const lc = r.body.find((i) => i.type === 'lead-change');
+    assert.ok(lc, JSON.stringify(r.body.map((i) => i.type)));
+    assert.deepEqual(lc.marketIds, ['polymarket:g']);
+    r = await j(await fetch(`${base}/api/insights?type=story`));
+    assert.ok(Array.isArray(r.body));
+
+    r = await j(await fetch(`${base}/api/stories`));
+    assert.ok(Array.isArray(r.body));
+
+    r = await j(await fetch(`${base}/api/briefing`));
+    assert.ok(r.body.generatedAt && r.body.headline && Array.isArray(r.body.bullets) && Array.isArray(r.body.biggestShifts));
+
+    r = await j(await fetch(`${base}/api/markets/${encodeURIComponent('polymarket:g')}/forecast`));
+    assert.equal(r.body.marketId, 'polymarket:g');
+    assert.ok(r.body.pMove30 >= 0 && r.body.pMove30 <= 1);
+    assert.equal(r.body.model, 'heuristic');
+    assert.equal((await fetch(`${base}/api/markets/nope/forecast`)).status, 404);
+
+    const names = events.map((e) => e.ev);
+    assert.ok(names.includes('shots'), names.join());
+    // the lead change fired on the first poll (before SSE connected); the webhook got it
+    for (let i = 0; i < 50 && !hooks.length; i++) await new Promise((r2) => setTimeout(r2, 20));
+    assert.ok(hooks.some((h) => h.type === 'oddshot.insight' && h.insight.type === 'lead-change'), JSON.stringify(hooks).slice(0, 300));
+
+    // insights persist in the store
+    await app.store.flushInsights();
+    const st2 = new Store({ dir: join(root, 'data') });
+    await st2.load();
+    assert.ok(st2.listInsights().some((i) => i.type === 'lead-change'));
+    sseReq.destroy();
+  } finally {
+    await app.stop();
+    await new Promise((r) => hookSrv.close(r));
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('v3: context + recommendations on spikes/shots/insights, context & recommendation endpoints, persona webhooks', async () => {
+  const { Detector } = await import('./engine/detector.js');
+  const { createRecommender } = await import('./agent/index.js');
+  const root = await mkdtemp(join(tmpdir(), 'oddshot-v3-'));
+  const pub = join(root, 'public');
+  await mkdir(pub);
+  await writeFile(join(pub, 'index.html'), 'x');
+  const hooks = [];
+  const hookSrv = http.createServer((req, res) => {
+    let b = '';
+    req.on('data', (c) => (b += c)).on('end', () => {
+      hooks.push(JSON.parse(b));
+      res.end('ok');
+    });
+  });
+  await new Promise((r) => hookSrv.listen(0, '127.0.0.1', r));
+  const hookUrl = `http://127.0.0.1:${hookSrv.address().port}/h`;
+  let p = 0.45;
+  const game = { id: 'polymarket:kc', source: 'polymarket', title: 'Chiefs vs. Bills', outcome: 'Chiefs', otherOutcome: 'Bills', probability: p, volume24h: 2e6, liquidity: 0, category: 'sports', tags: ['nfl'], url: 'https://polymarket.com/event/kc', endDate: null, live: true, startTime: new Date(Date.now() - 3600_000).toISOString(), eventKey: 'kc' };
+  const ctxCalls = [];
+  const context = { kind: 'game', league: 'nfl', status: 'in', clock: '2:00', period: 4, score: { home: 20, away: 17, homeTeam: 'KC', awayTeam: 'BUF' }, situation: '1st & Goal at BUF 4', imminent: { type: 'touchdown', team: 'KC', confidence: 0.7, text: 'Chiefs in the red zone' }, lastPlay: null, source: 'espn', fetchedAt: new Date().toISOString() };
+  const app = createApp({
+    fetchAllMarkets: async () => [{ ...game, probability: p }],
+    Detector,
+    store: new Store({ dir: join(root, 'data'), alertFlushMs: 10 }),
+    pollMs: 60_000,
+    publicDir: pub,
+    logger: { log() {}, warn() {}, error() {} },
+    getLiveContext: async (m) => {
+      ctxCalls.push(m.id);
+      return context;
+    },
+    createRecommender: (opts) => createRecommender({ ...opts, claude: false, log() {} }),
+  });
+  await app.store.load();
+  await app.store.createSubscription({ name: 'Shooter', persona: 'photographer', match: { keywords: ['chiefs'], categories: [], marketIds: [], sources: [] }, minDelta: 0.05, minSeverity: 'info', liveOnly: false, webhook: { type: 'generic', url: hookUrl } });
+  const { port } = await app.start(0, '127.0.0.1');
+  const base = `http://127.0.0.1:${port}`;
+  try {
+    await new Promise((r) => setTimeout(r, 50));
+    for (const q of [0.45, 0.45, 0.62]) {
+      p = q;
+      await app.pollOnce();
+    }
+    let r = await j(await fetch(`${base}/api/alerts`));
+    const spike = r.body.find((s) => s.marketId === 'polymarket:kc' && !s.demo);
+    assert.ok(spike, 'price spike fired');
+    assert.equal(spike.kind, 'price');
+    assert.deepEqual(spike.context, context);
+    for (const role of ['photographer', 'trader', 'fan', 'journalist', 'general']) assert.ok(spike.recommendations?.[role]?.headline, role);
+    assert.equal(spike.recommendations.trader.disclaimer, 'Signal, not financial advice.');
+    for (let i = 0; i < 50 && !hooks.length; i++) await new Promise((r2) => setTimeout(r2, 20));
+    const hook = hooks.find((h) => h.type === 'oddshot.spike');
+    assert.ok(hook, 'webhook delivered');
+    assert.equal(hook.recommendation.role, 'photographer');
+    assert.ok(hook.text.startsWith('📸 '), hook.text);
+
+    r = await j(await fetch(`${base}/api/shots`));
+    if (r.body.length) assert.ok(r.body[0].recommendations?.general, 'shots carry recommendations');
+
+    r = await j(await fetch(`${base}/api/markets/${encodeURIComponent('polymarket:kc')}/context`));
+    assert.deepEqual(r.body, { marketId: 'polymarket:kc', context });
+    r = await j(await fetch(`${base}/api/markets/${encodeURIComponent('polymarket:kc')}/recommendation?role=trader`));
+    assert.equal(r.body.role, 'trader');
+    assert.equal(r.body.recommendation.role, 'trader');
+    assert.equal(r.body.recommendation.source, 'rules');
+    assert.equal(r.body.targetId, spike.id);
+    assert.equal((await fetch(`${base}/api/markets/nope/context`)).status, 404);
+    r = await j(await fetch(`${base}/api/health`));
+    assert.equal(r.body.agent.available, false);
+    assert.equal(r.body.context, true);
+    assert.ok(ctxCalls.length >= 1);
+  } finally {
+    await app.stop();
+    await new Promise((r) => hookSrv.close(r));
+    await rm(root, { recursive: true, force: true });
+  }
+});

@@ -50,6 +50,7 @@ struct AlertsView: View {
             .oddshotScreen()
             .navigationTitle("Alerts")
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) { RoleMenu(compact: true) }
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
                         ForEach(Persona.allCases) { p in
