@@ -9,6 +9,13 @@ happened: a go-ahead drive, a debate gaffe, a leak out of the Fed. Oddshot catch
 that move and pings you, usually before the news alert, the box score or the
 timeline catches up.
 
+**Live demo:** https://bryanzhao08.github.io/oddshot/. GitHub Pages can't run the
+Node server, so the demo runs the same detector and ML model in your browser
+(`public/standalone.js`). It covers Polymarket only, because Kalshi blocks browser
+requests, and it keeps your alerts in browser storage. Run `npm start` for the full
+version with Kalshi, server-side webhooks and persistent alerts. To point the
+static page at a deployed server, add `?api=https://your-oddshot-server`.
+
 ## Why
 
 It started with photographers. A concert or sports shooter can't watch the game,

@@ -108,6 +108,7 @@ export function normalizePolymarket(m, now = Date.now()) {
     url: `https://polymarket.com/event/${slug}`,
     endDate: m.endDate || null,
     live: computeLive(m, ev, category, now),
+    tokenId: parseJsonArray(m.clobTokenIds)[idx] || null, // CLOB token, for price-history lookups
   };
   // oneHourPriceChange is in price units of the first outcome (Yes).
   if (Number.isFinite(change1h)) market.change1h = idx === 0 ? change1h : -change1h;

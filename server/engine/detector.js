@@ -8,7 +8,8 @@
 // - Volatility index: per-market realized volatility over `vixWindowMs`, mapped
 //   to 0..100, volume-weighted per category and overall, EMA-smoothed.
 
-import { randomUUID } from 'node:crypto';
+// Web Crypto: available in Node >= 19 and in browsers, so this module runs in both.
+const randomUUID = () => globalThis.crypto.randomUUID();
 
 export const CATEGORIES = ['sports', 'politics', 'crypto', 'economics', 'entertainment', 'weather', 'tech', 'other'];
 const SEVERITY_RANK = { info: 0, notable: 1, major: 2 };

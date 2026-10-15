@@ -12,18 +12,26 @@
 // history = [{t, p}] with t in ms epoch. Only points with t <= spike.detectedAt
 // are used. Best results with >= 60 min (ideally 6h) of history before the move.
 
-import { readFileSync } from 'node:fs';
+// node:fs is loaded only under Node so this module also runs in the browser (see setModel).
+const fs = globalThis.process?.versions?.node ? await import('node:fs') : null;
 
 const MODEL_URL = new URL('./model.json', import.meta.url);
 const CATEGORIES = ['sports', 'politics', 'crypto', 'economics', 'entertainment', 'weather', 'tech', 'other'];
 
 let cached = null;
 
+/** Install an already-parsed model (browser builds fetch model.json themselves). */
+export function setModel(m) {
+  cached = m && Array.isArray(m.trees) && Array.isArray(m.features) ? m : null;
+  return cached;
+}
+
 /** Load (and cache) the model. Returns the model object or null if unavailable. */
 export function loadModel(path) {
   try {
     if (cached && !path) return cached;
-    const m = JSON.parse(readFileSync(path || MODEL_URL, 'utf8'));
+    if (!fs) return null;
+    const m = JSON.parse(fs.readFileSync(path || MODEL_URL, 'utf8'));
     if (!m || !Array.isArray(m.trees) || !Array.isArray(m.features)) return null;
     if (!path) cached = m;
     return m;

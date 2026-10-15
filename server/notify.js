@@ -52,7 +52,10 @@ function headerSafe(v) {
   const s = String(v ?? '');
   // eslint-disable-next-line no-control-regex
   if (/^[\x20-\x7e]*$/.test(s)) return s;
-  return `=?UTF-8?B?${Buffer.from(s, 'utf8').toString('base64')}?=`;
+  const b64 = globalThis.Buffer
+    ? Buffer.from(s, 'utf8').toString('base64')
+    : btoa(String.fromCharCode(...new TextEncoder().encode(s)));
+  return `=?UTF-8?B?${b64}?=`;
 }
 
 export function buildRequest(webhook, spike, subscription = null) {
