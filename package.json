@@ -1,0 +1,14 @@
+{
+  "name": "oddshot",
+  "version": "0.1.0",
+  "description": "Real-time event alerts driven by prediction-market volatility. Don't miss the moment.",
+  "type": "module",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "test": "node --test 'server/**/*.test.js'"
+  },
+  "engines": { "node": ">=20" },
+  "license": "MIT"
+}

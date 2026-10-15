@@ -1,0 +1,5 @@
+.venv/
+data/*
+!data/spikes_sample.csv
+!data/results.json
+__pycache__/

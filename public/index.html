@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#07090d">
+  <meta name="description" content="Oddshot: live prediction-market spike alerts. The odds move before the headlines do.">
+  <title>Oddshot · The odds move before the headlines do.</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Dynamic-Island style spike notifier -->
+  <div id="island" class="island" aria-live="assertive" role="status"></div>
+
+  <!-- Live ticker tape -->
+  <div class="tape" aria-label="Top movers ticker">
+    <div class="tape-label"><span class="live-dot"></span>MOVERS</div>
+    <div class="tape-viewport"><div id="tape-track" class="tape-track"></div></div>
+  </div>
+
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Oddshot home">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <circle cx="16" cy="16" r="13" fill="none" stroke="currentColor" stroke-width="2.4" opacity=".35"/>
+        <circle cx="16" cy="16" r="7" fill="none" stroke="currentColor" stroke-width="2.4"/>
+        <path d="M16 16 27 6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+        <circle cx="27" cy="6" r="2.6" fill="currentColor"/>
+      </svg>
+      <span class="brand-text">
+        <span class="brand-name">Oddshot</span>
+        <span class="tagline">The odds move before the headlines do.</span>
+      </span>
+    </a>
+    <div class="topbar-actions">
+      <span id="conn" class="conn" data-state="connecting" title="Stream status">
+        <span class="dot"></span><span class="conn-label">Connecting</span>
+      </span>
+      <button id="btn-sound" class="icon-btn" type="button" aria-pressed="false" title="Alert sound (m)">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path class="snd-on" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path class="snd-off" d="m16 9 5 6m0-6-5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <button id="btn-notify" class="icon-btn" type="button" title="Enable browser alerts (n)">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+        <span class="lbl">Enable alerts</span>
+      </button>
+      <button id="btn-help" class="icon-btn hide-sm" type="button" title="Keyboard shortcuts (?)">?</button>
+      <button id="btn-simulate" class="btn btn-accent" type="button" title="Inject a synthetic demo spike (s)">
+        <svg viewBox="0 0 24 24" aria-hidden="true" width="16" height="16"><path d="M13 2 4 14h7l-1 8 9-12h-7z" fill="currentColor"/></svg>
+        <span class="lbl">Simulate</span>
+      </button>
+    </div>
+  </header>
+
+  <nav class="catnav" aria-label="Category filter">
+    <div id="catnav" class="catnav-inner"></div>
+  </nav>
+
+  <div id="banner" class="banner" hidden></div>
+
+  <main class="layout">
+    <!-- Pulse index / seismograph -->
+    <section class="card hero" aria-labelledby="vix-h">
+      <div class="hero-main">
+        <div class="hero-read">
+          <h2 id="vix-h" class="eyebrow">Event Volatility Index</h2>
+          <div class="vix-line">
+            <span id="vix-value" class="vix-value num">--</span>
+            <span class="vix-scale">/100</span>
+          </div>
+          <div class="vix-status">
+            <span id="vix-label" class="vix-label" data-level="">Waiting for data</span>
+            <span id="vix-delta" class="vix-delta num"></span>
+          </div>
+          <div class="vix-meter" aria-hidden="true"><i id="vix-meter-fill"></i><b id="vix-meter-pin"></b></div>
+          <div class="vix-meter-scale" aria-hidden="true"><span>Calm</span><span>Active</span><span>Heated</span><span>Chaotic</span></div>
+        </div>
+        <div class="seismo-wrap">
+          <div class="seismo-head"><span>Seismograph · 6h</span><span id="vix-updated" class="num"></span></div>
+          <svg id="seismo" class="seismo" viewBox="0 0 600 160" preserveAspectRatio="none" aria-label="Volatility index history"></svg>
+          <div id="seismo-tip" class="chart-tip" hidden></div>
+        </div>
+      </div>
+      <div class="hero-radar">
+        <h3 class="eyebrow">By category</h3>
+        <svg id="radar" class="radar" viewBox="-36 -4 292 232" aria-label="Volatility by category"></svg>
+      </div>
+    </section>
+
+    <!-- Live feed -->
+    <section class="card feed-card" aria-labelledby="feed-h">
+      <div class="card-head">
+        <h2 id="feed-h" class="eyebrow">Live spikes <span id="feed-count" class="count-pill num">0</span></h2>
+        <div class="seg" role="group" aria-label="Filter alerts">
+          <button type="button" class="seg-btn active" data-filter="all">All</button>
+          <button type="button" class="seg-btn" data-filter="notable">Notable+</button>
+          <button type="button" class="seg-btn" data-filter="mine">Mine</button>
+        </div>
+      </div>
+      <div class="feed-tools">
+        <label class="toggle small-toggle" title="Hide spikes the signal model labels as likely noise">
+          <input id="hide-noise" type="checkbox">
+          <span class="switch" aria-hidden="true"></span>
+          <span>Hide likely noise</span>
+        </label>
+        <span id="muted-info" class="muted small"></span>
+      </div>
+      <ol id="feed" class="feed"></ol>
+      <div id="feed-empty" class="empty">
+        <div class="radar-ping" aria-hidden="true"><i></i><i></i><i></i></div>
+        <p class="empty-title" id="feed-empty-title">Connecting to the markets…</p>
+        <p class="muted small">Spikes land here the instant a probability jumps. Press <kbd>S</kbd> to simulate one.</p>
+      </div>
+    </section>
+
+    <!-- Movers -->
+    <section class="card movers-card" aria-labelledby="movers-h">
+      <div class="card-head">
+        <h2 id="movers-h" class="eyebrow">Top movers</h2>
+        <span class="muted small num" id="movers-updated"></span>
+      </div>
+      <div class="table-wrap">
+        <table class="movers">
+          <thead>
+            <tr><th>Market</th><th class="r">Prob</th><th class="r">1h</th><th class="r hide-sm">5m</th><th class="hide-xs">Trend</th><th></th></tr>
+          </thead>
+          <tbody id="movers-body"></tbody>
+        </table>
+      </div>
+      <div id="movers-empty" class="empty compact" hidden><p class="muted">No movers yet. The board fills as prices update.</p></div>
+    </section>
+
+    <!-- Right rail: search + subs -->
+    <aside class="rail">
+      <section class="card search-card" aria-labelledby="search-h">
+        <div class="card-head"><h2 id="search-h" class="eyebrow">Find a market</h2><kbd class="hide-sm">/</kbd></div>
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="m20 20-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <input id="search-q" type="search" placeholder="Lakers, Fed, Bitcoin, Oscars…" autocomplete="off" aria-label="Search markets">
+        </div>
+        <ul id="search-results" class="results"></ul>
+        <div id="search-empty" class="empty compact" hidden><p class="muted" id="search-empty-text"></p></div>
+      </section>
+
+      <section class="card subs-card" aria-labelledby="subs-h">
+        <div class="card-head">
+          <h2 id="subs-h" class="eyebrow">My alerts</h2>
+          <button id="btn-new-sub" class="btn btn-small" type="button">+ New</button>
+        </div>
+        <ul id="subs-list" class="subs-list"></ul>
+        <div id="subs-empty" class="empty compact" hidden>
+          <p class="muted small">No alerts yet. Without any, you'll be notified for every notable spike. Hit <b>Watch</b> on a market or build one below.</p>
+        </div>
+
+        <form id="sub-form" class="sub-form" autocomplete="off" novalidate>
+          <div class="form-title">
+            <h3 id="sub-form-title">New alert</h3>
+            <span id="sub-form-id" class="muted small mono"></span>
+          </div>
+          <div class="field">
+            <span class="field-label">Persona preset</span>
+            <div class="persona-row" id="persona-row"></div>
+          </div>
+          <label class="field">
+            <span class="field-label">Name</span>
+            <input name="name" type="text" required maxlength="80" placeholder="Lakers game shooters">
+          </label>
+          <label class="field">
+            <span class="field-label">Keywords <span class="muted">comma separated · empty = any</span></span>
+            <input name="keywords" type="text" placeholder="lakers, warriors">
+          </label>
+          <div class="field">
+            <span class="field-label">Categories <span class="muted">none = any</span></span>
+            <div class="chips" id="cat-chips"></div>
+          </div>
+          <div class="field-grid">
+            <label class="field">
+              <span class="field-label">Min move <b id="mindelta-out" class="num accent">5</b> pts</span>
+              <input name="minDelta" type="range" min="1" max="30" step="1" value="5">
+            </label>
+            <label class="field">
+              <span class="field-label">Min severity</span>
+              <select name="minSeverity">
+                <option value="info">Info</option>
+                <option value="notable">Notable</option>
+                <option value="major">Major</option>
+              </select>
+            </label>
+          </div>
+          <label class="toggle">
+            <input name="liveOnly" type="checkbox">
+            <span class="switch" aria-hidden="true"></span>
+            <span>Live events only</span>
+          </label>
+          <div id="sub-marketids" class="field small muted" hidden></div>
+          <div class="field">
+            <span class="field-label">Webhook <span class="muted">optional</span></span>
+            <div class="hook-row">
+              <select name="webhookType" aria-label="Webhook type">
+                <option value="">None</option>
+                <option value="generic">Generic JSON</option>
+                <option value="discord">Discord</option>
+                <option value="slack">Slack</option>
+                <option value="ntfy">ntfy.sh</option>
+              </select>
+              <input name="webhookUrl" type="url" placeholder="https://…" aria-label="Webhook URL">
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-accent">Save</button>
+            <button type="button" id="btn-test-sub" class="btn" disabled>Send test</button>
+            <button type="button" id="btn-del-sub" class="btn btn-danger" disabled>Delete</button>
+            <button type="button" id="btn-reset-sub" class="btn btn-ghost">Clear</button>
+          </div>
+        </form>
+      </section>
+    </aside>
+  </main>
+
+  <footer class="footer">
+    <div id="health" class="health"><span class="muted">Backend status unknown</span></div>
+    <div class="muted small">Oddshot · prices from Polymarket &amp; Kalshi · not financial advice · press <kbd>?</kbd> for shortcuts</div>
+  </footer>
+
+  <!-- Market detail drawer -->
+  <div id="drawer-scrim" class="scrim" hidden></div>
+  <aside id="drawer" class="drawer" aria-hidden="true" aria-labelledby="drawer-title" role="dialog">
+    <div class="drawer-grip" aria-hidden="true"></div>
+    <button class="icon-btn drawer-close" id="drawer-close" type="button" aria-label="Close">&#10005;</button>
+    <div class="drawer-meta" id="drawer-meta"></div>
+    <h2 id="drawer-title" class="drawer-title"></h2>
+    <div class="drawer-outcome muted" id="drawer-outcome"></div>
+    <div class="drawer-price">
+      <span id="drawer-prob" class="drawer-prob num">--</span>
+      <span id="drawer-chg" class="chg num"></span>
+    </div>
+    <div class="drawer-traj muted small" id="drawer-traj"></div>
+    <div class="range-row">
+      <div class="seg" role="group" aria-label="Chart range" id="range-seg">
+        <button type="button" class="seg-btn" data-range="3600000">1H</button>
+        <button type="button" class="seg-btn active" data-range="21600000">6H</button>
+        <button type="button" class="seg-btn" data-range="86400000">1D</button>
+      </div>
+      <span class="muted small legend"><i class="lg-win"></i>spike window <i class="lg-fire"></i>alert fired</span>
+    </div>
+    <div class="chart-box">
+      <svg id="drawer-chart" class="detail-chart" viewBox="0 0 600 240" preserveAspectRatio="none" aria-label="Probability history"></svg>
+      <div id="drawer-tip" class="chart-tip" hidden></div>
+      <div id="drawer-chart-empty" class="chart-empty muted small" hidden>Not enough history yet. Points accrue every poll.</div>
+    </div>
+    <div class="drawer-actions">
+      <button id="drawer-watch" class="btn btn-accent" type="button">Watch this market</button>
+      <button id="drawer-mute" class="btn" type="button">Mute 1h</button>
+      <a id="drawer-link" class="btn" href="#" target="_blank" rel="noopener noreferrer">Open on source &#8599;</a>
+    </div>
+    <h3 class="eyebrow">Recent spikes</h3>
+    <ol id="drawer-spikes" class="mini-feed"></ol>
+  </aside>
+
+  <!-- Onboarding -->
+  <div id="onboard" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="onboard-h">
+    <div class="modal-card">
+      <div class="onboard-mark" aria-hidden="true"><i></i><i></i><i></i></div>
+      <h2 id="onboard-h">What don't you want to miss?</h2>
+      <p class="muted">Oddshot watches hundreds of live prediction markets and pings you the second the odds jump. Pick a starting point; you can fine-tune it anytime.</p>
+      <div id="onboard-cards" class="persona-cards"></div>
+      <button id="onboard-skip" class="btn btn-ghost" type="button">Skip for now</button>
+    </div>
+  </div>
+
+  <!-- Shortcuts -->
+  <div id="help" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="help-h">
+    <div class="modal-card small-card">
+      <h2 id="help-h">Keyboard shortcuts</h2>
+      <dl class="keys">
+        <dt><kbd>/</kbd></dt><dd>Search markets</dd>
+        <dt><kbd>S</kbd></dt><dd>Simulate a spike</dd>
+        <dt><kbd>N</kbd></dt><dd>Enable notifications</dd>
+        <dt><kbd>M</kbd></dt><dd>Toggle sound</dd>
+        <dt><kbd>1</kbd>–<kbd>9</kbd></dt><dd>Jump to category (0 = all)</dd>
+        <dt><kbd>Esc</kbd></dt><dd>Close panels</dd>
+        <dt><kbd>?</kbd></dt><dd>This help</dd>
+      </dl>
+      <button class="btn" type="button" data-close="help">Got it</button>
+    </div>
+  </div>
+
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+
+  <script src="app.js" defer></script>
+</body>
+</html>

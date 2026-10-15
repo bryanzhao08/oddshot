@@ -1,0 +1,10 @@
+node_modules/
+data/*.json
+.env
+.DS_Store
+ml/.venv/
+ml/data/raw/
+__pycache__/
+ios/build/
+*.xcodeproj/xcuserdata/
+DerivedData/
