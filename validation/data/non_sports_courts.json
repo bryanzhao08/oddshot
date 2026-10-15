@@ -1,0 +1,159 @@
+{
+  "sourcePolicy": "Public read-only Polymarket Gamma metadata and CLOB history APIs; no authenticated access.",
+  "events": [
+    {
+      "id": "fed-september-2026-hike",
+      "market": {
+        "id": "2252245",
+        "eventSlug": "fed-decision-in-september-762",
+        "title": "Will the Fed increase interest rates by 25 bps after the September 2026 meeting?",
+        "platform": "Polymarket",
+        "url": "https://polymarket.com/event/fed-decision-in-september-762",
+        "closed": true,
+        "conditionId": "0x876506d8b2bd7a0d3fa4fe18c024eee6e1dd81ee24c26795dadd6cfe4a7b5d0d",
+        "clobTokenId": "63842529068710005716169325380315470359047749786610778647370693404952498013178",
+        "outcomes": [
+          "Yes",
+          "No"
+        ],
+        "outcomePrices": [
+          "1",
+          "0"
+        ],
+        "resolvedOutcome": "Yes",
+        "resolution": "YES (Gamma outcomePrices [\"1\", \"0\"] in [Yes, No] order)",
+        "endDate": "2026-09-16T00:00:00Z"
+      },
+      "news": {
+        "timestampUtc": "2026-09-16T18:00:00Z",
+        "description": "Federal Reserve FOMC statement announced a 25 bp target-range increase. Scheduled release time 2:00 p.m. EDT (18:00 UTC).",
+        "sourceUrl": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260916a.htm"
+      },
+      "history": {
+        "source": "Polymarket CLOB public read-only prices-history API",
+        "endpoint": "https://clob.polymarket.com/prices-history?market=63842529068710005716169325380315470359047749786610778647370693404952498013178&startTs=1789581420&endTs=1789581900&fidelity=1",
+        "parameters": {
+          "fidelity": 1,
+          "startTs": 1789581420,
+          "endTs": 1789581900
+        },
+        "points": [
+          {
+            "t": "2026-09-16T17:57:08.000Z",
+            "p": 0.865
+          },
+          {
+            "t": "2026-09-16T17:58:11.000Z",
+            "p": 0.865
+          },
+          {
+            "t": "2026-09-16T17:59:12.000Z",
+            "p": 0.875
+          },
+          {
+            "t": "2026-09-16T18:00:13.000Z",
+            "p": 0.91
+          },
+          {
+            "t": "2026-09-16T18:01:12.000Z",
+            "p": 0.995
+          },
+          {
+            "t": "2026-09-16T18:02:08.000Z",
+            "p": 0.9995
+          },
+          {
+            "t": "2026-09-16T18:03:09.000Z",
+            "p": 0.9995
+          },
+          {
+            "t": "2026-09-16T18:04:12.000Z",
+            "p": 0.9995
+          }
+        ]
+      },
+      "observedMove": "Yes probability was 0.865 at 17:58:11, 0.875 at 17:59:12, 0.910 at 18:00:13, 0.995 at 18:01:12, and 0.9995 at 18:02:08 UTC.",
+      "caveats": [
+        "CLOB history is sampled last-traded price history; a point time is the API timestamp of the observation, not an independently verified execution timestamp.",
+        "Market close/endDate is distinct from news time. News timestamps above use the scheduled official release time in UTC; compare price observations as minute-level timing, not millisecond latency."
+      ]
+    },
+    {
+      "id": "us-core-cpi-september-2026-03pct",
+      "market": {
+        "id": "4469523",
+        "eventSlug": "core-cpi-mom-september-2026",
+        "title": "Will Core CPI MoM be 0.3% in September?",
+        "platform": "Polymarket",
+        "url": "https://polymarket.com/event/core-cpi-mom-september-2026",
+        "closed": true,
+        "conditionId": "0x686e291b528b21dfa68cbd46aaa8f4bad5a43f0132da2f379005eda0b73a3090",
+        "clobTokenId": "106851014495101088118348443809540441055115427574542841485927195973390156941640",
+        "outcomes": [
+          "Yes",
+          "No"
+        ],
+        "outcomePrices": [
+          "1",
+          "0"
+        ],
+        "resolvedOutcome": "Yes",
+        "resolution": "YES (Gamma outcomePrices [\"1\", \"0\"] in [Yes, No] order)",
+        "endDate": "2026-10-15T03:59:00Z"
+      },
+      "news": {
+        "timestampUtc": "2026-10-14T12:30:00Z",
+        "description": "BLS Consumer Price Index release for September 2026; scheduled for 8:30 a.m. EDT (12:30 UTC). The release reported September core CPI MoM at 0.3%.",
+        "sourceUrl": "https://www.bls.gov/news.release/archives/cpi_10142026.htm"
+      },
+      "history": {
+        "source": "Polymarket CLOB public read-only prices-history API",
+        "endpoint": "https://clob.polymarket.com/prices-history?market=106851014495101088118348443809540441055115427574542841485927195973390156941640&startTs=1791980820&endTs=1791981300&fidelity=1",
+        "parameters": {
+          "fidelity": 1,
+          "startTs": 1791980820,
+          "endTs": 1791981300
+        },
+        "points": [
+          {
+            "t": "2026-10-14T12:27:16.000Z",
+            "p": 0.31
+          },
+          {
+            "t": "2026-10-14T12:28:23.000Z",
+            "p": 0.31
+          },
+          {
+            "t": "2026-10-14T12:29:24.000Z",
+            "p": 0.31
+          },
+          {
+            "t": "2026-10-14T12:30:26.000Z",
+            "p": 0.31
+          },
+          {
+            "t": "2026-10-14T12:31:25.000Z",
+            "p": 0.995
+          },
+          {
+            "t": "2026-10-14T12:32:24.000Z",
+            "p": 0.9995
+          },
+          {
+            "t": "2026-10-14T12:33:23.000Z",
+            "p": 0.9995
+          },
+          {
+            "t": "2026-10-14T12:34:28.000Z",
+            "p": 0.9995
+          }
+        ]
+      },
+      "observedMove": "Yes probability was 0.31 at 12:30:26, 0.995 at 12:31:25, and 0.9995 at 12:32:24 UTC.",
+      "caveats": [
+        "CLOB history is sampled last-traded price history; a point time is the API timestamp of the observation, not an independently verified execution timestamp.",
+        "Market close/endDate is distinct from news time. News timestamps above use the scheduled official release time in UTC; compare price observations as minute-level timing, not millisecond latency."
+      ]
+    }
+  ]
+}

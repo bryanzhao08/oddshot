@@ -1,0 +1,26 @@
+{
+  "checkedAt": "2026-10-15T07:37:07.774Z",
+  "localOnly": true,
+  "createStatus": 201,
+  "testStatus": 200,
+  "testBody": {
+    "ok": true
+  },
+  "received": {
+    "method": "POST",
+    "url": "/sink",
+    "headers": {
+      "host": "127.0.0.1:51752",
+      "connection": "keep-alive",
+      "user-agent": "Oddshot/0.1",
+      "content-type": "application/json",
+      "accept": "*/*",
+      "accept-language": "*",
+      "sec-fetch-mode": "cors",
+      "accept-encoding": "gzip, deflate",
+      "content-length": "632"
+    },
+    "body": "{\"type\":\"oddshot.spike\",\"text\":\"🚨 Lakers vs Celtics: Lakers win 42% → 61% (+19 pts in 4m) — something just happened [LIVE] [demo]\\nhttps://polymarket.com\",\"spike\":{\"id\":\"test-1792049827714\",\"marketId\":\"demo:lakers-celtics\",\"title\":\"Lakers vs Celtics\",\"outcome\":\"Lakers win\",\"source\":\"polymarket\",\"category\":\"sports\",\"tags\":[\"nba\"],\"url\":\"https://polymarket.com\",\"from\":0.42,\"to\":0.61,\"delta\":0.19,\"windowMs\":240000,\"zScore\":4.2,\"severity\":\"major\",\"live\":true,\"detectedAt\":\"2026-10-15T07:37:07.714Z\",\"demo\":true,\"test\":true},\"subscription\":{\"id\":\"474837e5-1334-4565-84c1-273c3af04c86\",\"name\":\"Codex local webhook validation\"}}"
+  },
+  "passed": true
+}

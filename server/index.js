@@ -223,7 +223,9 @@ export function createApp({
       const reported = sourceStatus?.[s]?.error;
       state.sources[s] = error
         ? { ok: false, count: 0, error }
-        : { ok: count > 0, count, error: count > 0 ? null : reported || 'no markets returned' };
+        : sourceStatus?.[s]?.stale
+          ? { ok: false, stale: true, count, error: reported }
+          : { ok: count > 0, count, error: count > 0 ? null : reported || 'no markets returned' };
     }
   }
 

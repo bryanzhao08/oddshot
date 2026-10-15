@@ -1,0 +1,198 @@
+{
+  "checkedAt": "2026-10-15T07:36:35.172Z",
+  "oddshotServerCaptureAt": "2026-10-15T07:36:34.094Z",
+  "checkedCount": 10,
+  "withinOnePointCount": 10,
+  "results": [
+    {
+      "marketId": "polymarket:2589812",
+      "title": "Will there be no change in Fed interest rates after the October 2026 meeting?",
+      "source": "polymarket",
+      "oddshotProbability": 0.735,
+      "oddshotCapturedAt": "2026-10-15T07:36:34.094Z",
+      "publicApiUrl": "https://gamma-api.polymarket.com/markets/2589812",
+      "publicApiProbability": 0.735,
+      "differencePoints": 0,
+      "withinOnePoint": true,
+      "publicApiStatus": 200,
+      "publicApiRaw": {
+        "outcomes": [
+          "Yes",
+          "No"
+        ],
+        "outcomePrices": [
+          "0.735",
+          "0.265"
+        ]
+      }
+    },
+    {
+      "marketId": "polymarket:5126779",
+      "title": "Will Indiana enact a data center moratorium by December 31, 2027?",
+      "source": "polymarket",
+      "oddshotProbability": 0.125,
+      "oddshotCapturedAt": "2026-10-15T07:36:34.094Z",
+      "publicApiUrl": "https://gamma-api.polymarket.com/markets/5126779",
+      "publicApiProbability": 0.125,
+      "differencePoints": 0,
+      "withinOnePoint": true,
+      "publicApiStatus": 200,
+      "publicApiRaw": {
+        "outcomes": [
+          "Yes",
+          "No"
+        ],
+        "outcomePrices": [
+          "0.125",
+          "0.875"
+        ]
+      }
+    },
+    {
+      "marketId": "polymarket:2589813",
+      "title": "Will the Fed increase interest rates by 25 bps after the October 2026 meeting?",
+      "source": "polymarket",
+      "oddshotProbability": 0.265,
+      "oddshotCapturedAt": "2026-10-15T07:36:34.094Z",
+      "publicApiUrl": "https://gamma-api.polymarket.com/markets/2589813",
+      "publicApiProbability": 0.265,
+      "differencePoints": 0,
+      "withinOnePoint": true,
+      "publicApiStatus": 200,
+      "publicApiRaw": {
+        "outcomes": [
+          "Yes",
+          "No"
+        ],
+        "outcomePrices": [
+          "0.265",
+          "0.735"
+        ]
+      }
+    },
+    {
+      "marketId": "kalshi:KXATPCHALLENGERMATCH-26OCT15WATCIL-CIL",
+      "title": "Watanuki vs Cilic: Marin Cilic wins",
+      "source": "kalshi",
+      "oddshotProbability": 0.365,
+      "oddshotCapturedAt": "2026-10-15T07:36:34.094Z",
+      "publicApiUrl": "https://api.elections.kalshi.com/trade-api/v2/markets/KXATPCHALLENGERMATCH-26OCT15WATCIL-CIL",
+      "publicApiProbability": 0.365,
+      "differencePoints": 0,
+      "withinOnePoint": true,
+      "publicApiStatus": 200,
+      "publicApiRaw": {
+        "yes_bid_dollars": "0.2700",
+        "yes_ask_dollars": "0.4600",
+        "last_price_dollars": "0.3300"
+      }
+    },
+    {
+      "marketId": "kalshi:KXFEDDECISION-26OCT-H0",
+      "title": "Will the Federal Reserve Hike rates by 0bps at their October 2026 meeting?",
+      "source": "kalshi",
+      "oddshotProbability": 0.715,
+      "oddshotCapturedAt": "2026-10-15T07:36:34.094Z",
+      "publicApiUrl": "https://api.elections.kalshi.com/trade-api/v2/markets/KXFEDDECISION-26OCT-H0",
+      "publicApiProbability": 0.715,
+      "differencePoints": 0,
+      "withinOnePoint": true,
+      "publicApiStatus": 200,
+      "publicApiRaw": {
+        "yes_bid_dollars": "0.7100",
+        "yes_ask_dollars": "0.7200",
+        "last_price_dollars": "0.7200"
+      }
+    },
+    {
+      "marketId": "kalshi:KXITFMATCH-26OCT14ZINWIL-ZIN",
+      "title": "Zink vs Willwerth: Tyler Zink wins",
+      "source": "kalshi",
+      "oddshotProbability": 0.30500000000000005,
+      "oddshotCapturedAt": "2026-10-15T07:36:34.094Z",
+      "publicApiUrl": "https://api.elections.kalshi.com/trade-api/v2/markets/KXITFMATCH-26OCT14ZINWIL-ZIN",
+      "publicApiProbability": 0.30500000000000005,
+      "differencePoints": 0,
+      "withinOnePoint": true,
+      "publicApiStatus": 200,
+      "publicApiRaw": {
+        "yes_bid_dollars": "0.2800",
+        "yes_ask_dollars": "0.3300",
+        "last_price_dollars": "0.2900"
+      }
+    },
+    {
+      "marketId": "kalshi:KXMLB-26-LAD",
+      "title": "Will Los Angeles D win the 2026 Pro Baseball Championship?",
+      "source": "kalshi",
+      "oddshotProbability": 0.0695,
+      "oddshotCapturedAt": "2026-10-15T07:36:34.094Z",
+      "publicApiUrl": "https://api.elections.kalshi.com/trade-api/v2/markets/KXMLB-26-LAD",
+      "publicApiProbability": 0.0695,
+      "differencePoints": 0,
+      "withinOnePoint": true,
+      "publicApiStatus": 200,
+      "publicApiRaw": {
+        "yes_bid_dollars": "0.0680",
+        "yes_ask_dollars": "0.0710",
+        "last_price_dollars": "0.0710"
+      }
+    },
+    {
+      "marketId": "polymarket:2589814",
+      "title": "Will the Fed increase interest rates by 50+ bps after the October 2026 meeting?",
+      "source": "polymarket",
+      "oddshotProbability": 0.0045,
+      "oddshotCapturedAt": "2026-10-15T07:36:34.094Z",
+      "publicApiUrl": "https://gamma-api.polymarket.com/markets/2589814",
+      "publicApiProbability": 0.0045,
+      "differencePoints": 0,
+      "withinOnePoint": true,
+      "publicApiStatus": 200,
+      "publicApiRaw": {
+        "outcomes": [
+          "Yes",
+          "No"
+        ],
+        "outcomePrices": [
+          "0.0045",
+          "0.9955"
+        ]
+      }
+    },
+    {
+      "marketId": "kalshi:CONTROLH-2026-R",
+      "title": "Will Republicans win the House in 2026?",
+      "source": "kalshi",
+      "oddshotProbability": 0.0975,
+      "oddshotCapturedAt": "2026-10-15T07:36:34.094Z",
+      "publicApiUrl": "https://api.elections.kalshi.com/trade-api/v2/markets/CONTROLH-2026-R",
+      "publicApiProbability": 0.0975,
+      "differencePoints": 0,
+      "withinOnePoint": true,
+      "publicApiStatus": 200,
+      "publicApiRaw": {
+        "yes_bid_dollars": "0.0960",
+        "yes_ask_dollars": "0.0990",
+        "last_price_dollars": "0.0990"
+      }
+    },
+    {
+      "marketId": "kalshi:KXATPMATCH-26OCT15GEADAV-GEA",
+      "title": "Gea vs Davidovich Fokina: Arthur Gea wins",
+      "source": "kalshi",
+      "oddshotProbability": 0.155,
+      "oddshotCapturedAt": "2026-10-15T07:36:34.094Z",
+      "publicApiUrl": "https://api.elections.kalshi.com/trade-api/v2/markets/KXATPMATCH-26OCT15GEADAV-GEA",
+      "publicApiProbability": 0.155,
+      "differencePoints": 0,
+      "withinOnePoint": true,
+      "publicApiStatus": 200,
+      "publicApiRaw": {
+        "yes_bid_dollars": "0.0900",
+        "yes_ask_dollars": "0.2200",
+        "last_price_dollars": "0.1700"
+      }
+    }
+  ]
+}

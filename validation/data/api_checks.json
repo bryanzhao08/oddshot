@@ -1,0 +1,748 @@
+{
+  "checkedAt": "2026-10-15T07:31:47.239Z",
+  "base": "http://localhost:8787",
+  "policy": "localhost only; no webhook configured; temporary subscription deleted",
+  "checks": [
+    {
+      "method": "GET",
+      "path": "/",
+      "status": 200,
+      "expectedStatus": 200,
+      "pass": true,
+      "contentType": "text/html; charset=utf-8",
+      "bodyPreview": "<!doctype html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\">\n  <meta name=\"theme-colo"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "status": 200,
+      "expectedStatus": 200,
+      "pass": true,
+      "contentType": "application/json; charset=utf-8",
+      "response": {
+        "ok": true,
+        "lastPollAt": "2026-10-15T07:31:29.802Z",
+        "marketCount": 600,
+        "sources": {
+          "polymarket": {
+            "ok": true,
+            "count": 300,
+            "error": null
+          },
+          "kalshi": {
+            "ok": true,
+            "count": 300,
+            "error": null
+          }
+        },
+        "clients": 1,
+        "subscriptions": 0
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/markets?limit=5",
+      "status": 200,
+      "expectedStatus": 200,
+      "pass": true,
+      "contentType": "application/json; charset=utf-8",
+      "response": [
+        {
+          "id": "polymarket:2589812",
+          "source": "polymarket",
+          "title": "Will there be no change in Fed interest rates after the October 2026 meeting?",
+          "outcome": "Yes",
+          "probability": 0.735,
+          "volume24h": 2686567.5671439953,
+          "liquidity": 197155.3495,
+          "category": "economics",
+          "tags": [
+            "us-cpi",
+            "fed",
+            "fomc",
+            "trump",
+            "economy",
+            "fed-rates",
+            "kevin-warsh",
+            "global-rates",
+            "economic-policy",
+            "macro-indicators"
+          ],
+          "url": "https://polymarket.com/event/fed-decision-in-october-20260617190323537",
+          "endDate": "2026-10-29T03:59:00Z",
+          "live": false,
+          "change1h": 0.01
+        },
+        {
+          "id": "polymarket:5126779",
+          "source": "polymarket",
+          "title": "Will Indiana enact a data center moratorium by December 31, 2027?",
+          "outcome": "Yes",
+          "probability": 0.125,
+          "volume24h": 2136510.844102,
+          "liquidity": 495479.7017,
+          "category": "tech",
+          "tags": [
+            "ai",
+            "tech",
+            "states",
+            "compute",
+            "indiana",
+            "politics",
+            "ai-regulation"
+          ],
+          "url": "https://polymarket.com/event/indiana-enacts-data-center-moratorium-by-20260929",
+          "endDate": "2028-01-01T04:59:00Z",
+          "live": false,
+          "change1h": 0
+        },
+        {
+          "id": "polymarket:2589813",
+          "source": "polymarket",
+          "title": "Will the Fed increase interest rates by 25 bps after the October 2026 meeting?",
+          "outcome": "Yes",
+          "probability": 0.265,
+          "volume24h": 1513666.899707,
+          "liquidity": 171990.6908,
+          "category": "economics",
+          "tags": [
+            "us-cpi",
+            "fed",
+            "fomc",
+            "trump",
+            "economy",
+            "fed-rates",
+            "kevin-warsh",
+            "global-rates",
+            "economic-policy",
+            "macro-indicators"
+          ],
+          "url": "https://polymarket.com/event/fed-decision-in-october-20260617190323537",
+          "endDate": "2026-10-29T03:59:00Z",
+          "live": false,
+          "change1h": -0.02
+        },
+        {
+          "id": "kalshi:KXATPCHALLENGERMATCH-26OCT15WATCIL-CIL",
+          "source": "kalshi",
+          "title": "Watanuki vs Cilic: Marin Cilic wins",
+          "outcome": "Marin Cilic",
+          "probability": 0.365,
+          "volume24h": 1316819.49,
+          "liquidity": 800119.2,
+          "category": "sports",
+          "tags": [
+            "atpchallengermatch",
+            "atp",
+            "atp challenger jinan",
+            "sports"
+          ],
+          "url": "https://kalshi.com/markets/kxatpchallengermatch-26oct15watcil",
+          "endDate": "2026-10-15T08:10:00Z",
+          "live": true,
+          "change1h": 0
+        },
+        {
+          "id": "kalshi:KXFEDDECISION-26OCT-H0",
+          "source": "kalshi",
+          "title": "Will the Federal Reserve Hike rates by 0bps at their October 2026 meeting?",
+          "outcome": "Yes",
+          "probability": 0.715,
+          "volume24h": 1013981.91,
+          "liquidity": 1587951.56,
+          "category": "economics",
+          "tags": [
+            "feddecision",
+            "us fed",
+            "fed",
+            "economics"
+          ],
+          "url": "https://kalshi.com/markets/kxfeddecision-26oct",
+          "endDate": "2026-10-28T18:05:00Z",
+          "live": false,
+          "change24h": -0.105,
+          "change1h": 0
+        }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/markets/polymarket%3A2589812/history",
+      "status": 200,
+      "expectedStatus": 200,
+      "pass": true,
+      "contentType": "application/json; charset=utf-8",
+      "response": {
+        "marketId": "polymarket:2589812",
+        "points": [
+          {
+            "t": 1792048971766,
+            "p": 0.735
+          },
+          {
+            "t": 1792049008234,
+            "p": 0.735
+          },
+          {
+            "t": 1792049028571,
+            "p": 0.735
+          },
+          {
+            "t": 1792049048718,
+            "p": 0.735
+          },
+          {
+            "t": 1792049068930,
+            "p": 0.735
+          },
+          {
+            "t": 1792049469301,
+            "p": 0.735
+          },
+          {
+            "t": 1792049489802,
+            "p": 0.735
+          }
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/movers?limit=5",
+      "status": 200,
+      "expectedStatus": 200,
+      "pass": true,
+      "contentType": "application/json; charset=utf-8",
+      "response": [
+        {
+          "market": {
+            "id": "polymarket:5679394",
+            "source": "polymarket",
+            "title": "Shanghai Rolex Masters: Arthur Gea vs Alejandro Davidovich Fokina",
+            "outcome": "Arthur Gea",
+            "probability": 0.0005,
+            "volume24h": 214585.9765150001,
+            "liquidity": 289830.05127,
+            "category": "sports",
+            "tags": [
+              "tennis",
+              "sports"
+            ],
+            "url": "https://polymarket.com/event/atp-gea-fokina-2026-10-15",
+            "endDate": "2026-10-23T02:00:00Z",
+            "live": false,
+            "change1h": -0.5145
+          },
+          "change1h": -0.5145,
+          "change5m": 0,
+          "vol": 100
+        },
+        {
+          "market": {
+            "id": "polymarket:5682850",
+            "source": "polymarket",
+            "title": "Jinan: Yosuke Watanuki vs Marin Cilic",
+            "outcome": "Yosuke Watanuki",
+            "probability": 0.9995,
+            "volume24h": 150407.1009140001,
+            "liquidity": 117027.93201,
+            "category": "sports",
+            "tags": [
+              "tennis",
+              "sports"
+            ],
+            "url": "https://polymarket.com/event/atp-watanuk-cilic-2026-10-15",
+            "endDate": "2026-10-22T05:30:00Z",
+            "live": false,
+            "change1h": 0.4695
+          },
+          "change1h": 0.4695,
+          "change5m": 0,
+          "vol": 100
+        },
+        {
+          "market": {
+            "id": "polymarket:5672171",
+            "source": "polymarket",
+            "title": "M15 Heraklion: Julio Cesar Porras vs Valentin Gonzalez-Galino",
+            "outcome": "Julio Cesar Porras",
+            "probability": 0.5,
+            "volume24h": 23397.245088999996,
+            "liquidity": 0,
+            "category": "sports",
+            "tags": [
+              "tennis",
+              "sports"
+            ],
+            "url": "https://polymarket.com/event/itf-porras1-gonzal6-2026-10-14",
+            "endDate": "2026-10-21T07:30:00Z",
+            "live": false,
+            "change1h": 0.295
+          },
+          "change1h": 0.295,
+          "change5m": 0,
+          "vol": 99.3
+        },
+        {
+          "market": {
+            "id": "polymarket:5658656",
+            "source": "polymarket",
+            "title": "Wuhan Tennis Open: Mia Pohankova vs Maria Sakkari",
+            "outcome": "Mia Pohankova",
+            "probability": 0.016,
+            "volume24h": 274303.472801,
+            "liquidity": 66540.53462,
+            "category": "sports",
+            "tags": [
+              "tennis",
+              "sports"
+            ],
+            "url": "https://polymarket.com/event/wta-pohanko-sakkari-2026-10-14",
+            "endDate": "2026-10-22T02:00:00Z",
+            "live": true,
+            "change1h": -0.279
+          },
+          "change1h": -0.279,
+          "change5m": 0.0115,
+          "vol": 99.3
+        },
+        {
+          "market": {
+            "id": "polymarket:5682452",
+            "source": "polymarket",
+            "title": "Wuhan Tennis Open: Iva Jovic vs Maja Chwalinska",
+            "outcome": "Iva Jovic",
+            "probability": 0.495,
+            "volume24h": 245339.944219,
+            "liquidity": 111204.9991,
+            "category": "sports",
+            "tags": [
+              "tennis",
+              "sports"
+            ],
+            "url": "https://polymarket.com/event/wta-jovic-chwalin-2026-10-14",
+            "endDate": "2026-10-22T02:00:00Z",
+            "live": true,
+            "change1h": -0.23
+          },
+          "change1h": -0.23,
+          "change5m": -0.04,
+          "vol": 99.2
+        }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/vix",
+      "status": 200,
+      "expectedStatus": 200,
+      "pass": true,
+      "contentType": "application/json; charset=utf-8",
+      "response": {
+        "overall": 8.8,
+        "byCategory": {
+          "sports": 13.9,
+          "politics": 4.2,
+          "crypto": 14.2,
+          "economics": 7.5,
+          "entertainment": 11.7,
+          "weather": 0,
+          "tech": 8.7,
+          "other": 0
+        },
+        "updatedAt": "2026-10-15T07:31:29.802Z",
+        "history": [
+          {
+            "t": 1792048971766,
+            "overall": 28.1
+          },
+          {
+            "t": 1792049008234,
+            "overall": 28.1
+          },
+          {
+            "t": 1792049028571,
+            "overall": 21.1
+          },
+          {
+            "t": 1792049048718,
+            "overall": 16.2
+          },
+          {
+            "t": 1792049068930,
+            "overall": 12.7
+          },
+          {
+            "t": 1792049398866,
+            "overall": 12.7
+          },
+          {
+            "t": 1792049439055,
+            "overall": 12.7
+          },
+          {
+            "t": 1792049469301,
+            "overall": 10.4
+          },
+          {
+            "t": 1792049489802,
+            "overall": 8.8
+          }
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/alerts?limit=5",
+      "status": 200,
+      "expectedStatus": 200,
+      "pass": true,
+      "contentType": "application/json; charset=utf-8",
+      "response": [
+        {
+          "id": "fd514c6d-8e4a-48d2-ade2-062b7f235469",
+          "marketId": "kalshi:KXFEDDECISION-26OCT-H0",
+          "title": "Will the Federal Reserve Hike rates by 0bps at their October 2026 meeting?",
+          "source": "kalshi",
+          "category": "economics",
+          "tags": [
+            "feddecision",
+            "us fed",
+            "fed",
+            "economics"
+          ],
+          "url": "https://kalshi.com/markets/kxfeddecision-26oct",
+          "outcome": "Yes",
+          "from": 0.715,
+          "to": 0.842,
+          "delta": 0.127,
+          "windowMs": 240000,
+          "zScore": 3.9,
+          "severity": "notable",
+          "live": false,
+          "detectedAt": "2026-10-15T07:22:41.342Z",
+          "demo": true,
+          "ml": {
+            "pReal": 0.8175,
+            "label": "event",
+            "drivers": [
+              {
+                "feature": "cat_sports",
+                "impact": 0.2358,
+                "value": 0
+              },
+              {
+                "feature": "p_to",
+                "impact": 0.1685,
+                "value": 0.842
+              },
+              {
+                "feature": "momentum_align",
+                "impact": -0.1388,
+                "value": null
+              }
+            ],
+            "model": "xgboost@2026-10-15",
+            "historyMinutes": 0
+          },
+          "matchedSubscriptions": []
+        },
+        {
+          "id": "c1aa6aa9-052d-4aae-9698-bd4582f99069",
+          "marketId": "polymarket:5657052",
+          "title": "Bitcoin Up or Down on October 15?",
+          "source": "polymarket",
+          "category": "crypto",
+          "tags": [
+            "crypto",
+            "crypto-prices",
+            "bitcoin",
+            "up-or-down",
+            "today",
+            "daily-close"
+          ],
+          "url": "https://polymarket.com/event/bitcoin-up-or-down-on-october-15-2026",
+          "outcome": "Up",
+          "from": 0.275,
+          "to": 0.3,
+          "delta": 0.025,
+          "windowMs": 20341,
+          "zScore": 6.25,
+          "severity": "info",
+          "live": false,
+          "detectedAt": "2026-10-15T07:21:43.053Z",
+          "matchedSubscriptions": []
+        },
+        {
+          "id": "7125e480-8629-4f76-9623-021c8c86d444",
+          "marketId": "polymarket:3128886",
+          "title": "US announces end of Iranian blockade by December 31, 2026?",
+          "source": "polymarket",
+          "category": "politics",
+          "tags": [
+            "politics",
+            "iran",
+            "trump",
+            "peace-deal",
+            "shipping",
+            "geopolitics",
+            "trump-iran",
+            "blockade"
+          ],
+          "url": "https://polymarket.com/event/us-announces-end-of-iranian-blockade-byptptpt-20260713152715080",
+          "outcome": "Yes",
+          "from": 0.369,
+          "to": 0.393,
+          "delta": 0.024,
+          "windowMs": 20341,
+          "zScore": 6,
+          "severity": "info",
+          "live": false,
+          "detectedAt": "2026-10-15T07:21:43.053Z",
+          "matchedSubscriptions": []
+        },
+        {
+          "id": "468d6b9c-3211-439f-a150-8b29dcdae1fd",
+          "marketId": "polymarket:5682850",
+          "title": "Jinan: Yosuke Watanuki vs Marin Cilic",
+          "source": "polymarket",
+          "category": "sports",
+          "tags": [
+            "tennis",
+            "sports"
+          ],
+          "url": "https://polymarket.com/event/atp-watanuk-cilic-2026-10-15",
+          "outcome": "Yosuke Watanuki",
+          "from": 0.885,
+          "to": 0.9995,
+          "delta": 0.1145,
+          "windowMs": 324810,
+          "zScore": 1.1,
+          "severity": "notable",
+          "live": false,
+          "detectedAt": "2026-10-15T07:21:43.053Z",
+          "matchedSubscriptions": []
+        },
+        {
+          "id": "345eba16-4ce1-453c-be79-c26472dd017d",
+          "marketId": "polymarket:5682452",
+          "title": "Wuhan Tennis Open: Iva Jovic vs Maja Chwalinska",
+          "source": "polymarket",
+          "category": "sports",
+          "tags": [
+            "tennis",
+            "sports"
+          ],
+          "url": "https://polymarket.com/event/wta-jovic-chwalin-2026-10-14",
+          "outcome": "Iva Jovic",
+          "from": 0.755,
+          "to": 0.535,
+          "delta": -0.22,
+          "windowMs": 324810,
+          "zScore": -8.2,
+          "severity": "major",
+          "live": true,
+          "detectedAt": "2026-10-15T07:21:43.053Z",
+          "matchedSubscriptions": []
+        }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/subscriptions",
+      "status": 200,
+      "expectedStatus": 200,
+      "pass": true,
+      "contentType": "application/json; charset=utf-8",
+      "response": []
+    },
+    {
+      "method": "POST",
+      "path": "/api/subscriptions",
+      "status": 201,
+      "expectedStatus": 201,
+      "pass": true,
+      "contentType": "application/json; charset=utf-8",
+      "response": {
+        "name": "Codex API validation temporary",
+        "persona": "general",
+        "match": {
+          "keywords": [],
+          "categories": [],
+          "marketIds": [],
+          "sources": []
+        },
+        "minDelta": 0.99,
+        "minSeverity": "info",
+        "liveOnly": false,
+        "webhook": null,
+        "id": "396b6333-eff6-4143-b5b6-deca7dd3311a",
+        "createdAt": "2026-10-15T07:31:48.808Z"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/subscriptions/396b6333-eff6-4143-b5b6-deca7dd3311a",
+      "status": 200,
+      "expectedStatus": 200,
+      "pass": true,
+      "contentType": "application/json; charset=utf-8",
+      "response": {
+        "name": "Codex API validation temporary",
+        "persona": "general",
+        "match": {
+          "keywords": [],
+          "categories": [],
+          "marketIds": [],
+          "sources": []
+        },
+        "minDelta": 0.99,
+        "minSeverity": "info",
+        "liveOnly": false,
+        "webhook": null,
+        "id": "396b6333-eff6-4143-b5b6-deca7dd3311a",
+        "createdAt": "2026-10-15T07:31:48.808Z"
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/api/subscriptions/396b6333-eff6-4143-b5b6-deca7dd3311a",
+      "status": 200,
+      "expectedStatus": 200,
+      "pass": true,
+      "contentType": "application/json; charset=utf-8",
+      "response": {
+        "name": "Codex API validation updated",
+        "persona": "general",
+        "match": {
+          "keywords": [],
+          "categories": [],
+          "marketIds": [],
+          "sources": []
+        },
+        "minDelta": 1,
+        "minSeverity": "info",
+        "liveOnly": false,
+        "webhook": null,
+        "id": "396b6333-eff6-4143-b5b6-deca7dd3311a",
+        "createdAt": "2026-10-15T07:31:48.808Z",
+        "updatedAt": "2026-10-15T07:31:48.821Z"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/subscriptions/396b6333-eff6-4143-b5b6-deca7dd3311a/test",
+      "status": 400,
+      "expectedStatus": 400,
+      "pass": true,
+      "contentType": "application/json; charset=utf-8",
+      "response": {
+        "ok": false,
+        "error": "subscription has no webhook configured"
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/subscriptions/396b6333-eff6-4143-b5b6-deca7dd3311a",
+      "status": 200,
+      "expectedStatus": 200,
+      "pass": true,
+      "contentType": "application/json; charset=utf-8",
+      "response": {
+        "ok": true,
+        "id": "396b6333-eff6-4143-b5b6-deca7dd3311a"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/demo/spike",
+      "status": 201,
+      "expectedStatus": 201,
+      "pass": true,
+      "contentType": "application/json; charset=utf-8",
+      "response": {
+        "id": "cf9c5842-5fea-461a-b117-3436b567a3f1",
+        "marketId": "polymarket:601819",
+        "title": "Will Luiz Inácio Lula da Silva win the 2026 Brazilian presidential election?",
+        "source": "polymarket",
+        "category": "politics",
+        "tags": [
+          "politics",
+          "macro-election-2",
+          "global-elections",
+          "brazil",
+          "world-elections",
+          "world"
+        ],
+        "url": "https://polymarket.com/event/brazil-presidential-election",
+        "outcome": "Yes",
+        "from": 0.165,
+        "to": 0.317,
+        "delta": 0.152,
+        "windowMs": 180000,
+        "zScore": 3.8,
+        "severity": "major",
+        "live": false,
+        "detectedAt": "2026-10-15T07:31:49.071Z",
+        "demo": true,
+        "ml": {
+          "pReal": 0.7656,
+          "label": "likely",
+          "drivers": [
+            {
+              "feature": "cat_sports",
+              "impact": 0.2655,
+              "value": 0
+            },
+            {
+              "feature": "momentum_align",
+              "impact": -0.1761,
+              "value": null
+            },
+            {
+              "feature": "vr10_6h",
+              "impact": 0.166,
+              "value": null
+            }
+          ],
+          "model": "xgboost@2026-10-15",
+          "historyMinutes": 6
+        },
+        "matchedSubscriptions": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/subscriptions",
+      "status": 200,
+      "expectedStatus": 200,
+      "pass": true,
+      "contentType": "application/json; charset=utf-8",
+      "response": []
+    }
+  ],
+  "sse": {
+    "status": 200,
+    "contentType": "text/event-stream; charset=utf-8",
+    "events": [
+      "tick",
+      "vix",
+      "spike"
+    ],
+    "receivedSpike": true,
+    "ok": true
+  },
+  "marketSample": {
+    "id": "polymarket:2589812",
+    "title": "Will there be no change in Fed interest rates after the October 2026 meeting?"
+  },
+  "demo": {
+    "id": "cf9c5842-5fea-461a-b117-3436b567a3f1",
+    "demo": true,
+    "delta": 0.152,
+    "marketId": "polymarket:601819"
+  },
+  "remainingSubscriptions": 0,
+  "completedAt": "2026-10-15T07:31:49.229Z",
+  "allExpectedStatuses": true
+}

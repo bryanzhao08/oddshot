@@ -1,0 +1,1739 @@
+{
+  "sourcePolicy": "Public read-only Polymarket Gamma metadata and CLOB history APIs; no authenticated access or trading.",
+  "collected_at_utc": "2026-10-15T07:38:32.560499Z",
+  "source_endpoints": [
+    {
+      "url": "https://gamma-api.polymarket.com/events?slug={event_slug}",
+      "purpose": "Public event/market metadata, outcomes and token identifiers."
+    },
+    {
+      "url": "https://clob.polymarket.com/prices-history?market={yes_token_id}&startTs={start_seconds}&endTs={end_seconds}&fidelity=1",
+      "purpose": "Public YES-token historical price series; returned t values are Unix seconds, p is price probability."
+    }
+  ],
+  "sampling_note": "CLOB prices-history queried with fidelity=1 (minute fidelity); raw t and p retained, plus UTC timestamp rendering. Histories are narrow event windows around the news moment and may reflect sparse traded prices rather than complete one-minute candles.",
+  "events": [
+    {
+      "id": "polymarket:openai-astra-public-release-sep-4-2026",
+      "title": "Will OpenAI's Astra model be released on September 4, 2026?",
+      "market_url": "https://polymarket.com/event/openais-astra-released-onptptpt-20260901080122046",
+      "gamma_event_url": "https://gamma-api.polymarket.com/events?slug=openais-astra-released-onptptpt-20260901080122046",
+      "clob_token_id": "96413546966330134196909132513275220087587194221800703127256598585240061406455",
+      "tracked_outcome": "Yes",
+      "resolved_outcome": "Yes",
+      "gamma_closed": true,
+      "gamma_outcome_prices": [
+        "1",
+        "0"
+      ],
+      "closed_time": "2026-09-04 22:34:01+00",
+      "end_date": "2026-09-04T23:59:00Z",
+      "resolution_evidence": "Gamma marks market closed with outcomes ['Yes', 'No'] and outcomePrices ['1', '0']; selected outcome Yes is settled at 1.",
+      "news_moment_utc": "2026-09-04T18:10:00Z",
+      "news_timestamp_basis": "The New Stack reports the rollout on Sep 4 at 11:10 a.m. PDT (18:10 UTC); this corroborates the actual broad-availability milestone. Market price begins its sharp move up around 18:39 UTC. The initial Sep 3 launch announcement described limited access and is not the qualifying public-release moment.",
+      "news_sources": [
+        {
+          "url": "https://thenewstack.io/gpt6-astra-developer-access-delayed/",
+          "description": "Timestamped reporting on broad rollout; states that on Friday Sep 4 Astra was available to paid users."
+        },
+        {
+          "url": "https://openai.com/index/gpt-6-astra/",
+          "description": "Official launch page; launch was initially limited and rollout to paid plans/API was to follow."
+        },
+        {
+          "url": "https://www.techradar.com/pro/security/openai-warns-about-how-good-astra-model-is-at-cracking-cybersecurity-releases-it-anyway-because-it-took-years-of-research-and-big-bets",
+          "description": "Timestamped independent report at 18:10 UTC, Sep 4, confirming OpenAI had begun rolling Astra out."
+        }
+      ],
+      "market_rules_source": "https://polymarket.com/event/openais-astra-released-onptptpt-20260901080122046",
+      "history_window_start_utc": "2026-09-04T17:50:00Z",
+      "history_window_end_utc": "2026-09-04T19:10:00Z",
+      "history_fidelity_minutes": 1,
+      "history_api_url": "https://clob.polymarket.com/prices-history?market=96413546966330134196909132513275220087587194221800703127256598585240061406455&startTs=1788544200&endTs=1788549000&fidelity=1",
+      "source_docs_url": "https://docs.polymarket.com/api-reference/markets/get-prices-history",
+      "prices": [
+        {
+          "t": 1788544217,
+          "utc": "2026-09-04T17:50:17Z",
+          "p": 0.1185
+        },
+        {
+          "t": 1788544276,
+          "utc": "2026-09-04T17:51:16Z",
+          "p": 0.1185
+        },
+        {
+          "t": 1788544336,
+          "utc": "2026-09-04T17:52:16Z",
+          "p": 0.1185
+        },
+        {
+          "t": 1788544395,
+          "utc": "2026-09-04T17:53:15Z",
+          "p": 0.1185
+        },
+        {
+          "t": 1788544456,
+          "utc": "2026-09-04T17:54:16Z",
+          "p": 0.1185
+        },
+        {
+          "t": 1788544516,
+          "utc": "2026-09-04T17:55:16Z",
+          "p": 0.1185
+        },
+        {
+          "t": 1788544577,
+          "utc": "2026-09-04T17:56:17Z",
+          "p": 0.1185
+        },
+        {
+          "t": 1788544636,
+          "utc": "2026-09-04T17:57:16Z",
+          "p": 0.1185
+        },
+        {
+          "t": 1788544697,
+          "utc": "2026-09-04T17:58:17Z",
+          "p": 0.1185
+        },
+        {
+          "t": 1788544756,
+          "utc": "2026-09-04T17:59:16Z",
+          "p": 0.1185
+        },
+        {
+          "t": 1788544820,
+          "utc": "2026-09-04T18:00:20Z",
+          "p": 0.1185
+        },
+        {
+          "t": 1788544875,
+          "utc": "2026-09-04T18:01:15Z",
+          "p": 0.1185
+        },
+        {
+          "t": 1788544935,
+          "utc": "2026-09-04T18:02:15Z",
+          "p": 0.1185
+        },
+        {
+          "t": 1788544994,
+          "utc": "2026-09-04T18:03:14Z",
+          "p": 0.1185
+        },
+        {
+          "t": 1788545054,
+          "utc": "2026-09-04T18:04:14Z",
+          "p": 0.1185
+        },
+        {
+          "t": 1788545116,
+          "utc": "2026-09-04T18:05:16Z",
+          "p": 0.1145
+        },
+        {
+          "t": 1788545175,
+          "utc": "2026-09-04T18:06:15Z",
+          "p": 0.1145
+        },
+        {
+          "t": 1788545235,
+          "utc": "2026-09-04T18:07:15Z",
+          "p": 0.1145
+        },
+        {
+          "t": 1788545310,
+          "utc": "2026-09-04T18:08:30Z",
+          "p": 0.1145
+        },
+        {
+          "t": 1788545355,
+          "utc": "2026-09-04T18:09:15Z",
+          "p": 0.1085
+        },
+        {
+          "t": 1788545417,
+          "utc": "2026-09-04T18:10:17Z",
+          "p": 0.107
+        },
+        {
+          "t": 1788545474,
+          "utc": "2026-09-04T18:11:14Z",
+          "p": 0.107
+        },
+        {
+          "t": 1788545535,
+          "utc": "2026-09-04T18:12:15Z",
+          "p": 0.1015
+        },
+        {
+          "t": 1788545594,
+          "utc": "2026-09-04T18:13:14Z",
+          "p": 0.1005
+        },
+        {
+          "t": 1788545654,
+          "utc": "2026-09-04T18:14:14Z",
+          "p": 0.0995
+        },
+        {
+          "t": 1788545716,
+          "utc": "2026-09-04T18:15:16Z",
+          "p": 0.0975
+        },
+        {
+          "t": 1788545772,
+          "utc": "2026-09-04T18:16:12Z",
+          "p": 0.0975
+        },
+        {
+          "t": 1788545845,
+          "utc": "2026-09-04T18:17:25Z",
+          "p": 0.0975
+        },
+        {
+          "t": 1788545895,
+          "utc": "2026-09-04T18:18:15Z",
+          "p": 0.0975
+        },
+        {
+          "t": 1788545956,
+          "utc": "2026-09-04T18:19:16Z",
+          "p": 0.0975
+        },
+        {
+          "t": 1788546016,
+          "utc": "2026-09-04T18:20:16Z",
+          "p": 0.0975
+        },
+        {
+          "t": 1788546089,
+          "utc": "2026-09-04T18:21:29Z",
+          "p": 0.0925
+        },
+        {
+          "t": 1788546135,
+          "utc": "2026-09-04T18:22:15Z",
+          "p": 0.1015
+        },
+        {
+          "t": 1788546195,
+          "utc": "2026-09-04T18:23:15Z",
+          "p": 0.099
+        },
+        {
+          "t": 1788546257,
+          "utc": "2026-09-04T18:24:17Z",
+          "p": 0.098
+        },
+        {
+          "t": 1788546316,
+          "utc": "2026-09-04T18:25:16Z",
+          "p": 0.1
+        },
+        {
+          "t": 1788546375,
+          "utc": "2026-09-04T18:26:15Z",
+          "p": 0.101
+        },
+        {
+          "t": 1788546435,
+          "utc": "2026-09-04T18:27:15Z",
+          "p": 0.1
+        },
+        {
+          "t": 1788546495,
+          "utc": "2026-09-04T18:28:15Z",
+          "p": 0.098
+        },
+        {
+          "t": 1788546568,
+          "utc": "2026-09-04T18:29:28Z",
+          "p": 0.098
+        },
+        {
+          "t": 1788546619,
+          "utc": "2026-09-04T18:30:19Z",
+          "p": 0.098
+        },
+        {
+          "t": 1788546671,
+          "utc": "2026-09-04T18:31:11Z",
+          "p": 0.101
+        },
+        {
+          "t": 1788546738,
+          "utc": "2026-09-04T18:32:18Z",
+          "p": 0.101
+        },
+        {
+          "t": 1788546796,
+          "utc": "2026-09-04T18:33:16Z",
+          "p": 0.1
+        },
+        {
+          "t": 1788546855,
+          "utc": "2026-09-04T18:34:15Z",
+          "p": 0.0995
+        },
+        {
+          "t": 1788546919,
+          "utc": "2026-09-04T18:35:19Z",
+          "p": 0.1045
+        },
+        {
+          "t": 1788546976,
+          "utc": "2026-09-04T18:36:16Z",
+          "p": 0.105
+        },
+        {
+          "t": 1788547038,
+          "utc": "2026-09-04T18:37:18Z",
+          "p": 0.105
+        },
+        {
+          "t": 1788547095,
+          "utc": "2026-09-04T18:38:15Z",
+          "p": 0.105
+        },
+        {
+          "t": 1788547155,
+          "utc": "2026-09-04T18:39:15Z",
+          "p": 0.141
+        },
+        {
+          "t": 1788547217,
+          "utc": "2026-09-04T18:40:17Z",
+          "p": 0.2065
+        },
+        {
+          "t": 1788547276,
+          "utc": "2026-09-04T18:41:16Z",
+          "p": 0.3115
+        },
+        {
+          "t": 1788547335,
+          "utc": "2026-09-04T18:42:15Z",
+          "p": 0.744
+        },
+        {
+          "t": 1788547395,
+          "utc": "2026-09-04T18:43:15Z",
+          "p": 0.655
+        },
+        {
+          "t": 1788547456,
+          "utc": "2026-09-04T18:44:16Z",
+          "p": 0.8765
+        },
+        {
+          "t": 1788547518,
+          "utc": "2026-09-04T18:45:18Z",
+          "p": 0.9235
+        },
+        {
+          "t": 1788547576,
+          "utc": "2026-09-04T18:46:16Z",
+          "p": 0.8955
+        },
+        {
+          "t": 1788547635,
+          "utc": "2026-09-04T18:47:15Z",
+          "p": 0.8865
+        },
+        {
+          "t": 1788547695,
+          "utc": "2026-09-04T18:48:15Z",
+          "p": 0.878
+        },
+        {
+          "t": 1788547756,
+          "utc": "2026-09-04T18:49:16Z",
+          "p": 0.8745
+        },
+        {
+          "t": 1788547823,
+          "utc": "2026-09-04T18:50:23Z",
+          "p": 0.868
+        },
+        {
+          "t": 1788547872,
+          "utc": "2026-09-04T18:51:12Z",
+          "p": 0.756
+        },
+        {
+          "t": 1788547935,
+          "utc": "2026-09-04T18:52:15Z",
+          "p": 0.827
+        },
+        {
+          "t": 1788547995,
+          "utc": "2026-09-04T18:53:15Z",
+          "p": 0.8385
+        },
+        {
+          "t": 1788548066,
+          "utc": "2026-09-04T18:54:26Z",
+          "p": 0.797
+        },
+        {
+          "t": 1788548112,
+          "utc": "2026-09-04T18:55:12Z",
+          "p": 0.84
+        },
+        {
+          "t": 1788548175,
+          "utc": "2026-09-04T18:56:15Z",
+          "p": 0.8135
+        },
+        {
+          "t": 1788548235,
+          "utc": "2026-09-04T18:57:15Z",
+          "p": 0.83
+        },
+        {
+          "t": 1788548298,
+          "utc": "2026-09-04T18:58:18Z",
+          "p": 0.835
+        },
+        {
+          "t": 1788548355,
+          "utc": "2026-09-04T18:59:15Z",
+          "p": 0.879
+        },
+        {
+          "t": 1788548432,
+          "utc": "2026-09-04T19:00:32Z",
+          "p": 0.885
+        },
+        {
+          "t": 1788548476,
+          "utc": "2026-09-04T19:01:16Z",
+          "p": 0.886
+        },
+        {
+          "t": 1788548535,
+          "utc": "2026-09-04T19:02:15Z",
+          "p": 0.877
+        },
+        {
+          "t": 1788548600,
+          "utc": "2026-09-04T19:03:20Z",
+          "p": 0.9015
+        },
+        {
+          "t": 1788548655,
+          "utc": "2026-09-04T19:04:15Z",
+          "p": 0.928
+        },
+        {
+          "t": 1788548717,
+          "utc": "2026-09-04T19:05:17Z",
+          "p": 0.9435
+        },
+        {
+          "t": 1788548772,
+          "utc": "2026-09-04T19:06:12Z",
+          "p": 0.926
+        },
+        {
+          "t": 1788548832,
+          "utc": "2026-09-04T19:07:12Z",
+          "p": 0.9415
+        },
+        {
+          "t": 1788548895,
+          "utc": "2026-09-04T19:08:15Z",
+          "p": 0.953
+        },
+        {
+          "t": 1788548960,
+          "utc": "2026-09-04T19:09:20Z",
+          "p": 0.953
+        }
+      ],
+      "api_points_returned": 80,
+      "caveats": "Polymarket historical price points are traded prices returned by the public history endpoint and need not be a continuous one-minute candle series. News publication time is not necessarily the first public disclosure; market pricing may anticipate scheduled events. See news_timestamp_basis for timestamp qualifications."
+    },
+    {
+      "id": "polymarket:google-gemini-3-8-flash-release-sep-2-2026",
+      "title": "Will the next Google Gemini Flash model be released on September 2, 2026?",
+      "market_url": "https://polymarket.com/event/next-gemini-flash-model-3pt8-released-onptptpt-20260831193056503",
+      "gamma_event_url": "https://gamma-api.polymarket.com/events?slug=next-gemini-flash-model-3pt8-released-onptptpt-20260831193056503",
+      "clob_token_id": "69169514603661738706247353455888234100397497907595282402361166145914461505074",
+      "tracked_outcome": "Yes",
+      "resolved_outcome": "Yes",
+      "gamma_closed": true,
+      "gamma_outcome_prices": [
+        "1",
+        "0"
+      ],
+      "closed_time": "2026-09-02 17:46:03+00",
+      "end_date": "2026-09-02T23:59:00Z",
+      "resolution_evidence": "Gamma marks market closed with outcomes ['Yes', 'No'] and outcomePrices ['1', '0']; selected outcome Yes is settled at 1.",
+      "news_moment_utc": "2026-09-02T15:56:00Z",
+      "news_timestamp_basis": "Search Engine Land published the report at 11:56 a.m. on Sep 2; converted from EDT (UTC−4), based on the publisher’s US Eastern local time. Google’s official blog confirms Gemini 3.8 Flash was introduced on Sep 2, but gives date only. Timestamp timezone for the secondary report is inferred, so use the official source date as the strongest evidence.",
+      "news_sources": [
+        {
+          "url": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/3-8-flash-and-3-8-flash-cyber/",
+          "description": "Google official announcement introducing Gemini 3.8 Flash on Sep 2, 2026."
+        },
+        {
+          "url": "https://searchengineland.com/gemini-3-8-flash-rolling-out-in-google-search-486630",
+          "description": "Published Sep 2 at 11:56 a.m.; reports the new Gemini model was live in Google Search AI Mode."
+        },
+        {
+          "url": "https://deepmind.google/models/model-cards/gemini-3-8-flash/",
+          "description": "Google DeepMind model card gives publication date Sep 2, 2026."
+        }
+      ],
+      "market_rules_source": "https://polymarket.com/event/next-gemini-flash-model-3pt8-released-onptptpt-20260831193056503",
+      "history_window_start_utc": "2026-09-02T15:35:00Z",
+      "history_window_end_utc": "2026-09-02T17:00:00Z",
+      "history_fidelity_minutes": 1,
+      "history_api_url": "https://clob.polymarket.com/prices-history?market=69169514603661738706247353455888234100397497907595282402361166145914461505074&startTs=1788363300&endTs=1788368400&fidelity=1",
+      "source_docs_url": "https://docs.polymarket.com/api-reference/markets/get-prices-history",
+      "prices": [
+        {
+          "t": 1788363313,
+          "utc": "2026-09-02T15:35:13Z",
+          "p": 0.996
+        },
+        {
+          "t": 1788363369,
+          "utc": "2026-09-02T15:36:09Z",
+          "p": 0.996
+        },
+        {
+          "t": 1788363429,
+          "utc": "2026-09-02T15:37:09Z",
+          "p": 0.996
+        },
+        {
+          "t": 1788363493,
+          "utc": "2026-09-02T15:38:13Z",
+          "p": 0.971
+        },
+        {
+          "t": 1788363552,
+          "utc": "2026-09-02T15:39:12Z",
+          "p": 0.971
+        },
+        {
+          "t": 1788363613,
+          "utc": "2026-09-02T15:40:13Z",
+          "p": 0.969
+        },
+        {
+          "t": 1788363676,
+          "utc": "2026-09-02T15:41:16Z",
+          "p": 0.969
+        },
+        {
+          "t": 1788363733,
+          "utc": "2026-09-02T15:42:13Z",
+          "p": 0.968
+        },
+        {
+          "t": 1788363789,
+          "utc": "2026-09-02T15:43:09Z",
+          "p": 0.9675
+        },
+        {
+          "t": 1788363852,
+          "utc": "2026-09-02T15:44:12Z",
+          "p": 0.971
+        },
+        {
+          "t": 1788363913,
+          "utc": "2026-09-02T15:45:13Z",
+          "p": 0.976
+        },
+        {
+          "t": 1788363987,
+          "utc": "2026-09-02T15:46:27Z",
+          "p": 0.9775
+        },
+        {
+          "t": 1788364033,
+          "utc": "2026-09-02T15:47:13Z",
+          "p": 0.977
+        },
+        {
+          "t": 1788364093,
+          "utc": "2026-09-02T15:48:13Z",
+          "p": 0.9835
+        },
+        {
+          "t": 1788364153,
+          "utc": "2026-09-02T15:49:13Z",
+          "p": 0.984
+        },
+        {
+          "t": 1788364213,
+          "utc": "2026-09-02T15:50:13Z",
+          "p": 0.986
+        },
+        {
+          "t": 1788364269,
+          "utc": "2026-09-02T15:51:09Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788364332,
+          "utc": "2026-09-02T15:52:12Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788364389,
+          "utc": "2026-09-02T15:53:09Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788364456,
+          "utc": "2026-09-02T15:54:16Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788364513,
+          "utc": "2026-09-02T15:55:13Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788364572,
+          "utc": "2026-09-02T15:56:12Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788364629,
+          "utc": "2026-09-02T15:57:09Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788364692,
+          "utc": "2026-09-02T15:58:12Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788364752,
+          "utc": "2026-09-02T15:59:12Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788364814,
+          "utc": "2026-09-02T16:00:14Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788364873,
+          "utc": "2026-09-02T16:01:13Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788364929,
+          "utc": "2026-09-02T16:02:09Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788364989,
+          "utc": "2026-09-02T16:03:09Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788365052,
+          "utc": "2026-09-02T16:04:12Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788365113,
+          "utc": "2026-09-02T16:05:13Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788365169,
+          "utc": "2026-09-02T16:06:09Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788365232,
+          "utc": "2026-09-02T16:07:12Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788365292,
+          "utc": "2026-09-02T16:08:12Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788365349,
+          "utc": "2026-09-02T16:09:09Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788365413,
+          "utc": "2026-09-02T16:10:13Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788365473,
+          "utc": "2026-09-02T16:11:13Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788365533,
+          "utc": "2026-09-02T16:12:13Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788365592,
+          "utc": "2026-09-02T16:13:12Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788365653,
+          "utc": "2026-09-02T16:14:13Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788365713,
+          "utc": "2026-09-02T16:15:13Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788365772,
+          "utc": "2026-09-02T16:16:12Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788365844,
+          "utc": "2026-09-02T16:17:24Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788365893,
+          "utc": "2026-09-02T16:18:13Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788365952,
+          "utc": "2026-09-02T16:19:12Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788366013,
+          "utc": "2026-09-02T16:20:13Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788366073,
+          "utc": "2026-09-02T16:21:13Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788366133,
+          "utc": "2026-09-02T16:22:13Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788366193,
+          "utc": "2026-09-02T16:23:13Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788366252,
+          "utc": "2026-09-02T16:24:12Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788366312,
+          "utc": "2026-09-02T16:25:12Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788366372,
+          "utc": "2026-09-02T16:26:12Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788366430,
+          "utc": "2026-09-02T16:27:10Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788366496,
+          "utc": "2026-09-02T16:28:16Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788366553,
+          "utc": "2026-09-02T16:29:13Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788366615,
+          "utc": "2026-09-02T16:30:15Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788366673,
+          "utc": "2026-09-02T16:31:13Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788366733,
+          "utc": "2026-09-02T16:32:13Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788366796,
+          "utc": "2026-09-02T16:33:16Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788366854,
+          "utc": "2026-09-02T16:34:14Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788366910,
+          "utc": "2026-09-02T16:35:10Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788366973,
+          "utc": "2026-09-02T16:36:13Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788367030,
+          "utc": "2026-09-02T16:37:10Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788367093,
+          "utc": "2026-09-02T16:38:13Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788367153,
+          "utc": "2026-09-02T16:39:13Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788367213,
+          "utc": "2026-09-02T16:40:13Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788367272,
+          "utc": "2026-09-02T16:41:12Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788367332,
+          "utc": "2026-09-02T16:42:12Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788367392,
+          "utc": "2026-09-02T16:43:12Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788367453,
+          "utc": "2026-09-02T16:44:13Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788367509,
+          "utc": "2026-09-02T16:45:09Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788367577,
+          "utc": "2026-09-02T16:46:17Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788367630,
+          "utc": "2026-09-02T16:47:10Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788367702,
+          "utc": "2026-09-02T16:48:22Z",
+          "p": 0.9975
+        },
+        {
+          "t": 1788367764,
+          "utc": "2026-09-02T16:49:24Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788367815,
+          "utc": "2026-09-02T16:50:15Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788367869,
+          "utc": "2026-09-02T16:51:09Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788367933,
+          "utc": "2026-09-02T16:52:13Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788367992,
+          "utc": "2026-09-02T16:53:12Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788368053,
+          "utc": "2026-09-02T16:54:13Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788368113,
+          "utc": "2026-09-02T16:55:13Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788368172,
+          "utc": "2026-09-02T16:56:12Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788368229,
+          "utc": "2026-09-02T16:57:09Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788368304,
+          "utc": "2026-09-02T16:58:24Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788368354,
+          "utc": "2026-09-02T16:59:14Z",
+          "p": 0.9995
+        }
+      ],
+      "api_points_returned": 85,
+      "caveats": "Polymarket historical price points are traded prices returned by the public history endpoint and need not be a continuous one-minute candle series. News publication time is not necessarily the first public disclosure; market pricing may anticipate scheduled events. See news_timestamp_basis for timestamp qualifications."
+    },
+    {
+      "id": "polymarket:apple-foldable-iphone-announced-sep-9-2026",
+      "title": "Apple Announces Foldable iPhone at “Surprise and Shine” Event?",
+      "market_url": "https://polymarket.com/event/apple-announces-foldable-iphone-at-surprise-and-shine-event",
+      "gamma_event_url": "https://gamma-api.polymarket.com/events?slug=apple-announces-foldable-iphone-at-surprise-and-shine-event",
+      "clob_token_id": "51543918297868033243842166325938722724821312248320576501947028550820054399411",
+      "tracked_outcome": "Yes",
+      "resolved_outcome": "Yes",
+      "gamma_closed": true,
+      "gamma_outcome_prices": [
+        "1",
+        "0"
+      ],
+      "closed_time": "2026-09-09 19:56:15+00",
+      "end_date": "2026-09-09T23:59:00Z",
+      "resolution_evidence": "Gamma marks market closed with outcomes ['Yes', 'No'] and outcomePrices ['1', '0']; selected outcome Yes is settled at 1.",
+      "news_moment_utc": "2026-09-09T17:56:00Z",
+      "news_timestamp_basis": "MacRumors timestamped its announcement report at 10:56 a.m. PDT (17:56 UTC), during Apple’s 10 a.m. PDT keynote. Apple’s press release confirms iPhone Duo was the first foldable iPhone and is dated Sep 9. The YES market was already near 0.99 before the keynote; this example has a known event moment but no clear post-news jump in the sampled window.",
+      "news_sources": [
+        {
+          "url": "https://www.macrumors.com/2026/09/09/apple-announces-foldable-iphone-duo/",
+          "description": "Timestamped report at 10:56 a.m. PDT that Apple announced the foldable iPhone Duo."
+        },
+        {
+          "url": "https://www.apple.com/newsroom/2026/09/apple-unveils-iphone-duo/",
+          "description": "Official Apple press release, Sep 9, introducing iPhone Duo as its first foldable iPhone."
+        },
+        {
+          "url": "https://www.apple.com/apple-events/event-stream/",
+          "description": "Official event stream page dates the event Sep 9, 2026."
+        }
+      ],
+      "market_rules_source": "https://polymarket.com/event/apple-announces-foldable-iphone-at-surprise-and-shine-event",
+      "history_window_start_utc": "2026-09-09T17:25:00Z",
+      "history_window_end_utc": "2026-09-09T18:40:00Z",
+      "history_fidelity_minutes": 1,
+      "history_api_url": "https://clob.polymarket.com/prices-history?market=51543918297868033243842166325938722724821312248320576501947028550820054399411&startTs=1788974700&endTs=1788979200&fidelity=1",
+      "source_docs_url": "https://docs.polymarket.com/api-reference/markets/get-prices-history",
+      "prices": [
+        {
+          "t": 1788974716,
+          "utc": "2026-09-09T17:25:16Z",
+          "p": 0.999
+        },
+        {
+          "t": 1788974775,
+          "utc": "2026-09-09T17:26:15Z",
+          "p": 0.999
+        },
+        {
+          "t": 1788974834,
+          "utc": "2026-09-09T17:27:14Z",
+          "p": 0.9945
+        },
+        {
+          "t": 1788974894,
+          "utc": "2026-09-09T17:28:14Z",
+          "p": 0.995
+        },
+        {
+          "t": 1788974957,
+          "utc": "2026-09-09T17:29:17Z",
+          "p": 0.995
+        },
+        {
+          "t": 1788975027,
+          "utc": "2026-09-09T17:30:27Z",
+          "p": 0.9945
+        },
+        {
+          "t": 1788975075,
+          "utc": "2026-09-09T17:31:15Z",
+          "p": 0.9945
+        },
+        {
+          "t": 1788975134,
+          "utc": "2026-09-09T17:32:14Z",
+          "p": 0.9955
+        },
+        {
+          "t": 1788975194,
+          "utc": "2026-09-09T17:33:14Z",
+          "p": 0.9955
+        },
+        {
+          "t": 1788975269,
+          "utc": "2026-09-09T17:34:29Z",
+          "p": 0.995
+        },
+        {
+          "t": 1788975329,
+          "utc": "2026-09-09T17:35:29Z",
+          "p": 0.995
+        },
+        {
+          "t": 1788975374,
+          "utc": "2026-09-09T17:36:14Z",
+          "p": 0.9945
+        },
+        {
+          "t": 1788975434,
+          "utc": "2026-09-09T17:37:14Z",
+          "p": 0.9945
+        },
+        {
+          "t": 1788975495,
+          "utc": "2026-09-09T17:38:15Z",
+          "p": 0.9945
+        },
+        {
+          "t": 1788975555,
+          "utc": "2026-09-09T17:39:15Z",
+          "p": 0.9945
+        },
+        {
+          "t": 1788975615,
+          "utc": "2026-09-09T17:40:15Z",
+          "p": 0.9945
+        },
+        {
+          "t": 1788975675,
+          "utc": "2026-09-09T17:41:15Z",
+          "p": 0.9945
+        },
+        {
+          "t": 1788975735,
+          "utc": "2026-09-09T17:42:15Z",
+          "p": 0.9945
+        },
+        {
+          "t": 1788975793,
+          "utc": "2026-09-09T17:43:13Z",
+          "p": 0.9945
+        },
+        {
+          "t": 1788975854,
+          "utc": "2026-09-09T17:44:14Z",
+          "p": 0.994
+        },
+        {
+          "t": 1788975914,
+          "utc": "2026-09-09T17:45:14Z",
+          "p": 0.994
+        },
+        {
+          "t": 1788975974,
+          "utc": "2026-09-09T17:46:14Z",
+          "p": 0.994
+        },
+        {
+          "t": 1788976045,
+          "utc": "2026-09-09T17:47:25Z",
+          "p": 0.8485
+        },
+        {
+          "t": 1788976095,
+          "utc": "2026-09-09T17:48:15Z",
+          "p": 0.8495
+        },
+        {
+          "t": 1788976173,
+          "utc": "2026-09-09T17:49:33Z",
+          "p": 0.9735
+        },
+        {
+          "t": 1788976211,
+          "utc": "2026-09-09T17:50:11Z",
+          "p": 0.995
+        },
+        {
+          "t": 1788976274,
+          "utc": "2026-09-09T17:51:14Z",
+          "p": 0.975
+        },
+        {
+          "t": 1788976335,
+          "utc": "2026-09-09T17:52:15Z",
+          "p": 0.9865
+        },
+        {
+          "t": 1788976394,
+          "utc": "2026-09-09T17:53:14Z",
+          "p": 0.992
+        },
+        {
+          "t": 1788976454,
+          "utc": "2026-09-09T17:54:14Z",
+          "p": 0.9955
+        },
+        {
+          "t": 1788976514,
+          "utc": "2026-09-09T17:55:14Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788976574,
+          "utc": "2026-09-09T17:56:14Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788976634,
+          "utc": "2026-09-09T17:57:14Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788976694,
+          "utc": "2026-09-09T17:58:14Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788976755,
+          "utc": "2026-09-09T17:59:15Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788976817,
+          "utc": "2026-09-09T18:00:17Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788976874,
+          "utc": "2026-09-09T18:01:14Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788976934,
+          "utc": "2026-09-09T18:02:14Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788976994,
+          "utc": "2026-09-09T18:03:14Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788977054,
+          "utc": "2026-09-09T18:04:14Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788977110,
+          "utc": "2026-09-09T18:05:10Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788977171,
+          "utc": "2026-09-09T18:06:11Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788977229,
+          "utc": "2026-09-09T18:07:09Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788977294,
+          "utc": "2026-09-09T18:08:14Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788977369,
+          "utc": "2026-09-09T18:09:29Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788977410,
+          "utc": "2026-09-09T18:10:10Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788977474,
+          "utc": "2026-09-09T18:11:14Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788977534,
+          "utc": "2026-09-09T18:12:14Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788977608,
+          "utc": "2026-09-09T18:13:28Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788977654,
+          "utc": "2026-09-09T18:14:14Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788977715,
+          "utc": "2026-09-09T18:15:15Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788977774,
+          "utc": "2026-09-09T18:16:14Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788977834,
+          "utc": "2026-09-09T18:17:14Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788977894,
+          "utc": "2026-09-09T18:18:14Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788977954,
+          "utc": "2026-09-09T18:19:14Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788978010,
+          "utc": "2026-09-09T18:20:10Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788978074,
+          "utc": "2026-09-09T18:21:14Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788978130,
+          "utc": "2026-09-09T18:22:10Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788978194,
+          "utc": "2026-09-09T18:23:14Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788978254,
+          "utc": "2026-09-09T18:24:14Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788978314,
+          "utc": "2026-09-09T18:25:14Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788978370,
+          "utc": "2026-09-09T18:26:10Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788978434,
+          "utc": "2026-09-09T18:27:14Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788978495,
+          "utc": "2026-09-09T18:28:15Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788978554,
+          "utc": "2026-09-09T18:29:14Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788978616,
+          "utc": "2026-09-09T18:30:16Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788978674,
+          "utc": "2026-09-09T18:31:14Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788978734,
+          "utc": "2026-09-09T18:32:14Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788978795,
+          "utc": "2026-09-09T18:33:15Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788978854,
+          "utc": "2026-09-09T18:34:14Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788978914,
+          "utc": "2026-09-09T18:35:14Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788978974,
+          "utc": "2026-09-09T18:36:14Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788979034,
+          "utc": "2026-09-09T18:37:14Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788979094,
+          "utc": "2026-09-09T18:38:14Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1788979166,
+          "utc": "2026-09-09T18:39:26Z",
+          "p": 0.9995
+        }
+      ],
+      "api_points_returned": 75,
+      "caveats": "Polymarket historical price points are traded prices returned by the public history endpoint and need not be a continuous one-minute candle series. News publication time is not necessarily the first public disclosure; market pricing may anticipate scheduled events. See news_timestamp_basis for timestamp qualifications."
+    },
+    {
+      "id": "polymarket:nvidia-q2-datacenter-revenue-above-85b-2026-08-26",
+      "title": "Will NVIDIA (NVDA) Q2 Data Center revenue be above $85B?",
+      "market_url": "https://polymarket.com/event/will-nvidia-nvda-q2-data-center-revenue-be-above-20260803225408174",
+      "gamma_event_url": "https://gamma-api.polymarket.com/events?slug=will-nvidia-nvda-q2-data-center-revenue-be-above-20260803225408174",
+      "clob_token_id": "39168355941005945997473548861490078510462755403635203915842489361558229340432",
+      "tracked_outcome": "Yes",
+      "resolved_outcome": "Yes",
+      "gamma_closed": true,
+      "gamma_outcome_prices": [
+        "1",
+        "0"
+      ],
+      "closed_time": "2026-08-26 22:25:45+00",
+      "end_date": "2026-08-26T21:00:00Z",
+      "resolution_evidence": "Gamma marks market closed with outcomes ['Yes', 'No'] and outcomePrices ['1', '0']; selected outcome Yes is settled at 1.",
+      "news_moment_utc": "2026-08-26T20:20:00Z",
+      "news_timestamp_basis": "NVIDIA’s Q2 FY2027 results press release was distributed at 4:20 p.m. EDT (20:20 UTC), as shown in contemporaneous timestamped coverage; company press release reports $89.0B data-center revenue. Market threshold $85B settled YES.",
+      "news_sources": [
+        {
+          "url": "https://nvidianews.nvidia.com/news/nvidia-announces-financial-results-for-second-quarter-fiscal-2027",
+          "description": "Official NVIDIA Q2 FY2027 results; $89.0B Data Center revenue."
+        },
+        {
+          "url": "https://www.marketscreener.com/news/nvidia-announces-financial-results-for-second-quarter-fiscal-2027-ce7858d9d188f021",
+          "description": "Timestamped release reproduction at 4:20 p.m. EDT on Aug 26."
+        },
+        {
+          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000073/nvda-20260826.htm",
+          "description": "NVIDIA Form 8-K filed for Aug 26 results; Exhibit 99.1 press release."
+        }
+      ],
+      "market_rules_source": "https://polymarket.com/event/will-nvidia-nvda-q2-data-center-revenue-be-above-20260803225408174",
+      "history_window_start_utc": "2026-08-26T19:50:00Z",
+      "history_window_end_utc": "2026-08-26T21:00:00Z",
+      "history_fidelity_minutes": 1,
+      "history_api_url": "https://clob.polymarket.com/prices-history?market=39168355941005945997473548861490078510462755403635203915842489361558229340432&startTs=1787773800&endTs=1787778000&fidelity=1",
+      "source_docs_url": "https://docs.polymarket.com/api-reference/markets/get-prices-history",
+      "prices": [
+        {
+          "t": 1787773812,
+          "utc": "2026-08-26T19:50:12Z",
+          "p": 0.87
+        },
+        {
+          "t": 1787773868,
+          "utc": "2026-08-26T19:51:08Z",
+          "p": 0.87
+        },
+        {
+          "t": 1787773932,
+          "utc": "2026-08-26T19:52:12Z",
+          "p": 0.87
+        },
+        {
+          "t": 1787773992,
+          "utc": "2026-08-26T19:53:12Z",
+          "p": 0.87
+        },
+        {
+          "t": 1787774052,
+          "utc": "2026-08-26T19:54:12Z",
+          "p": 0.87
+        },
+        {
+          "t": 1787774112,
+          "utc": "2026-08-26T19:55:12Z",
+          "p": 0.87
+        },
+        {
+          "t": 1787774172,
+          "utc": "2026-08-26T19:56:12Z",
+          "p": 0.87
+        },
+        {
+          "t": 1787774232,
+          "utc": "2026-08-26T19:57:12Z",
+          "p": 0.775
+        },
+        {
+          "t": 1787774292,
+          "utc": "2026-08-26T19:58:12Z",
+          "p": 0.775
+        },
+        {
+          "t": 1787774352,
+          "utc": "2026-08-26T19:59:12Z",
+          "p": 0.775
+        },
+        {
+          "t": 1787774414,
+          "utc": "2026-08-26T20:00:14Z",
+          "p": 0.775
+        },
+        {
+          "t": 1787774473,
+          "utc": "2026-08-26T20:01:13Z",
+          "p": 0.775
+        },
+        {
+          "t": 1787774547,
+          "utc": "2026-08-26T20:02:27Z",
+          "p": 0.765
+        },
+        {
+          "t": 1787774592,
+          "utc": "2026-08-26T20:03:12Z",
+          "p": 0.765
+        },
+        {
+          "t": 1787774653,
+          "utc": "2026-08-26T20:04:13Z",
+          "p": 0.765
+        },
+        {
+          "t": 1787774711,
+          "utc": "2026-08-26T20:05:11Z",
+          "p": 0.765
+        },
+        {
+          "t": 1787774769,
+          "utc": "2026-08-26T20:06:09Z",
+          "p": 0.765
+        },
+        {
+          "t": 1787774829,
+          "utc": "2026-08-26T20:07:09Z",
+          "p": 0.765
+        },
+        {
+          "t": 1787774892,
+          "utc": "2026-08-26T20:08:12Z",
+          "p": 0.765
+        },
+        {
+          "t": 1787774953,
+          "utc": "2026-08-26T20:09:13Z",
+          "p": 0.765
+        },
+        {
+          "t": 1787775013,
+          "utc": "2026-08-26T20:10:13Z",
+          "p": 0.765
+        },
+        {
+          "t": 1787775072,
+          "utc": "2026-08-26T20:11:12Z",
+          "p": 0.765
+        },
+        {
+          "t": 1787775133,
+          "utc": "2026-08-26T20:12:13Z",
+          "p": 0.765
+        },
+        {
+          "t": 1787775192,
+          "utc": "2026-08-26T20:13:12Z",
+          "p": 0.765
+        },
+        {
+          "t": 1787775266,
+          "utc": "2026-08-26T20:14:26Z",
+          "p": 0.765
+        },
+        {
+          "t": 1787775310,
+          "utc": "2026-08-26T20:15:10Z",
+          "p": 0.765
+        },
+        {
+          "t": 1787775372,
+          "utc": "2026-08-26T20:16:12Z",
+          "p": 0.765
+        },
+        {
+          "t": 1787775433,
+          "utc": "2026-08-26T20:17:13Z",
+          "p": 0.765
+        },
+        {
+          "t": 1787775492,
+          "utc": "2026-08-26T20:18:12Z",
+          "p": 0.765
+        },
+        {
+          "t": 1787775552,
+          "utc": "2026-08-26T20:19:12Z",
+          "p": 0.765
+        },
+        {
+          "t": 1787775613,
+          "utc": "2026-08-26T20:20:13Z",
+          "p": 0.765
+        },
+        {
+          "t": 1787775669,
+          "utc": "2026-08-26T20:21:09Z",
+          "p": 0.765
+        },
+        {
+          "t": 1787775732,
+          "utc": "2026-08-26T20:22:12Z",
+          "p": 0.945
+        },
+        {
+          "t": 1787775793,
+          "utc": "2026-08-26T20:23:13Z",
+          "p": 0.945
+        },
+        {
+          "t": 1787775852,
+          "utc": "2026-08-26T20:24:12Z",
+          "p": 0.945
+        },
+        {
+          "t": 1787775913,
+          "utc": "2026-08-26T20:25:13Z",
+          "p": 0.945
+        },
+        {
+          "t": 1787775972,
+          "utc": "2026-08-26T20:26:12Z",
+          "p": 0.98
+        },
+        {
+          "t": 1787776032,
+          "utc": "2026-08-26T20:27:12Z",
+          "p": 0.98
+        },
+        {
+          "t": 1787776108,
+          "utc": "2026-08-26T20:28:28Z",
+          "p": 0.9795
+        },
+        {
+          "t": 1787776153,
+          "utc": "2026-08-26T20:29:13Z",
+          "p": 0.975
+        },
+        {
+          "t": 1787776213,
+          "utc": "2026-08-26T20:30:13Z",
+          "p": 0.9795
+        },
+        {
+          "t": 1787776272,
+          "utc": "2026-08-26T20:31:12Z",
+          "p": 0.975
+        },
+        {
+          "t": 1787776333,
+          "utc": "2026-08-26T20:32:13Z",
+          "p": 0.9755
+        },
+        {
+          "t": 1787776393,
+          "utc": "2026-08-26T20:33:13Z",
+          "p": 0.9755
+        },
+        {
+          "t": 1787776452,
+          "utc": "2026-08-26T20:34:12Z",
+          "p": 0.9755
+        },
+        {
+          "t": 1787776525,
+          "utc": "2026-08-26T20:35:25Z",
+          "p": 0.9755
+        },
+        {
+          "t": 1787776569,
+          "utc": "2026-08-26T20:36:09Z",
+          "p": 0.9755
+        },
+        {
+          "t": 1787776643,
+          "utc": "2026-08-26T20:37:23Z",
+          "p": 0.9755
+        },
+        {
+          "t": 1787776692,
+          "utc": "2026-08-26T20:38:12Z",
+          "p": 0.9755
+        },
+        {
+          "t": 1787776753,
+          "utc": "2026-08-26T20:39:13Z",
+          "p": 0.9755
+        },
+        {
+          "t": 1787776812,
+          "utc": "2026-08-26T20:40:12Z",
+          "p": 0.9755
+        },
+        {
+          "t": 1787776874,
+          "utc": "2026-08-26T20:41:14Z",
+          "p": 0.9755
+        },
+        {
+          "t": 1787776933,
+          "utc": "2026-08-26T20:42:13Z",
+          "p": 0.9755
+        },
+        {
+          "t": 1787776992,
+          "utc": "2026-08-26T20:43:12Z",
+          "p": 0.9755
+        },
+        {
+          "t": 1787777052,
+          "utc": "2026-08-26T20:44:12Z",
+          "p": 0.9755
+        },
+        {
+          "t": 1787777113,
+          "utc": "2026-08-26T20:45:13Z",
+          "p": 0.9755
+        },
+        {
+          "t": 1787777169,
+          "utc": "2026-08-26T20:46:09Z",
+          "p": 0.9755
+        },
+        {
+          "t": 1787777232,
+          "utc": "2026-08-26T20:47:12Z",
+          "p": 0.9755
+        },
+        {
+          "t": 1787777292,
+          "utc": "2026-08-26T20:48:12Z",
+          "p": 0.9755
+        },
+        {
+          "t": 1787777352,
+          "utc": "2026-08-26T20:49:12Z",
+          "p": 0.9755
+        },
+        {
+          "t": 1787777412,
+          "utc": "2026-08-26T20:50:12Z",
+          "p": 0.9755
+        },
+        {
+          "t": 1787777469,
+          "utc": "2026-08-26T20:51:09Z",
+          "p": 0.9755
+        },
+        {
+          "t": 1787777532,
+          "utc": "2026-08-26T20:52:12Z",
+          "p": 0.9755
+        },
+        {
+          "t": 1787777593,
+          "utc": "2026-08-26T20:53:13Z",
+          "p": 0.9755
+        },
+        {
+          "t": 1787777654,
+          "utc": "2026-08-26T20:54:14Z",
+          "p": 0.9755
+        },
+        {
+          "t": 1787777713,
+          "utc": "2026-08-26T20:55:13Z",
+          "p": 0.9755
+        },
+        {
+          "t": 1787777773,
+          "utc": "2026-08-26T20:56:13Z",
+          "p": 0.9755
+        },
+        {
+          "t": 1787777832,
+          "utc": "2026-08-26T20:57:12Z",
+          "p": 0.9755
+        },
+        {
+          "t": 1787777892,
+          "utc": "2026-08-26T20:58:12Z",
+          "p": 0.9755
+        },
+        {
+          "t": 1787777952,
+          "utc": "2026-08-26T20:59:12Z",
+          "p": 0.9755
+        }
+      ],
+      "api_points_returned": 70,
+      "caveats": "Polymarket historical price points are traded prices returned by the public history endpoint and need not be a continuous one-minute candle series. News publication time is not necessarily the first public disclosure; market pricing may anticipate scheduled events. See news_timestamp_basis for timestamp qualifications."
+    }
+  ]
+}

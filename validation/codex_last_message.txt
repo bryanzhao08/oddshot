@@ -1,0 +1,8 @@
+Completed the validation and saved the report at [validation/REPORT.md](/Users/bryan/oddshot/validation/REPORT.md).
+
+- The detector fired near **22 of 27** selected historical event moments: **17/17 sports** and **5/10 non-sports**. Median offset was **+0.35 minutes**. This is a curated sample, not a production recall estimate.
+- The manual news-catalyst sample found **16.7% precision both with and without** the `pReal ≥ 0.593` filter; it was small and measures news discoverability, not the model’s price-retention label.
+- All **10/10** live market spot checks matched public venue prices within one point. The 15-minute poll recorded two temporary source timeouts.
+- API checks passed, including subscription cleanup and a local-only webhook test. The demo alert remains in the server’s buffer because there is no delete endpoint.
+
+The raw histories, live snapshots, API evidence, replay results, and scripts are under [validation/data](/Users/bryan/oddshot/validation/data) and [validation/scripts](/Users/bryan/oddshot/validation/scripts). A later read-only check found two subscriptions created after our checks; their purpose was unclear, so I left them untouched.

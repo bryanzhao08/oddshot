@@ -1,0 +1,462 @@
+{
+  "collected_at_utc": "2026-10-15T07:35:59.580550Z",
+  "venue": "Polymarket",
+  "api": "CLOB prices-history",
+  "sampling_note": "fidelity=1 minute; raw response timestamps (Unix seconds) and prices retained as returned, with UTC ISO-8601 rendering added.",
+  "events": [
+    {
+      "id": "polymarket:fed-decision-september-2026-25bps-increase",
+      "title": "Will the Fed increase interest rates by 25 bps after the September 2026 meeting?",
+      "market_url": "https://polymarket.com/event/fed-decision-in-september-762",
+      "gamma_event_url": "https://gamma-api.polymarket.com/events?slug=fed-decision-in-september-762",
+      "clob_token_id": "63842529068710005716169325380315470359047749786610778647370693404952498013178",
+      "tracked_outcome": "Yes",
+      "resolved_outcome": "Yes",
+      "resolution_evidence": "Gamma event response marks this market closed with outcomePrices [\"1\",\"0\"] for Yes/No; Polymarket market page gives final outcome 25 bps increase. The Federal Reserve statement says target range was raised 25 bps to 3-3/4 to 4 percent.",
+      "resolution_source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260916a.htm",
+      "news_moment_utc": "2026-09-16T18:00:00Z",
+      "news_timestamp_basis": "Federal Reserve release page states release at 2:00 p.m. EDT (UTC\u22124) on Sep 16, 2026; convert to 18:00 UTC.",
+      "market_rules_source": "https://polymarket.com/event/fed-decision-in-september-762",
+      "history_window_start_utc": "2026-09-16T17:40:00Z",
+      "history_window_end_utc": "2026-09-16T18:20:00Z",
+      "history_fidelity_minutes": 1,
+      "history_api_url": "https://clob.polymarket.com/prices-history?market=63842529068710005716169325380315470359047749786610778647370693404952498013178&startTs=1789580400&endTs=1789582800&fidelity=1",
+      "source_docs_url": "https://docs.polymarket.com/api-reference/markets/get-prices-history",
+      "prices": [
+        {
+          "t": 1789580412,
+          "utc": "2026-09-16T17:40:12Z",
+          "p": 0.855
+        },
+        {
+          "t": 1789580472,
+          "utc": "2026-09-16T17:41:12Z",
+          "p": 0.855
+        },
+        {
+          "t": 1789580529,
+          "utc": "2026-09-16T17:42:09Z",
+          "p": 0.855
+        },
+        {
+          "t": 1789580608,
+          "utc": "2026-09-16T17:43:28Z",
+          "p": 0.855
+        },
+        {
+          "t": 1789580652,
+          "utc": "2026-09-16T17:44:12Z",
+          "p": 0.855
+        },
+        {
+          "t": 1789580713,
+          "utc": "2026-09-16T17:45:13Z",
+          "p": 0.855
+        },
+        {
+          "t": 1789580768,
+          "utc": "2026-09-16T17:46:08Z",
+          "p": 0.855
+        },
+        {
+          "t": 1789580828,
+          "utc": "2026-09-16T17:47:08Z",
+          "p": 0.855
+        },
+        {
+          "t": 1789580889,
+          "utc": "2026-09-16T17:48:09Z",
+          "p": 0.855
+        },
+        {
+          "t": 1789580951,
+          "utc": "2026-09-16T17:49:11Z",
+          "p": 0.865
+        },
+        {
+          "t": 1789581013,
+          "utc": "2026-09-16T17:50:13Z",
+          "p": 0.865
+        },
+        {
+          "t": 1789581073,
+          "utc": "2026-09-16T17:51:13Z",
+          "p": 0.865
+        },
+        {
+          "t": 1789581128,
+          "utc": "2026-09-16T17:52:08Z",
+          "p": 0.865
+        },
+        {
+          "t": 1789581189,
+          "utc": "2026-09-16T17:53:09Z",
+          "p": 0.855
+        },
+        {
+          "t": 1789581266,
+          "utc": "2026-09-16T17:54:26Z",
+          "p": 0.865
+        },
+        {
+          "t": 1789581312,
+          "utc": "2026-09-16T17:55:12Z",
+          "p": 0.865
+        },
+        {
+          "t": 1789581372,
+          "utc": "2026-09-16T17:56:12Z",
+          "p": 0.865
+        },
+        {
+          "t": 1789581428,
+          "utc": "2026-09-16T17:57:08Z",
+          "p": 0.865
+        },
+        {
+          "t": 1789581491,
+          "utc": "2026-09-16T17:58:11Z",
+          "p": 0.865
+        },
+        {
+          "t": 1789581552,
+          "utc": "2026-09-16T17:59:12Z",
+          "p": 0.875
+        },
+        {
+          "t": 1789581613,
+          "utc": "2026-09-16T18:00:13Z",
+          "p": 0.91
+        },
+        {
+          "t": 1789581672,
+          "utc": "2026-09-16T18:01:12Z",
+          "p": 0.995
+        },
+        {
+          "t": 1789581728,
+          "utc": "2026-09-16T18:02:08Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1789581789,
+          "utc": "2026-09-16T18:03:09Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1789581852,
+          "utc": "2026-09-16T18:04:12Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1789581911,
+          "utc": "2026-09-16T18:05:11Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1789581971,
+          "utc": "2026-09-16T18:06:11Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1789582031,
+          "utc": "2026-09-16T18:07:11Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1789582088,
+          "utc": "2026-09-16T18:08:08Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1789582152,
+          "utc": "2026-09-16T18:09:12Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1789582212,
+          "utc": "2026-09-16T18:10:12Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1789582272,
+          "utc": "2026-09-16T18:11:12Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1789582332,
+          "utc": "2026-09-16T18:12:12Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1789582392,
+          "utc": "2026-09-16T18:13:12Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1789582451,
+          "utc": "2026-09-16T18:14:11Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1789582513,
+          "utc": "2026-09-16T18:15:13Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1789582572,
+          "utc": "2026-09-16T18:16:12Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1789582633,
+          "utc": "2026-09-16T18:17:13Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1789582693,
+          "utc": "2026-09-16T18:18:13Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1789582759,
+          "utc": "2026-09-16T18:19:19Z",
+          "p": 0.9995
+        }
+      ],
+      "api_points_returned": 40,
+      "caveats": [
+        "Polymarket prices-history returns sparse price points at approximately one-minute intervals, not uniform candles or every trade; the observed timestamps can be offset from the scheduled release minute.",
+        "Prices are YES token CLOB prices, used here as an approximate market-implied probability; they do not expose order-book depth or guarantee an executable fill.",
+        "The close temporal association between the repricing and the official release is evidence of timing, not proof that the release alone caused every trade."
+      ]
+    },
+    {
+      "id": "polymarket:september-cpi-monthly-2026-0.6",
+      "title": "Will monthly inflation increase by 0.6% in September?",
+      "market_url": "https://polymarket.com/event/september-inflation-us-monthly?marketSlug=will-monthly-inflation-increase-by-0pt6-in-september-2026&outcomeIndex=1",
+      "gamma_event_url": "https://gamma-api.polymarket.com/events?slug=september-inflation-us-monthly",
+      "clob_token_id": "42196384288008215285708538366313569133448000456328828231355174842722475948306",
+      "tracked_outcome": "Yes",
+      "resolved_outcome": "Yes",
+      "resolution_evidence": "Gamma event response marks this market closed with outcomePrices [\"1\",\"0\"] for Yes/No; Polymarket event page confirms the resolved 0.6% monthly outcome. BLS release reports CPI-U rose 0.6% seasonally adjusted in September.",
+      "resolution_source_url": "https://www.bls.gov/news.release/archives/cpi_10142026.htm",
+      "news_moment_utc": "2026-10-14T12:30:00Z",
+      "news_timestamp_basis": "BLS release cover states embargo until 8:30 a.m. EDT on Oct 14, 2026 (12:30 UTC). The reported seasonally adjusted CPI-U monthly increase was 0.6%.",
+      "market_rules_source": "https://polymarket.com/event/september-inflation-us-monthly?marketSlug=will-monthly-inflation-increase-by-0pt6-in-september-2026&outcomeIndex=1",
+      "history_window_start_utc": "2026-10-14T12:10:00Z",
+      "history_window_end_utc": "2026-10-14T12:50:00Z",
+      "history_fidelity_minutes": 1,
+      "history_api_url": "https://clob.polymarket.com/prices-history?market=42196384288008215285708538366313569133448000456328828231355174842722475948306&startTs=1791979800&endTs=1791982200&fidelity=1",
+      "source_docs_url": "https://docs.polymarket.com/api-reference/markets/get-prices-history",
+      "prices": [
+        {
+          "t": 1791979822,
+          "utc": "2026-10-14T12:10:22Z",
+          "p": 0.565
+        },
+        {
+          "t": 1791979880,
+          "utc": "2026-10-14T12:11:20Z",
+          "p": 0.565
+        },
+        {
+          "t": 1791979940,
+          "utc": "2026-10-14T12:12:20Z",
+          "p": 0.565
+        },
+        {
+          "t": 1791980014,
+          "utc": "2026-10-14T12:13:34Z",
+          "p": 0.565
+        },
+        {
+          "t": 1791980061,
+          "utc": "2026-10-14T12:14:21Z",
+          "p": 0.565
+        },
+        {
+          "t": 1791980122,
+          "utc": "2026-10-14T12:15:22Z",
+          "p": 0.565
+        },
+        {
+          "t": 1791980181,
+          "utc": "2026-10-14T12:16:21Z",
+          "p": 0.565
+        },
+        {
+          "t": 1791980241,
+          "utc": "2026-10-14T12:17:21Z",
+          "p": 0.565
+        },
+        {
+          "t": 1791980301,
+          "utc": "2026-10-14T12:18:21Z",
+          "p": 0.565
+        },
+        {
+          "t": 1791980361,
+          "utc": "2026-10-14T12:19:21Z",
+          "p": 0.565
+        },
+        {
+          "t": 1791980421,
+          "utc": "2026-10-14T12:20:21Z",
+          "p": 0.565
+        },
+        {
+          "t": 1791980481,
+          "utc": "2026-10-14T12:21:21Z",
+          "p": 0.565
+        },
+        {
+          "t": 1791980542,
+          "utc": "2026-10-14T12:22:22Z",
+          "p": 0.555
+        },
+        {
+          "t": 1791980601,
+          "utc": "2026-10-14T12:23:21Z",
+          "p": 0.525
+        },
+        {
+          "t": 1791980662,
+          "utc": "2026-10-14T12:24:22Z",
+          "p": 0.525
+        },
+        {
+          "t": 1791980721,
+          "utc": "2026-10-14T12:25:21Z",
+          "p": 0.525
+        },
+        {
+          "t": 1791980781,
+          "utc": "2026-10-14T12:26:21Z",
+          "p": 0.525
+        },
+        {
+          "t": 1791980835,
+          "utc": "2026-10-14T12:27:15Z",
+          "p": 0.51
+        },
+        {
+          "t": 1791980901,
+          "utc": "2026-10-14T12:28:21Z",
+          "p": 0.51
+        },
+        {
+          "t": 1791980962,
+          "utc": "2026-10-14T12:29:22Z",
+          "p": 0.51
+        },
+        {
+          "t": 1791981023,
+          "utc": "2026-10-14T12:30:23Z",
+          "p": 0.56
+        },
+        {
+          "t": 1791981083,
+          "utc": "2026-10-14T12:31:23Z",
+          "p": 0.995
+        },
+        {
+          "t": 1791981142,
+          "utc": "2026-10-14T12:32:22Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1791981201,
+          "utc": "2026-10-14T12:33:21Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1791981267,
+          "utc": "2026-10-14T12:34:27Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1791981315,
+          "utc": "2026-10-14T12:35:15Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1791981385,
+          "utc": "2026-10-14T12:36:25Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1791981441,
+          "utc": "2026-10-14T12:37:21Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1791981501,
+          "utc": "2026-10-14T12:38:21Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1791981561,
+          "utc": "2026-10-14T12:39:21Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1791981622,
+          "utc": "2026-10-14T12:40:22Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1791981681,
+          "utc": "2026-10-14T12:41:21Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1791981741,
+          "utc": "2026-10-14T12:42:21Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1791981801,
+          "utc": "2026-10-14T12:43:21Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1791981861,
+          "utc": "2026-10-14T12:44:21Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1791981922,
+          "utc": "2026-10-14T12:45:22Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1791981982,
+          "utc": "2026-10-14T12:46:22Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1791982041,
+          "utc": "2026-10-14T12:47:21Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1791982101,
+          "utc": "2026-10-14T12:48:21Z",
+          "p": 0.9995
+        },
+        {
+          "t": 1791982161,
+          "utc": "2026-10-14T12:49:21Z",
+          "p": 0.9995
+        }
+      ],
+      "api_points_returned": 40,
+      "caveats": [
+        "Polymarket prices-history returns sparse price points at approximately one-minute intervals, not uniform candles or every trade; the observed timestamps can be offset from the scheduled release minute.",
+        "Prices are YES token CLOB prices, used here as an approximate market-implied probability; they do not expose order-book depth or guarantee an executable fill.",
+        "The close temporal association between the repricing and the official release is evidence of timing, not proof that the release alone caused every trade."
+      ]
+    }
+  ]
+}
