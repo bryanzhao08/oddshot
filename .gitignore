@@ -8,3 +8,4 @@ __pycache__/
 ios/build/
 *.xcodeproj/xcuserdata/
 DerivedData/
+_site/

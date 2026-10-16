@@ -12,6 +12,10 @@ const params = new URLSearchParams(location.search);
 const remote = params.get('api');
 const standalone = !remote && (params.has('standalone') || location.hostname.endsWith('github.io'));
 
+// Where the shared server modules live relative to this file. scripts/build-pages.mjs
+// rewrites this line when it flattens public/ to the site root.
+const SERVER_BASE = '../server/';
+
 const isApi = (u) => typeof u === 'string' && u.startsWith('/api/');
 const nativeFetch = window.fetch.bind(window);
 const NativeEventSource = window.EventSource;
@@ -31,7 +35,7 @@ function installStandalone() {
   const VIX_HISTORY_MS = 6 * 3600 * 1000;
   const ALERTS_MAX = 200;
   const KALSHI_NOTE = 'needs the Oddshot server (Kalshi blocks browser requests)';
-  const mod = (p) => import(new URL(p, import.meta.url).href);
+  const mod = (p) => import(new URL(SERVER_BASE + p, import.meta.url).href);
 
   const state = {
     markets: [], byId: new Map(), lastPollAt: null, vixHistory: [],
@@ -55,31 +59,31 @@ function installStandalone() {
   // Load the shared modules once; every handler awaits this.
   const ready = (async () => {
     const [engine, poly, match, notify, ml, insights, hist, fc] = await Promise.all([
-      mod('../server/engine/detector.js'),
-      mod('../server/sources/polymarket.js'),
-      mod('../server/match.js'),
-      mod('../server/notify.js'),
-      mod('../server/ml/scorer.js').catch(() => null),
-      mod('../server/insights/index.js'),
-      mod('../server/sources/history.js'),
-      mod('../server/ml/forecaster.js').catch(() => null),
+      mod('engine/detector.js'),
+      mod('sources/polymarket.js'),
+      mod('match.js'),
+      mod('notify.js'),
+      mod('ml/scorer.js').catch(() => null),
+      mod('insights/index.js'),
+      mod('sources/history.js'),
+      mod('ml/forecaster.js').catch(() => null),
     ]);
     // v3: rules-based recommendations (browser-safe) + live context (ESPN/Coinbase allow CORS).
     const [rules, contextMod] = await Promise.all([
-      mod('../server/agent/rules.js').catch(() => null),
-      mod('../server/context/index.js').catch(() => null),
+      mod('agent/rules.js').catch(() => null),
+      mod('context/index.js').catch(() => null),
     ]);
     let forecast = insights.heuristicForecast;
     if (fc?.forecastMove) {
       try {
-        const res = await nativeFetch(new URL('../server/ml/forecaster.json', import.meta.url));
+        const res = await nativeFetch(new URL(SERVER_BASE + 'ml/forecaster.json', import.meta.url));
         if (res.ok) fc.setForecaster(await res.json());
       } catch { /* forecaster falls back to its heuristic */ }
       forecast = (m, h, now) => fc.forecastMove(m, h, now) || insights.heuristicForecast(m, h, now);
     }
     if (ml) {
       try {
-        const res = await nativeFetch(new URL('../server/ml/model.json', import.meta.url));
+        const res = await nativeFetch(new URL(SERVER_BASE + 'ml/model.json', import.meta.url));
         if (res.ok) ml.setModel(await res.json());
       } catch { /* run unscored */ }
     }

@@ -7,7 +7,9 @@
   "scripts": {
     "start": "node server/index.js",
     "dev": "node --watch server/index.js",
-    "test": "node --test 'server/**/*.test.js'"
+    "test": "node --test 'server/**/*.test.js'",
+    "build:pages": "node scripts/build-pages.mjs",
+    "preview:pages": "node scripts/build-pages.mjs && echo \"Open http://localhost:4318/?standalone\" && python3 -m http.server 4318 -d _site"
   },
   "engines": {
     "node": ">=20"

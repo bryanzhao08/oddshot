@@ -110,6 +110,18 @@ Run the tests:
 node --test 'server/**/*.test.js'
 ```
 
+## Deploying to GitHub Pages
+
+`.github/workflows/pages.yml` runs on every push to `main`. It runs the tests, builds
+`_site/` with `npm run build:pages`, and deploys it. The build puts the web app at the
+site root and copies in the browser-safe server modules and ML models. It also checks
+that every module the browser imports is included, and cache-busts the entry files.
+
+- **One-time setup:** in the repo, go to Settings → Pages → Build and deployment and set
+  Source to **GitHub Actions**.
+- **Preview locally:** run `npm run preview:pages`, then open
+  http://localhost:4318/?standalone.
+
 ## Configuration
 
 | Variable   | Default   | Description                                    |
