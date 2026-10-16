@@ -1,0 +1,241 @@
+{
+  "events": [
+    {
+      "id": "401908945",
+      "date": "2026-10-15T23:30Z",
+      "name": "Toronto Raptors at New York Knicks",
+      "shortName": "TOR @ NY",
+      "competitions": [
+        {
+          "id": "401908945",
+          "date": "2026-10-15T23:30Z",
+          "competitors": [
+            {
+              "id": "18",
+              "homeAway": "home",
+              "team": {
+                "id": "18",
+                "location": "New York",
+                "name": "Knicks",
+                "abbreviation": "NY",
+                "displayName": "New York Knicks",
+                "shortDisplayName": "Knicks"
+              },
+              "score": "15",
+              "linescores": [
+                {
+                  "value": 15.0,
+                  "displayValue": "15",
+                  "period": 1
+                }
+              ]
+            },
+            {
+              "id": "28",
+              "homeAway": "away",
+              "team": {
+                "id": "28",
+                "location": "Toronto",
+                "name": "Raptors",
+                "abbreviation": "TOR",
+                "displayName": "Toronto Raptors",
+                "shortDisplayName": "Raptors"
+              },
+              "score": "15",
+              "linescores": [
+                {
+                  "value": 15.0,
+                  "displayValue": "15",
+                  "period": 1
+                }
+              ]
+            }
+          ],
+          "situation": {
+            "lastPlay": {
+              "id": "40190894558",
+              "type": {
+                "id": "90",
+                "text": "Out of Bounds - Bad Pass Turnover"
+              },
+              "text": "Immanuel Quickley out of bounds bad pass turnover",
+              "scoreValue": 0,
+              "team": {
+                "id": "28"
+              },
+              "probability": {
+                "tiePercentage": 0.0,
+                "homeWinPercentage": 0.512,
+                "awayWinPercentage": 0.488
+              },
+              "athletesInvolved": [
+                {
+                  "id": "4395724",
+                  "fullName": "Immanuel Quickley",
+                  "displayName": "Immanuel Quickley",
+                  "shortName": "I. Quickley",
+                  "links": [
+                    {
+                      "rel": [
+                        "playercard",
+                        "desktop",
+                        "athlete"
+                      ],
+                      "href": "https://www.espn.com/nba/player/_/id/4395724/immanuel-quickley"
+                    }
+                  ],
+                  "headshot": "https://a.espncdn.com/i/headshots/nba/players/full/4395724.png",
+                  "jersey": "5",
+                  "position": "G",
+                  "team": {
+                    "id": "28"
+                  }
+                }
+              ]
+            }
+          },
+          "status": {
+            "clock": 455.0,
+            "displayClock": "7:35",
+            "period": 1,
+            "type": {
+              "id": "2",
+              "name": "STATUS_IN_PROGRESS",
+              "state": "in",
+              "completed": false,
+              "description": "In Progress",
+              "detail": "7:35 - 1st Quarter",
+              "shortDetail": "7:35 - 1st"
+            }
+          }
+        }
+      ],
+      "status": {
+        "clock": 455.0,
+        "displayClock": "7:35",
+        "period": 1,
+        "type": {
+          "id": "2",
+          "name": "STATUS_IN_PROGRESS",
+          "state": "in",
+          "completed": false,
+          "description": "In Progress",
+          "detail": "7:35 - 1st Quarter",
+          "shortDetail": "7:35 - 1st"
+        }
+      }
+    },
+    {
+      "id": "401736179",
+      "date": "2025-06-15T16:00Z",
+      "name": "Chicago Sky at Connecticut Sun",
+      "shortName": "CHI @ CON",
+      "competitions": [
+        {
+          "id": "401736179",
+          "date": "2025-06-15T16:00Z",
+          "competitors": [
+            {
+              "id": "18",
+              "homeAway": "home",
+              "team": {
+                "id": "18",
+                "location": "Connecticut",
+                "name": "Sun",
+                "abbreviation": "CON",
+                "displayName": "Connecticut Sun",
+                "shortDisplayName": "Sun"
+              },
+              "score": "66",
+              "linescores": [
+                {
+                  "value": 16.0,
+                  "displayValue": "16",
+                  "period": 1
+                },
+                {
+                  "value": 20.0,
+                  "displayValue": "20",
+                  "period": 2
+                },
+                {
+                  "value": 18.0,
+                  "displayValue": "18",
+                  "period": 3
+                },
+                {
+                  "value": 12.0,
+                  "displayValue": "12",
+                  "period": 4
+                }
+              ]
+            },
+            {
+              "id": "19",
+              "homeAway": "away",
+              "team": {
+                "id": "19",
+                "location": "Chicago",
+                "name": "Sky",
+                "abbreviation": "CHI",
+                "displayName": "Chicago Sky",
+                "shortDisplayName": "Sky"
+              },
+              "score": "78",
+              "linescores": [
+                {
+                  "value": 14.0,
+                  "displayValue": "14",
+                  "period": 1
+                },
+                {
+                  "value": 24.0,
+                  "displayValue": "24",
+                  "period": 2
+                },
+                {
+                  "value": 21.0,
+                  "displayValue": "21",
+                  "period": 3
+                },
+                {
+                  "value": 19.0,
+                  "displayValue": "19",
+                  "period": 4
+                }
+              ]
+            }
+          ],
+          "status": {
+            "clock": 0.0,
+            "displayClock": "0.0",
+            "period": 4,
+            "type": {
+              "id": "3",
+              "name": "STATUS_FINAL",
+              "state": "post",
+              "completed": true,
+              "description": "Final",
+              "detail": "Final",
+              "shortDetail": "Final"
+            }
+          }
+        }
+      ],
+      "status": {
+        "clock": 0.0,
+        "displayClock": "0.0",
+        "period": 4,
+        "type": {
+          "id": "3",
+          "name": "STATUS_FINAL",
+          "state": "post",
+          "completed": true,
+          "description": "Final",
+          "detail": "Final",
+          "shortDetail": "Final"
+        }
+      }
+    }
+  ]
+}

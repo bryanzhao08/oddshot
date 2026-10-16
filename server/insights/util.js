@@ -220,7 +220,10 @@ function shortSideBase(x, person = false) {
   const core = words.filter((w) => !GENERIC_NAME.test(w.replace(/\.$/, '')));
   const ws = core.length ? core : words;
   const s = ws.join(' ');
-  return person || ws.length > 2 || s.length > 16 ? ws[ws.length - 1] : s;
+  const last = ws[ws.length - 1] || '';
+  // Kalshi disambiguates shared cities with a letter ("Los Angeles D"); a lone "D" says nothing.
+  if (last.length <= 2 && ws.length > 1) return s;
+  return person || ws.length > 2 || s.length > 16 ? last : s;
 }
 const cleanEvent = (t) => String(t || '').replace(/\s*-\s*(more markets|total corners|player props)$/i, '').trim();
 const SUB_RE = /\b(o\/u|over|under|spread|handicap|total|draw|both teams|first|props?)\b|\([+-]\d/i;

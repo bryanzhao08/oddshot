@@ -8,7 +8,7 @@ SwiftUI companion app for the Oddshot server (see `../CONTRACT.md`). iOS 17+, Sw
 ## Build & run
 
 ```sh
-# 1. Start the backend from the repo root (defaults to http://localhost:8787)
+# 1. Start the backend from the repo root (defaults to http://localhost:4317)
 npm start            # or: node server/index.js
 
 # 2. (Re)generate the Xcode project after adding/removing files
@@ -28,7 +28,7 @@ xcrun simctl launch booted com.oddshot.app            # add `-initialTab 0..5` (
 
 Or open `ios/Oddshot.xcodeproj` in Xcode and press Run. For a physical iPhone, pick your team under
 Signing & Capabilities and set the server URL in **Settings** to your Mac's LAN address
-(e.g. `http://192.168.1.20:8787`). ATS allows plain HTTP only for local networking (`NSAllowsLocalNetworking`).
+(e.g. `http://192.168.1.20:4317`). ATS allows plain HTTP only for local networking (`NSAllowsLocalNetworking`).
 
 ## Tabs
 

@@ -1,0 +1,41 @@
+Oddshot live context check — 2026-10-15
+
+Source: http://[::1]:8787/api/markets?category=sports&limit=200
+The IPv6 loopback URL avoids an unrelated IPv4 listener on port 8787.
+
+Sports result: 77 of 200 markets matched ESPN games in pregame or in-progress
+status (38.5%). Those markets represented 17 distinct games. The matches below
+are market-level examples; repeated sibling markets can refer to the same game.
+
+1. SEA Seahawks vs DEN Broncos: Seattle wins — NFL, pregame, 0-0; situation:
+   none supplied by ESPN.
+2. Game 4: Milwaukee vs Los Angeles D: Milwaukee wins — MLB, pregame, 0-0;
+   situation: none supplied by ESPN.
+3. CAR Panthers vs PHI Eagles: Carolina wins — NFL, pregame, 0-0; situation:
+   none supplied by ESPN.
+4. Toronto vs New York: Toronto wins — NBA, in progress, period 1, 3:23,
+   Toronto 21–New York 26; situation: none supplied by ESPN.
+5. Vancouver vs Florida: Florida wins — NHL, in progress, period 1, Vancouver
+   2–Florida 0; situation: none supplied by ESPN.
+6. Flames vs. Golden Knights — NHL, pregame, 0-0; situation: none supplied by
+   ESPN.
+7. Sabres vs. Maple Leafs — NHL, in progress, period 1, Buffalo 1–Toronto 2;
+   situation: none supplied by ESPN.
+8. Islanders vs. Senators — NHL, in progress, period 1, New York Islanders
+   1–Ottawa 0; situation: none supplied by ESPN.
+9. Seattle vs Tampa Bay: Seattle wins — NHL, in progress, period 1, Seattle
+   1–Tampa Bay 1; situation: none supplied by ESPN.
+10. Utah vs. Oilers — NHL, pregame, 0-0; situation: none supplied by ESPN.
+
+Crypto result: 54 of 54 markets matched a Coinbase spot symbol (100%). Example:
+“Will Bitcoin dip to $77,500 in October?” matched BTC at $82,130.995 USD.
+change5m and change1h were null on this cold process because no prior in-memory
+samples existed yet; later polling fills those values.
+
+Observed limits: today's ESPN scoreboard payloads did not provide live MLB
+runner/outs fields or NHL power-play data, and the sampled NBA/NHL game
+situations were absent. The context reports these fields as null rather than
+inferring them. Soccer/tennis sources likewise omit shot/corner or break-point
+detail in the sampled responses. NFL/CFB red-zone and down/distance, MLB base
+runners, NHL power play, and tennis break point are emitted only when ESPN
+provides the relevant fields.

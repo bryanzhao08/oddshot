@@ -17,7 +17,7 @@ enum APIError: LocalizedError {
 }
 
 enum ServerConfig {
-    static let defaultURL = "http://localhost:8787"
+    static let defaultURL = "http://localhost:4317"
     static let key = "serverURL"
 
     static var current: String {

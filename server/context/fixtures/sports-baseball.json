@@ -1,0 +1,417 @@
+{
+  "events": [
+    {
+      "id": "401908025",
+      "date": "2026-10-15T17:00Z",
+      "name": "Tampa Bay Rays at Cleveland Guardians",
+      "shortName": "TB @ CLE",
+      "competitions": [
+        {
+          "id": "401908025",
+          "date": "2026-10-15T17:00Z",
+          "competitors": [
+            {
+              "id": "5",
+              "homeAway": "home",
+              "team": {
+                "id": "5",
+                "location": "Cleveland",
+                "name": "Guardians",
+                "abbreviation": "CLE",
+                "displayName": "Cleveland Guardians",
+                "shortDisplayName": "Guardians"
+              },
+              "score": "3",
+              "linescores": [
+                {
+                  "value": 0.0,
+                  "displayValue": "0",
+                  "period": 1
+                },
+                {
+                  "value": 1.0,
+                  "displayValue": "1",
+                  "period": 2
+                },
+                {
+                  "value": 0.0,
+                  "displayValue": "0",
+                  "period": 3
+                },
+                {
+                  "value": 0.0,
+                  "displayValue": "0",
+                  "period": 4
+                },
+                {
+                  "value": 2.0,
+                  "displayValue": "2",
+                  "period": 5
+                },
+                {
+                  "value": 0.0,
+                  "displayValue": "0",
+                  "period": 6
+                },
+                {
+                  "value": 0.0,
+                  "displayValue": "0",
+                  "period": 7
+                },
+                {
+                  "value": 0.0,
+                  "displayValue": "0",
+                  "period": 8
+                }
+              ]
+            },
+            {
+              "id": "30",
+              "homeAway": "away",
+              "team": {
+                "id": "30",
+                "location": "Tampa Bay",
+                "name": "Rays",
+                "abbreviation": "TB",
+                "displayName": "Tampa Bay Rays",
+                "shortDisplayName": "Rays"
+              },
+              "score": "2",
+              "linescores": [
+                {
+                  "value": 0.0,
+                  "displayValue": "0",
+                  "period": 1
+                },
+                {
+                  "value": 0.0,
+                  "displayValue": "0",
+                  "period": 2
+                },
+                {
+                  "value": 0.0,
+                  "displayValue": "0",
+                  "period": 3
+                },
+                {
+                  "value": 2.0,
+                  "displayValue": "2",
+                  "period": 4
+                },
+                {
+                  "value": 0.0,
+                  "displayValue": "0",
+                  "period": 5
+                },
+                {
+                  "value": 0.0,
+                  "displayValue": "0",
+                  "period": 6
+                },
+                {
+                  "value": 0.0,
+                  "displayValue": "0",
+                  "period": 7
+                },
+                {
+                  "value": 0.0,
+                  "displayValue": "0",
+                  "period": 8
+                },
+                {
+                  "value": 0.0,
+                  "displayValue": "0",
+                  "period": 9
+                }
+              ]
+            }
+          ],
+          "status": {
+            "clock": 0.0,
+            "displayClock": "0:00",
+            "period": 9,
+            "type": {
+              "id": "3",
+              "name": "STATUS_FINAL",
+              "state": "post",
+              "completed": true,
+              "description": "Final",
+              "detail": "Final",
+              "shortDetail": "Final"
+            },
+            "featuredAthletes": [
+              {
+                "name": "winningPitcher",
+                "displayName": "Winning Pitcher",
+                "shortDisplayName": "Win",
+                "abbreviation": "WP",
+                "playerId": 4345076,
+                "athlete": {
+                  "id": "4345076",
+                  "fullName": "Gavin Williams",
+                  "displayName": "Gavin Williams",
+                  "shortName": "G. Williams",
+                  "links": [
+                    {
+                      "rel": [
+                        "playercard",
+                        "desktop",
+                        "athlete"
+                      ],
+                      "href": "https://www.espn.com/mlb/player/_/id/4345076"
+                    }
+                  ],
+                  "headshot": "https://a.espncdn.com/i/headshots/mlb/players/full/4345076.png",
+                  "jersey": "32",
+                  "position": "SP",
+                  "team": {
+                    "id": "5"
+                  }
+                },
+                "team": {
+                  "id": "5"
+                },
+                "statistics": [
+                  {
+                    "name": "saves",
+                    "abbreviation": "SV",
+                    "displayValue": "0"
+                  },
+                  {
+                    "name": "losses",
+                    "abbreviation": "L",
+                    "displayValue": "0"
+                  },
+                  {
+                    "name": "wins",
+                    "abbreviation": "W",
+                    "displayValue": "2"
+                  },
+                  {
+                    "name": "ERA",
+                    "abbreviation": "ERA",
+                    "displayValue": "2.16"
+                  },
+                  {
+                    "name": "errors",
+                    "abbreviation": "E",
+                    "displayValue": "0"
+                  }
+                ],
+                "projections": {
+                  "$ref": "http://sports.core.api.espn.pvt/v2/sports/baseball/leagues/mlb/events/401908025/competitions/401908025/competitors/5/roster/4345076/projections?lang=en&region=us"
+                }
+              },
+              {
+                "name": "losingPitcher",
+                "displayName": "Losing Pitcher",
+                "shortDisplayName": "Loss",
+                "abbreviation": "LP",
+                "playerId": 42604,
+                "athlete": {
+                  "id": "42604",
+                  "fullName": "Griffin Jax",
+                  "displayName": "Griffin Jax",
+                  "shortName": "G. Jax",
+                  "links": [
+                    {
+                      "rel": [
+                        "playercard",
+                        "desktop",
+                        "athlete"
+                      ],
+                      "href": "https://www.espn.com/mlb/player/_/id/42604"
+                    }
+                  ],
+                  "headshot": "https://a.espncdn.com/i/headshots/mlb/players/full/42604.png",
+                  "jersey": "22",
+                  "position": "SP",
+                  "team": {
+                    "id": "30"
+                  }
+                },
+                "team": {
+                  "id": "30"
+                },
+                "statistics": [
+                  {
+                    "name": "saves",
+                    "abbreviation": "SV",
+                    "displayValue": "0"
+                  },
+                  {
+                    "name": "losses",
+                    "abbreviation": "L",
+                    "displayValue": "1"
+                  },
+                  {
+                    "name": "wins",
+                    "abbreviation": "W",
+                    "displayValue": "0"
+                  },
+                  {
+                    "name": "ERA",
+                    "abbreviation": "ERA",
+                    "displayValue": "6.00"
+                  },
+                  {
+                    "name": "errors",
+                    "abbreviation": "E",
+                    "displayValue": "0"
+                  }
+                ],
+                "projections": {
+                  "$ref": "http://sports.core.api.espn.pvt/v2/sports/baseball/leagues/mlb/events/401908025/competitions/401908025/competitors/30/roster/42604/projections?lang=en&region=us"
+                }
+              },
+              {
+                "name": "savingPitcher",
+                "displayName": "Saving Pitcher",
+                "shortDisplayName": "Save",
+                "abbreviation": "S",
+                "playerId": 4987924,
+                "athlete": {
+                  "id": "4987924",
+                  "fullName": "Cade Smith",
+                  "displayName": "Cade Smith",
+                  "shortName": "C. Smith",
+                  "links": [
+                    {
+                      "rel": [
+                        "playercard",
+                        "desktop",
+                        "athlete"
+                      ],
+                      "href": "https://www.espn.com/mlb/player/_/id/4987924"
+                    }
+                  ],
+                  "headshot": "https://a.espncdn.com/i/headshots/mlb/players/full/4987924.png",
+                  "jersey": "36",
+                  "position": "RP",
+                  "team": {
+                    "id": "5"
+                  }
+                },
+                "team": {
+                  "id": "5"
+                },
+                "statistics": [
+                  {
+                    "name": "saves",
+                    "abbreviation": "SV",
+                    "displayValue": "2"
+                  },
+                  {
+                    "name": "losses",
+                    "abbreviation": "L",
+                    "displayValue": "0"
+                  },
+                  {
+                    "name": "wins",
+                    "abbreviation": "W",
+                    "displayValue": "0"
+                  },
+                  {
+                    "name": "ERA",
+                    "abbreviation": "ERA",
+                    "displayValue": "1.00"
+                  },
+                  {
+                    "name": "errors",
+                    "abbreviation": "E",
+                    "displayValue": "0"
+                  }
+                ],
+                "projections": {
+                  "$ref": "http://sports.core.api.espn.pvt/v2/sports/baseball/leagues/mlb/events/401908025/competitions/401908025/competitors/5/roster/4987924/projections?lang=en&region=us"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "status": {
+        "clock": 0.0,
+        "displayClock": "0:00",
+        "period": 9,
+        "type": {
+          "id": "3",
+          "name": "STATUS_FINAL",
+          "state": "post",
+          "completed": true,
+          "description": "Final",
+          "detail": "Final",
+          "shortDetail": "Final"
+        }
+      }
+    },
+    {
+      "id": "401908033",
+      "date": "2026-10-16T00:00Z",
+      "name": "Milwaukee Brewers at Los Angeles Dodgers",
+      "shortName": "MIL @ LAD",
+      "competitions": [
+        {
+          "id": "401908033",
+          "date": "2026-10-16T00:00Z",
+          "competitors": [
+            {
+              "id": "19",
+              "homeAway": "home",
+              "team": {
+                "id": "19",
+                "location": "Los Angeles",
+                "name": "Dodgers",
+                "abbreviation": "LAD",
+                "displayName": "Los Angeles Dodgers",
+                "shortDisplayName": "Dodgers"
+              },
+              "score": "0"
+            },
+            {
+              "id": "8",
+              "homeAway": "away",
+              "team": {
+                "id": "8",
+                "location": "Milwaukee",
+                "name": "Brewers",
+                "abbreviation": "MIL",
+                "displayName": "Milwaukee Brewers",
+                "shortDisplayName": "Brewers"
+              },
+              "score": "0"
+            }
+          ],
+          "status": {
+            "clock": 0.0,
+            "displayClock": "0:00",
+            "period": 1,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "Scheduled",
+              "shortDetail": "10/15 - 8:00 PM EDT"
+            }
+          }
+        }
+      ],
+      "status": {
+        "clock": 0.0,
+        "displayClock": "0:00",
+        "period": 1,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "Scheduled",
+          "shortDetail": "10/15 - 8:00 PM EDT"
+        }
+      }
+    }
+  ]
+}

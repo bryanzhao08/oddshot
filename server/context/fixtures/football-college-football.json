@@ -1,0 +1,105 @@
+{
+  "fixtureSource": {
+    "scoreboard": "https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?dates=20251011",
+    "playByPlay": "https://site.api.espn.com/apis/site/v2/sports/football/college-football/summary?event=401752865",
+    "note": "Historical in-game snapshot reconstructed from this real scoreboard event and the selected real play-by-play start state; ESPN scoreboard currently exposes situation as null for completed/scheduled games.",
+    "snapshotPlayId": "401752865101898501"
+  },
+  "events": [
+    {
+      "id": "401752865",
+      "uid": "s:20~l:23~e:401752865",
+      "date": "2025-10-11T16:00Z",
+      "name": "Ohio State Buckeyes at Illinois Fighting Illini",
+      "shortName": "OSU @ ILL",
+      "season": {
+        "year": 2025,
+        "type": 2,
+        "slug": "regular-season"
+      },
+      "week": {
+        "number": 7
+      },
+      "status": {
+        "clock": 0,
+        "displayClock": "10:14",
+        "period": 1,
+        "type": {
+          "id": "2",
+          "name": "STATUS_IN_PROGRESS",
+          "state": "in",
+          "completed": false,
+          "description": "In Progress",
+          "detail": "Q1 10:14",
+          "shortDetail": "Q1 10:14"
+        }
+      },
+      "competitions": [
+        {
+          "id": "401752865",
+          "uid": "s:20~l:23~e:401752865~c:401752865",
+          "date": "2025-10-11T16:00Z",
+          "status": {
+            "clock": 0,
+            "displayClock": "10:14",
+            "period": 1,
+            "type": {
+              "id": "2",
+              "name": "STATUS_IN_PROGRESS",
+              "state": "in",
+              "completed": false,
+              "description": "In Progress",
+              "detail": "Q1 10:14",
+              "shortDetail": "Q1 10:14"
+            }
+          },
+          "competitors": [
+            {
+              "id": "356",
+              "team": {
+                "id": "356",
+                "location": "Illinois",
+                "name": "Fighting Illini",
+                "abbreviation": "ILL",
+                "displayName": "Illinois Fighting Illini"
+              },
+              "score": "0",
+              "homeAway": "home",
+              "winner": false
+            },
+            {
+              "id": "194",
+              "team": {
+                "id": "194",
+                "location": "Ohio State",
+                "name": "Buckeyes",
+                "abbreviation": "OSU",
+                "displayName": "Ohio State Buckeyes"
+              },
+              "score": "0",
+              "homeAway": "away",
+              "winner": false
+            }
+          ],
+          "situation": {
+            "down": 3,
+            "distance": 4,
+            "yardLine": 10,
+            "yardsToEndzone": 10,
+            "possession": "194",
+            "possessionText": "ILL 10",
+            "downDistanceText": "3rd & 4 at ILL 10",
+            "shortDownDistanceText": "3rd & 4",
+            "isRedZone": true,
+            "lastPlay": {
+              "id": "401752865101889601",
+              "text": "Bo Jackson run for 3 yds to the ILL 10",
+              "type": "Rush"
+            }
+          },
+          "playByPlayAvailable": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "events": [
+    {
+      "id": "401900001",
+      "name": "Buffalo Bills at Kansas City Chiefs",
+      "shortName": "BUF @ KC",
+      "date": "2026-10-15T20:15Z",
+      "status": {
+        "type": { "name": "STATUS_IN_PROGRESS", "state": "in", "completed": false, "description": "In Progress" },
+        "period": 2,
+        "displayClock": "4:32"
+      },
+      "competitions": [
+        {
+          "competitors": [
+            { "id": "12", "homeAway": "away", "team": { "id": "12", "displayName": "Buffalo Bills", "shortDisplayName": "Bills", "location": "Buffalo", "name": "Bills", "abbreviation": "BUF" }, "score": "10" },
+            { "id": "16", "homeAway": "home", "team": { "id": "16", "displayName": "Kansas City Chiefs", "shortDisplayName": "Chiefs", "location": "Kansas City", "name": "Chiefs", "abbreviation": "KC" }, "score": "14" }
+          ],
+          "situation": {
+            "down": 1,
+            "distance": 4,
+            "yardLine": 4,
+            "isRedZone": true,
+            "downDistanceText": "1st & Goal at KC 4",
+            "possession": { "id": "16", "abbreviation": "KC" },
+            "lastPlay": { "text": "Pacheco rushes for 3 yards to KC 4" }
+          }
+        }
+      ]
+    }
+  ]
+}

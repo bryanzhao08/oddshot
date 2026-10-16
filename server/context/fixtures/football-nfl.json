@@ -1,0 +1,105 @@
+{
+  "fixtureSource": {
+    "scoreboard": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=20251012",
+    "playByPlay": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=401772634",
+    "note": "Historical in-game snapshot reconstructed from this real scoreboard event and the selected real play-by-play start state; ESPN scoreboard currently exposes situation as null for completed/scheduled games.",
+    "snapshotPlayId": "4017726341463"
+  },
+  "events": [
+    {
+      "id": "401772634",
+      "uid": "s:20~l:28~e:401772634",
+      "date": "2025-10-12T13:30Z",
+      "name": "Denver Broncos at New York Jets",
+      "shortName": "DEN VS NYJ",
+      "season": {
+        "year": 2025,
+        "type": 2,
+        "slug": "regular-season"
+      },
+      "week": {
+        "number": 6
+      },
+      "status": {
+        "clock": 0,
+        "displayClock": "7:55",
+        "period": 2,
+        "type": {
+          "id": "2",
+          "name": "STATUS_IN_PROGRESS",
+          "state": "in",
+          "completed": false,
+          "description": "In Progress",
+          "detail": "Q2 7:55",
+          "shortDetail": "Q2 7:55"
+        }
+      },
+      "competitions": [
+        {
+          "id": "401772634",
+          "uid": "s:20~l:28~e:401772634~c:401772634",
+          "date": "2025-10-12T13:30Z",
+          "status": {
+            "clock": 0,
+            "displayClock": "7:55",
+            "period": 2,
+            "type": {
+              "id": "2",
+              "name": "STATUS_IN_PROGRESS",
+              "state": "in",
+              "completed": false,
+              "description": "In Progress",
+              "detail": "Q2 7:55",
+              "shortDetail": "Q2 7:55"
+            }
+          },
+          "competitors": [
+            {
+              "id": "20",
+              "team": {
+                "id": "20",
+                "location": "New York",
+                "name": "Jets",
+                "abbreviation": "NYJ",
+                "displayName": "New York Jets"
+              },
+              "score": "6",
+              "homeAway": "home",
+              "winner": false
+            },
+            {
+              "id": "7",
+              "team": {
+                "id": "7",
+                "location": "Denver",
+                "name": "Broncos",
+                "abbreviation": "DEN",
+                "displayName": "Denver Broncos"
+              },
+              "score": "10",
+              "homeAway": "away",
+              "winner": false
+            }
+          ],
+          "situation": {
+            "down": 4,
+            "distance": 18,
+            "yardLine": 12,
+            "yardsToEndzone": 12,
+            "possession": "20",
+            "possessionText": "NYJ 12",
+            "downDistanceText": "4th & 18 at NYJ 12",
+            "shortDownDistanceText": "4th & 18",
+            "isRedZone": true,
+            "lastPlay": {
+              "id": "4017726341443",
+              "text": "(Shotgun) J.Fields sacked at NYJ 12 for -9 yards (J.Cooper).",
+              "type": "Sack"
+            }
+          },
+          "playByPlayAvailable": true
+        }
+      ]
+    }
+  ]
+}

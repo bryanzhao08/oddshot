@@ -1,0 +1,32 @@
+{
+  "events": [
+    {
+      "id": "401900002",
+      "name": "Seattle Mariners at Houston Astros",
+      "shortName": "SEA @ HOU",
+      "date": "2026-10-15T19:10Z",
+      "status": {
+        "type": { "name": "STATUS_IN_PROGRESS", "state": "in", "completed": false, "description": "In Progress" },
+        "period": 7,
+        "displayClock": "Top 7th"
+      },
+      "competitions": [
+        {
+          "competitors": [
+            { "id": "12", "homeAway": "away", "team": { "id": "12", "displayName": "Seattle Mariners", "location": "Seattle", "name": "Mariners", "abbreviation": "SEA" }, "score": "3" },
+            { "id": "18", "homeAway": "home", "team": { "id": "18", "displayName": "Houston Astros", "location": "Houston", "name": "Astros", "abbreviation": "HOU" }, "score": "2" }
+          ],
+          "situation": {
+            "outs": 1,
+            "balls": 2,
+            "strikes": 1,
+            "onFirst": null,
+            "onSecond": { "id": "1001" },
+            "onThird": { "id": "1002" }
+          },
+          "lastPlay": { "text": "Rodriguez singles to center, runners hold" }
+        }
+      ]
+    }
+  ]
+}

@@ -46,7 +46,7 @@ struct SettingsView: View {
 
     private var serverSection: some View {
         Section {
-            TextField("http://localhost:8787", text: $urlText)
+            TextField("http://localhost:4317", text: $urlText)
                 .keyboardType(.URL)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
@@ -91,7 +91,7 @@ struct SettingsView: View {
         } header: {
             Text("Server")
         } footer: {
-            Text("The Simulator can use localhost. On a real iPhone, use your Mac’s LAN address, e.g. http://192.168.1.20:8787.")
+            Text("The Simulator can use localhost. On a real iPhone, use your Mac’s LAN address, e.g. http://192.168.1.20:4317.")
         }
     }
 

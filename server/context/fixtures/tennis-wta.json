@@ -1,0 +1,1434 @@
+{
+  "events": [
+    {
+      "id": "381-2026",
+      "name": "Dongfeng Voyah Wuhan Open",
+      "shortName": "Dongfeng Voyah Wuhan Open",
+      "date": "2026-10-09T04:00Z",
+      "season": {
+        "year": 2026,
+        "type": 2
+      },
+      "groupings": [
+        {
+          "grouping": {
+            "id": "2",
+            "slug": "womens-singles",
+            "displayName": "Women's Singles"
+          },
+          "competitions": [
+            {
+              "id": "185372",
+              "uid": "s:850~l:900~e:381-2026~c:185372",
+              "date": "2026-10-16T03:00Z",
+              "startDate": "2026-10-16T03:00Z",
+              "timeValid": true,
+              "status": {
+                "period": 1,
+                "type": {
+                  "id": "1",
+                  "name": "STATUS_SCHEDULED",
+                  "state": "pre",
+                  "completed": false,
+                  "description": "Scheduled",
+                  "detail": "Thu, October 15th at 11:00 PM EDT",
+                  "shortDetail": "10/15 - 11:00 PM EDT"
+                }
+              },
+              "venue": {
+                "fullName": "Wuhan, China PR",
+                "court": "Dongfeng Voyah Center Court"
+              },
+              "format": {
+                "regulation": {
+                  "periods": 3
+                }
+              },
+              "notes": [],
+              "competitors": [
+                {
+                  "id": "2195",
+                  "type": "athlete",
+                  "order": 2,
+                  "homeAway": "away",
+                  "winner": null,
+                  "score": null,
+                  "linescores": null,
+                  "athlete": {
+                    "displayName": "Jelena Ostapenko",
+                    "shortName": "J. Ostapenko"
+                  },
+                  "statistics": []
+                },
+                {
+                  "id": "8017",
+                  "type": "athlete",
+                  "order": 1,
+                  "homeAway": "home",
+                  "winner": null,
+                  "score": null,
+                  "linescores": null,
+                  "athlete": {
+                    "displayName": "Diana Shnaider",
+                    "shortName": "D. Shnaider"
+                  },
+                  "statistics": []
+                }
+              ],
+              "round": {
+                "id": "5",
+                "displayName": "Quarterfinal"
+              },
+              "tournamentId": 381,
+              "type": {
+                "id": "2",
+                "text": "Women's Singles",
+                "slug": "womens-singles"
+              }
+            },
+            {
+              "id": "186365",
+              "uid": "s:850~l:900~e:381-2026~c:186365",
+              "date": "2026-10-10T03:05Z",
+              "startDate": "2026-10-10T03:05Z",
+              "timeValid": true,
+              "status": {
+                "period": 2,
+                "type": {
+                  "id": "38",
+                  "name": "STATUS_RETIRED",
+                  "state": "post",
+                  "completed": true,
+                  "description": "Retired",
+                  "detail": "Retired",
+                  "shortDetail": "Retired"
+                }
+              },
+              "venue": {
+                "fullName": "Wuhan, China PR",
+                "court": "Court 2"
+              },
+              "format": {
+                "regulation": {
+                  "periods": 3
+                }
+              },
+              "notes": [
+                {
+                  "text": "Magdalena Frech (POL) bt Moyuka Uchijima (JPN) 6-4 4-1 ret",
+                  "type": "event"
+                }
+              ],
+              "competitors": [
+                {
+                  "id": "5734",
+                  "type": "athlete",
+                  "order": 2,
+                  "homeAway": "away",
+                  "winner": false,
+                  "score": null,
+                  "linescores": [
+                    {
+                      "value": 4.0,
+                      "winner": false
+                    },
+                    {
+                      "value": 1.0,
+                      "winner": false
+                    }
+                  ],
+                  "athlete": {
+                    "displayName": "Moyuka Uchijima",
+                    "shortName": "M. Uchijima"
+                  },
+                  "statistics": []
+                },
+                {
+                  "id": "2672",
+                  "type": "athlete",
+                  "order": 1,
+                  "homeAway": "home",
+                  "winner": true,
+                  "score": null,
+                  "linescores": [
+                    {
+                      "value": 6.0,
+                      "winner": true
+                    },
+                    {
+                      "value": 4.0,
+                      "winner": false
+                    }
+                  ],
+                  "athlete": {
+                    "displayName": "Magdalena Frech",
+                    "shortName": "M. Frech"
+                  },
+                  "statistics": []
+                }
+              ],
+              "round": {
+                "id": "11",
+                "displayName": "Qualifying 1st Round"
+              },
+              "tournamentId": 381,
+              "type": {
+                "id": "2",
+                "text": "Women's Singles",
+                "slug": "womens-singles"
+              }
+            }
+          ]
+        },
+        {
+          "grouping": {
+            "id": "4",
+            "slug": "womens-doubles",
+            "displayName": "Women's Doubles"
+          },
+          "competitions": [
+            {
+              "id": "185389",
+              "uid": "s:850~l:900~e:381-2026~c:185389",
+              "date": "2026-10-16T04:30Z",
+              "startDate": "2026-10-16T04:30Z",
+              "timeValid": true,
+              "status": {
+                "period": 1,
+                "type": {
+                  "id": "1",
+                  "name": "STATUS_SCHEDULED",
+                  "state": "pre",
+                  "completed": false,
+                  "description": "Scheduled",
+                  "detail": "Fri, October 15th at 12:30 AM EDT",
+                  "shortDetail": "10/16 - 12:30 AM EDT"
+                }
+              },
+              "venue": {
+                "fullName": "Wuhan, China PR",
+                "court": "Court 1"
+              },
+              "format": {
+                "regulation": {
+                  "periods": 3
+                }
+              },
+              "notes": [],
+              "competitors": [
+                {
+                  "id": "2982-3546",
+                  "type": "team",
+                  "order": 2,
+                  "homeAway": "away",
+                  "winner": null,
+                  "score": null,
+                  "linescores": null,
+                  "athlete": {
+                    "displayName": null,
+                    "shortName": null
+                  },
+                  "statistics": []
+                },
+                {
+                  "id": "1375-2732",
+                  "type": "team",
+                  "order": 1,
+                  "homeAway": "home",
+                  "winner": null,
+                  "score": null,
+                  "linescores": null,
+                  "athlete": {
+                    "displayName": null,
+                    "shortName": null
+                  },
+                  "statistics": []
+                }
+              ],
+              "round": {
+                "id": "5",
+                "displayName": "Quarterfinal"
+              },
+              "tournamentId": 381,
+              "type": {
+                "id": "4",
+                "text": "Women's Doubles",
+                "slug": "womens-doubles"
+              }
+            },
+            {
+              "id": "186393",
+              "uid": "s:850~l:900~e:381-2026~c:186393",
+              "date": "2026-10-12T03:05Z",
+              "startDate": "2026-10-12T03:05Z",
+              "timeValid": true,
+              "status": {
+                "period": 2,
+                "type": {
+                  "id": "3",
+                  "name": "STATUS_FINAL",
+                  "state": "post",
+                  "completed": true,
+                  "description": "Final",
+                  "detail": "Final",
+                  "shortDetail": "Final"
+                }
+              },
+              "venue": {
+                "fullName": "Wuhan, China PR",
+                "court": "Court 4"
+              },
+              "format": {
+                "regulation": {
+                  "periods": 3
+                }
+              },
+              "notes": [
+                {
+                  "text": "Sofia Kenin (USA) & Irina Khromacheva (RUS) bt Asia Muhammad (USA) & Jessica Pegula (USA) 6-3 7-5",
+                  "type": "event"
+                }
+              ],
+              "competitors": [
+                {
+                  "id": "3547-2113",
+                  "type": "team",
+                  "order": 2,
+                  "homeAway": "away",
+                  "winner": false,
+                  "score": null,
+                  "linescores": [
+                    {
+                      "value": 3.0,
+                      "winner": false
+                    },
+                    {
+                      "value": 5.0,
+                      "winner": false
+                    }
+                  ],
+                  "athlete": {
+                    "displayName": null,
+                    "shortName": null
+                  },
+                  "statistics": []
+                },
+                {
+                  "id": "2746-1848",
+                  "type": "team",
+                  "order": 1,
+                  "homeAway": "home",
+                  "winner": true,
+                  "score": null,
+                  "linescores": [
+                    {
+                      "value": 6.0,
+                      "winner": true
+                    },
+                    {
+                      "value": 7.0,
+                      "winner": true
+                    }
+                  ],
+                  "athlete": {
+                    "displayName": null,
+                    "shortName": null
+                  },
+                  "statistics": []
+                }
+              ],
+              "round": {
+                "id": "1",
+                "displayName": "Round 1"
+              },
+              "tournamentId": 381,
+              "type": {
+                "id": "4",
+                "text": "Women's Doubles",
+                "slug": "womens-doubles"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "1020-2026",
+      "name": "Vanda Pharmaceuticals Mallorca Women's Championships",
+      "shortName": "Vanda Pharmaceuticals Mallorca Women's Championships",
+      "date": "2026-10-11T04:00Z",
+      "season": {
+        "year": 2026,
+        "type": 2
+      },
+      "groupings": [
+        {
+          "grouping": {
+            "id": "2",
+            "slug": "womens-singles",
+            "displayName": "Women's Singles"
+          },
+          "competitions": [
+            {
+              "id": "185503",
+              "uid": "s:850~l:900~e:1020-2026~c:185503",
+              "date": "2026-10-16T08:00Z",
+              "startDate": "2026-10-16T08:00Z",
+              "timeValid": true,
+              "status": {
+                "period": 1,
+                "type": {
+                  "id": "1",
+                  "name": "STATUS_SCHEDULED",
+                  "state": "pre",
+                  "completed": false,
+                  "description": "Scheduled",
+                  "detail": "Fri, October 16th at 4:00 AM EDT",
+                  "shortDetail": "10/16 - 4:00 AM EDT"
+                }
+              },
+              "venue": {
+                "fullName": "Mallorca, Spain",
+                "court": "Centre Court"
+              },
+              "format": {
+                "regulation": {
+                  "periods": 3
+                }
+              },
+              "notes": [],
+              "competitors": [
+                {
+                  "id": "14607",
+                  "type": "athlete",
+                  "order": 2,
+                  "homeAway": "away",
+                  "winner": null,
+                  "score": null,
+                  "linescores": null,
+                  "athlete": {
+                    "displayName": "Ariana Geerlings",
+                    "shortName": "A. Geerlings"
+                  },
+                  "statistics": []
+                },
+                {
+                  "id": "2599",
+                  "type": "athlete",
+                  "order": 1,
+                  "homeAway": "home",
+                  "winner": null,
+                  "score": null,
+                  "linescores": null,
+                  "athlete": {
+                    "displayName": "Julia Grabher",
+                    "shortName": "J. Grabher"
+                  },
+                  "statistics": []
+                }
+              ],
+              "round": {
+                "id": "5",
+                "displayName": "Quarterfinal"
+              },
+              "tournamentId": 1020,
+              "type": {
+                "id": "2",
+                "text": "Women's Singles",
+                "slug": "womens-singles"
+              }
+            },
+            {
+              "id": "186421",
+              "uid": "s:850~l:900~e:1020-2026~c:186421",
+              "date": "2026-10-11T08:05Z",
+              "startDate": "2026-10-11T08:05Z",
+              "timeValid": true,
+              "status": {
+                "period": 3,
+                "type": {
+                  "id": "3",
+                  "name": "STATUS_FINAL",
+                  "state": "post",
+                  "completed": true,
+                  "description": "Final",
+                  "detail": "Final",
+                  "shortDetail": "Final"
+                }
+              },
+              "venue": {
+                "fullName": "Mallorca, Spain",
+                "court": "Court 2"
+              },
+              "format": {
+                "regulation": {
+                  "periods": 3
+                }
+              },
+              "notes": [
+                {
+                  "text": "Aneta Kucmova (CZE) bt Isabella Shinikova (BUL) 6-1 6-7 (1-7) 6-3",
+                  "type": "event"
+                }
+              ],
+              "competitors": [
+                {
+                  "id": "17027",
+                  "type": "athlete",
+                  "order": 2,
+                  "homeAway": "away",
+                  "winner": true,
+                  "score": null,
+                  "linescores": [
+                    {
+                      "value": 6.0,
+                      "winner": true
+                    },
+                    {
+                      "value": 6.0,
+                      "tiebreak": 1,
+                      "winner": false
+                    },
+                    {
+                      "value": 6.0,
+                      "winner": true
+                    }
+                  ],
+                  "athlete": {
+                    "displayName": "Aneta Kucmova",
+                    "shortName": "A. Kucmova"
+                  },
+                  "statistics": []
+                },
+                {
+                  "id": "3070",
+                  "type": "athlete",
+                  "order": 1,
+                  "homeAway": "home",
+                  "winner": false,
+                  "score": null,
+                  "linescores": [
+                    {
+                      "value": 1.0,
+                      "winner": false
+                    },
+                    {
+                      "value": 7.0,
+                      "tiebreak": 7,
+                      "winner": true
+                    },
+                    {
+                      "value": 3.0,
+                      "winner": false
+                    }
+                  ],
+                  "athlete": {
+                    "displayName": "Isabella Shinikova",
+                    "shortName": "I. Shinikova"
+                  },
+                  "statistics": []
+                }
+              ],
+              "round": {
+                "id": "11",
+                "displayName": "Qualifying 1st Round"
+              },
+              "tournamentId": 1020,
+              "type": {
+                "id": "2",
+                "text": "Women's Singles",
+                "slug": "womens-singles"
+              }
+            }
+          ]
+        },
+        {
+          "grouping": {
+            "id": "4",
+            "slug": "womens-doubles",
+            "displayName": "Women's Doubles"
+          },
+          "competitions": [
+            {
+              "id": "185515",
+              "uid": "s:850~l:900~e:1020-2026~c:185515",
+              "date": "2026-10-16T09:00Z",
+              "startDate": "2026-10-16T09:00Z",
+              "timeValid": true,
+              "status": {
+                "period": 1,
+                "type": {
+                  "id": "1",
+                  "name": "STATUS_SCHEDULED",
+                  "state": "pre",
+                  "completed": false,
+                  "description": "Scheduled",
+                  "detail": "Fri, October 16th at 5:00 AM EDT",
+                  "shortDetail": "10/16 - 5:00 AM EDT"
+                }
+              },
+              "venue": {
+                "fullName": "Mallorca, Spain",
+                "court": "Court 1"
+              },
+              "format": {
+                "regulation": {
+                  "periods": 3
+                }
+              },
+              "notes": [],
+              "competitors": [
+                {
+                  "id": "7849-18968",
+                  "type": "team",
+                  "order": 2,
+                  "homeAway": "away",
+                  "winner": null,
+                  "score": null,
+                  "linescores": null,
+                  "athlete": {
+                    "displayName": null,
+                    "shortName": null
+                  },
+                  "statistics": []
+                },
+                {
+                  "id": "4234-2177",
+                  "type": "team",
+                  "order": 1,
+                  "homeAway": "home",
+                  "winner": null,
+                  "score": null,
+                  "linescores": null,
+                  "athlete": {
+                    "displayName": null,
+                    "shortName": null
+                  },
+                  "statistics": []
+                }
+              ],
+              "round": {
+                "id": "6",
+                "displayName": "Semifinal"
+              },
+              "tournamentId": 1020,
+              "type": {
+                "id": "4",
+                "text": "Women's Doubles",
+                "slug": "womens-doubles"
+              }
+            },
+            {
+              "id": "185518",
+              "uid": "s:850~l:900~e:1020-2026~c:185518",
+              "date": "2026-10-14T14:00Z",
+              "startDate": "2026-10-14T14:00Z",
+              "timeValid": true,
+              "status": {
+                "period": 3,
+                "type": {
+                  "id": "3",
+                  "name": "STATUS_FINAL",
+                  "state": "post",
+                  "completed": true,
+                  "description": "Final",
+                  "detail": "Final",
+                  "shortDetail": "Final"
+                }
+              },
+              "venue": {
+                "fullName": "Mallorca, Spain",
+                "court": "Centre Court"
+              },
+              "format": {
+                "regulation": {
+                  "periods": 3
+                }
+              },
+              "notes": [
+                {
+                  "text": "(1) Yvonne Cavalle-Reimers (ESP) & Laura Pigossi (BRA) bt Estelle Cascino (FRA) & Lia Karatancheva (BUL) 6-3 5-7 1-0 (10-8)",
+                  "type": "event"
+                }
+              ],
+              "competitors": [
+                {
+                  "id": "3841-16077",
+                  "type": "team",
+                  "order": 2,
+                  "homeAway": "away",
+                  "winner": false,
+                  "score": null,
+                  "linescores": [
+                    {
+                      "value": 3.0,
+                      "winner": false
+                    },
+                    {
+                      "value": 7.0,
+                      "winner": true
+                    },
+                    {
+                      "value": 0.0,
+                      "tiebreak": 8,
+                      "winner": false
+                    }
+                  ],
+                  "athlete": {
+                    "displayName": null,
+                    "shortName": null
+                  },
+                  "statistics": []
+                },
+                {
+                  "id": "4234-2177",
+                  "type": "team",
+                  "order": 1,
+                  "homeAway": "home",
+                  "winner": true,
+                  "score": null,
+                  "linescores": [
+                    {
+                      "value": 6.0,
+                      "winner": true
+                    },
+                    {
+                      "value": 5.0,
+                      "winner": false
+                    },
+                    {
+                      "value": 1.0,
+                      "tiebreak": 10,
+                      "winner": true
+                    }
+                  ],
+                  "athlete": {
+                    "displayName": null,
+                    "shortName": null
+                  },
+                  "statistics": []
+                }
+              ],
+              "round": {
+                "id": "5",
+                "displayName": "Quarterfinal"
+              },
+              "tournamentId": 1020,
+              "type": {
+                "id": "4",
+                "text": "Women's Doubles",
+                "slug": "womens-doubles"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "1025-2026",
+      "name": "RoveretOpen Città della Pace",
+      "shortName": "RoveretOpen Città della Pace",
+      "date": "2026-10-11T04:00Z",
+      "season": {
+        "year": 2026,
+        "type": 2
+      },
+      "groupings": [
+        {
+          "grouping": {
+            "id": "2",
+            "slug": "womens-singles",
+            "displayName": "Women's Singles"
+          },
+          "competitions": [
+            {
+              "id": "185463",
+              "uid": "s:850~l:900~e:1025-2026~c:185463",
+              "date": "2026-10-16T10:30Z",
+              "startDate": "2026-10-16T10:30Z",
+              "timeValid": true,
+              "status": {
+                "period": 1,
+                "type": {
+                  "id": "1",
+                  "name": "STATUS_SCHEDULED",
+                  "state": "pre",
+                  "completed": false,
+                  "description": "Scheduled",
+                  "detail": "Fri, October 16th at 6:30 AM EDT",
+                  "shortDetail": "10/16 - 6:30 AM EDT"
+                }
+              },
+              "venue": {
+                "fullName": "Rovereto, Italy",
+                "court": "Centre Court"
+              },
+              "format": {
+                "regulation": {
+                  "periods": 3
+                }
+              },
+              "notes": [],
+              "competitors": [
+                {
+                  "id": "6419",
+                  "type": "athlete",
+                  "order": 2,
+                  "homeAway": "away",
+                  "winner": null,
+                  "score": null,
+                  "linescores": null,
+                  "athlete": {
+                    "displayName": "Martyna Kubka",
+                    "shortName": "M. Kubka"
+                  },
+                  "statistics": []
+                },
+                {
+                  "id": "13314",
+                  "type": "athlete",
+                  "order": 1,
+                  "homeAway": "home",
+                  "winner": null,
+                  "score": null,
+                  "linescores": null,
+                  "athlete": {
+                    "displayName": "Gabriela Knutson",
+                    "shortName": "G. Knutson"
+                  },
+                  "statistics": []
+                }
+              ],
+              "round": {
+                "id": "5",
+                "displayName": "Quarterfinal"
+              },
+              "tournamentId": 1025,
+              "type": {
+                "id": "2",
+                "text": "Women's Singles",
+                "slug": "womens-singles"
+              }
+            },
+            {
+              "id": "186407",
+              "uid": "s:850~l:900~e:1025-2026~c:186407",
+              "date": "2026-10-11T08:35Z",
+              "startDate": "2026-10-11T08:35Z",
+              "timeValid": true,
+              "status": {
+                "period": 2,
+                "type": {
+                  "id": "3",
+                  "name": "STATUS_FINAL",
+                  "state": "post",
+                  "completed": true,
+                  "description": "Final",
+                  "detail": "Final",
+                  "shortDetail": "Final"
+                }
+              },
+              "venue": {
+                "fullName": "Rovereto, Italy",
+                "court": "Court 1"
+              },
+              "format": {
+                "regulation": {
+                  "periods": 3
+                }
+              },
+              "notes": [
+                {
+                  "text": "Lea Boskovic (CRO) bt Alja Senica (SLO) 6-1 6-1",
+                  "type": "event"
+                }
+              ],
+              "competitors": [
+                {
+                  "id": "3520",
+                  "type": "athlete",
+                  "order": 2,
+                  "homeAway": "away",
+                  "winner": true,
+                  "score": null,
+                  "linescores": [
+                    {
+                      "value": 6.0,
+                      "winner": true
+                    },
+                    {
+                      "value": 6.0,
+                      "winner": true
+                    }
+                  ],
+                  "athlete": {
+                    "displayName": "Lea Boskovic",
+                    "shortName": "L. Boskovic"
+                  },
+                  "statistics": []
+                },
+                {
+                  "id": "15354",
+                  "type": "athlete",
+                  "order": 1,
+                  "homeAway": "home",
+                  "winner": false,
+                  "score": null,
+                  "linescores": [
+                    {
+                      "value": 1.0,
+                      "winner": false
+                    },
+                    {
+                      "value": 1.0,
+                      "winner": false
+                    }
+                  ],
+                  "athlete": {
+                    "displayName": "Alja Senica",
+                    "shortName": "A. Senica"
+                  },
+                  "statistics": []
+                }
+              ],
+              "round": {
+                "id": "11",
+                "displayName": "Qualifying 1st Round"
+              },
+              "tournamentId": 1025,
+              "type": {
+                "id": "2",
+                "text": "Women's Singles",
+                "slug": "womens-singles"
+              }
+            }
+          ]
+        },
+        {
+          "grouping": {
+            "id": "4",
+            "slug": "womens-doubles",
+            "displayName": "Women's Doubles"
+          },
+          "competitions": [
+            {
+              "id": "185472",
+              "uid": "s:850~l:900~e:1025-2026~c:185472",
+              "date": "2026-10-16T04:00Z",
+              "startDate": "2026-10-16T04:00Z",
+              "timeValid": false,
+              "status": {
+                "period": 1,
+                "type": {
+                  "id": "1",
+                  "name": "STATUS_SCHEDULED",
+                  "state": "pre",
+                  "completed": false,
+                  "description": "Scheduled",
+                  "detail": "M/d - 'TBD'",
+                  "shortDetail": "TBD"
+                }
+              },
+              "venue": {
+                "fullName": "Rovereto, Italy",
+                "court": "Court 1"
+              },
+              "format": {
+                "regulation": {
+                  "periods": 3
+                }
+              },
+              "notes": [],
+              "competitors": [
+                {
+                  "id": "13680-2660",
+                  "type": "team",
+                  "order": 2,
+                  "homeAway": "away",
+                  "winner": null,
+                  "score": null,
+                  "linescores": null,
+                  "athlete": {
+                    "displayName": null,
+                    "shortName": null
+                  },
+                  "statistics": []
+                },
+                {
+                  "id": "6124-6419",
+                  "type": "team",
+                  "order": 1,
+                  "homeAway": "home",
+                  "winner": null,
+                  "score": null,
+                  "linescores": null,
+                  "athlete": {
+                    "displayName": null,
+                    "shortName": null
+                  },
+                  "statistics": []
+                }
+              ],
+              "round": {
+                "id": "5",
+                "displayName": "Quarterfinal"
+              },
+              "tournamentId": 1025,
+              "type": {
+                "id": "4",
+                "text": "Women's Doubles",
+                "slug": "womens-doubles"
+              }
+            },
+            {
+              "id": "185470",
+              "uid": "s:850~l:900~e:1025-2026~c:185470",
+              "date": "2026-10-14T09:00Z",
+              "startDate": "2026-10-14T09:00Z",
+              "timeValid": true,
+              "status": {
+                "period": 2,
+                "type": {
+                  "id": "3",
+                  "name": "STATUS_FINAL",
+                  "state": "post",
+                  "completed": true,
+                  "description": "Final",
+                  "detail": "Final",
+                  "shortDetail": "Final"
+                }
+              },
+              "venue": {
+                "fullName": "Rovereto, Italy",
+                "court": "Centre Court"
+              },
+              "format": {
+                "regulation": {
+                  "periods": 3
+                }
+              },
+              "notes": [
+                {
+                  "text": "Kristina Novak (SLO) & Ivana Sebestova (CZE) bt Tayisiya Morderger (GER) & Yana Morderger (GER) 6-4 7-6 (7-3)",
+                  "type": "event"
+                }
+              ],
+              "competitors": [
+                {
+                  "id": "16776-16777",
+                  "type": "team",
+                  "order": 2,
+                  "homeAway": "away",
+                  "winner": true,
+                  "score": null,
+                  "linescores": [
+                    {
+                      "value": 6.0,
+                      "winner": true
+                    },
+                    {
+                      "value": 7.0,
+                      "tiebreak": 7,
+                      "winner": true
+                    }
+                  ],
+                  "athlete": {
+                    "displayName": null,
+                    "shortName": null
+                  },
+                  "statistics": []
+                },
+                {
+                  "id": "3285-4366",
+                  "type": "team",
+                  "order": 1,
+                  "homeAway": "home",
+                  "winner": false,
+                  "score": null,
+                  "linescores": [
+                    {
+                      "value": 4.0,
+                      "winner": false
+                    },
+                    {
+                      "value": 6.0,
+                      "tiebreak": 3,
+                      "winner": false
+                    }
+                  ],
+                  "athlete": {
+                    "displayName": null,
+                    "shortName": null
+                  },
+                  "statistics": []
+                }
+              ],
+              "round": {
+                "id": "1",
+                "displayName": "Round 1"
+              },
+              "tournamentId": 1025,
+              "type": {
+                "id": "4",
+                "text": "Women's Doubles",
+                "slug": "womens-doubles"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "1079-2026",
+      "name": "Lisboa Belem Open",
+      "shortName": "Lisboa Belem Open",
+      "date": "2026-10-11T04:00Z",
+      "season": {
+        "year": 2026,
+        "type": 2
+      },
+      "groupings": [
+        {
+          "grouping": {
+            "id": "2",
+            "slug": "womens-singles",
+            "displayName": "Women's Singles"
+          },
+          "competitions": [
+            {
+              "id": "185415",
+              "uid": "s:850~l:900~e:1079-2026~c:185415",
+              "date": "2026-10-16T10:00Z",
+              "startDate": "2026-10-16T10:00Z",
+              "timeValid": true,
+              "status": {
+                "period": 1,
+                "type": {
+                  "id": "1",
+                  "name": "STATUS_SCHEDULED",
+                  "state": "pre",
+                  "completed": false,
+                  "description": "Scheduled",
+                  "detail": "Fri, October 16th at 6:00 AM EDT",
+                  "shortDetail": "10/16 - 6:00 AM EDT"
+                }
+              },
+              "venue": {
+                "fullName": "Lisboa, Portugal",
+                "court": "Campo Lisboa"
+              },
+              "format": {
+                "regulation": {
+                  "periods": 3
+                }
+              },
+              "notes": [],
+              "competitors": [
+                {
+                  "id": "7815",
+                  "type": "athlete",
+                  "order": 2,
+                  "homeAway": "away",
+                  "winner": null,
+                  "score": null,
+                  "linescores": null,
+                  "athlete": {
+                    "displayName": "Francesca Jones",
+                    "shortName": "F. Jones"
+                  },
+                  "statistics": []
+                },
+                {
+                  "id": "2764",
+                  "type": "athlete",
+                  "order": 1,
+                  "homeAway": "home",
+                  "winner": null,
+                  "score": null,
+                  "linescores": null,
+                  "athlete": {
+                    "displayName": "Dalma Galfi",
+                    "shortName": "D. Galfi"
+                  },
+                  "statistics": []
+                }
+              ],
+              "round": {
+                "id": "5",
+                "displayName": "Quarterfinal"
+              },
+              "tournamentId": 1079,
+              "type": {
+                "id": "2",
+                "text": "Women's Singles",
+                "slug": "womens-singles"
+              }
+            },
+            {
+              "id": "186441",
+              "uid": "s:850~l:900~e:1079-2026~c:186441",
+              "date": "2026-10-11T10:05Z",
+              "startDate": "2026-10-11T10:05Z",
+              "timeValid": true,
+              "status": {
+                "period": 2,
+                "type": {
+                  "id": "3",
+                  "name": "STATUS_FINAL",
+                  "state": "post",
+                  "completed": true,
+                  "description": "Final",
+                  "detail": "Final",
+                  "shortDetail": "Final"
+                }
+              },
+              "venue": {
+                "fullName": "Lisboa, Portugal",
+                "court": "Estadio CIF"
+              },
+              "format": {
+                "regulation": {
+                  "periods": 3
+                }
+              },
+              "notes": [
+                {
+                  "text": "Tena Lukas (CRO) bt Ana Filipa Santos (POR) 6-2 6-2",
+                  "type": "event"
+                }
+              ],
+              "competitors": [
+                {
+                  "id": "3518",
+                  "type": "athlete",
+                  "order": 2,
+                  "homeAway": "away",
+                  "winner": true,
+                  "score": null,
+                  "linescores": [
+                    {
+                      "value": 6.0,
+                      "winner": true
+                    },
+                    {
+                      "value": 6.0,
+                      "winner": true
+                    }
+                  ],
+                  "athlete": {
+                    "displayName": "Tena Lukas",
+                    "shortName": "T. Lukas"
+                  },
+                  "statistics": []
+                },
+                {
+                  "id": "14579",
+                  "type": "athlete",
+                  "order": 1,
+                  "homeAway": "home",
+                  "winner": false,
+                  "score": null,
+                  "linescores": [
+                    {
+                      "value": 2.0,
+                      "winner": false
+                    },
+                    {
+                      "value": 2.0,
+                      "winner": false
+                    }
+                  ],
+                  "athlete": {
+                    "displayName": "Ana Filipa Santos",
+                    "shortName": "A. Santos"
+                  },
+                  "statistics": []
+                }
+              ],
+              "round": {
+                "id": "11",
+                "displayName": "Qualifying 1st Round"
+              },
+              "tournamentId": 1079,
+              "type": {
+                "id": "2",
+                "text": "Women's Singles",
+                "slug": "womens-singles"
+              }
+            }
+          ]
+        },
+        {
+          "grouping": {
+            "id": "4",
+            "slug": "womens-doubles",
+            "displayName": "Women's Doubles"
+          },
+          "competitions": [
+            {
+              "id": "185432",
+              "uid": "s:850~l:900~e:1079-2026~c:185432",
+              "date": "2026-10-16T13:00Z",
+              "startDate": "2026-10-16T13:00Z",
+              "timeValid": true,
+              "status": {
+                "period": 1,
+                "type": {
+                  "id": "1",
+                  "name": "STATUS_SCHEDULED",
+                  "state": "pre",
+                  "completed": false,
+                  "description": "Scheduled",
+                  "detail": "Fri, October 16th at 9:00 AM EDT",
+                  "shortDetail": "10/16 - 9:00 AM EDT"
+                }
+              },
+              "venue": {
+                "fullName": "Lisboa, Portugal",
+                "court": "Estadio CIF"
+              },
+              "format": {
+                "regulation": {
+                  "periods": 3
+                }
+              },
+              "notes": [],
+              "competitors": [
+                {
+                  "id": "3487-14578",
+                  "type": "team",
+                  "order": 2,
+                  "homeAway": "away",
+                  "winner": null,
+                  "score": null,
+                  "linescores": null,
+                  "athlete": {
+                    "displayName": null,
+                    "shortName": null
+                  },
+                  "statistics": []
+                },
+                {
+                  "id": "13369-10521",
+                  "type": "team",
+                  "order": 1,
+                  "homeAway": "home",
+                  "winner": null,
+                  "score": null,
+                  "linescores": null,
+                  "athlete": {
+                    "displayName": null,
+                    "shortName": null
+                  },
+                  "statistics": []
+                }
+              ],
+              "round": {
+                "id": "6",
+                "displayName": "Semifinal"
+              },
+              "tournamentId": 1079,
+              "type": {
+                "id": "4",
+                "text": "Women's Doubles",
+                "slug": "womens-doubles"
+              }
+            },
+            {
+              "id": "185435",
+              "uid": "s:850~l:900~e:1079-2026~c:185435",
+              "date": "2026-10-12T12:30Z",
+              "startDate": "2026-10-12T12:30Z",
+              "timeValid": true,
+              "status": {
+                "period": 2,
+                "type": {
+                  "id": "3",
+                  "name": "STATUS_FINAL",
+                  "state": "post",
+                  "completed": true,
+                  "description": "Final",
+                  "detail": "Final",
+                  "shortDetail": "Final"
+                }
+              },
+              "venue": {
+                "fullName": "Lisboa, Portugal",
+                "court": "Estadio CIF"
+              },
+              "format": {
+                "regulation": {
+                  "periods": 3
+                }
+              },
+              "notes": [
+                {
+                  "text": "(2) Francisca Jorge (POR) & Matilde Jorge (POR) bt Martina Colmegna (ITA) & Min Liu (CHN) 6-2 6-1",
+                  "type": "event"
+                }
+              ],
+              "competitors": [
+                {
+                  "id": "3487-14578",
+                  "type": "team",
+                  "order": 2,
+                  "homeAway": "away",
+                  "winner": true,
+                  "score": null,
+                  "linescores": [
+                    {
+                      "value": 6.0,
+                      "winner": true
+                    },
+                    {
+                      "value": 6.0,
+                      "winner": true
+                    }
+                  ],
+                  "athlete": {
+                    "displayName": null,
+                    "shortName": null
+                  },
+                  "statistics": []
+                },
+                {
+                  "id": "4458-17217",
+                  "type": "team",
+                  "order": 1,
+                  "homeAway": "home",
+                  "winner": false,
+                  "score": null,
+                  "linescores": [
+                    {
+                      "value": 2.0,
+                      "winner": false
+                    },
+                    {
+                      "value": 1.0,
+                      "winner": false
+                    }
+                  ],
+                  "athlete": {
+                    "displayName": null,
+                    "shortName": null
+                  },
+                  "statistics": []
+                }
+              ],
+              "round": {
+                "id": "1",
+                "displayName": "Round 1"
+              },
+              "tournamentId": 1079,
+              "type": {
+                "id": "4",
+                "text": "Women's Doubles",
+                "slug": "womens-doubles"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

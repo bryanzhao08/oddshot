@@ -1,0 +1,24 @@
+Build Oddshot's LIVE CONTEXT module. Read /Users/bryan/oddshot/CONTRACT.md (sections "v2" and especially "v3: ... Live context") first.
+Only create/edit files under server/context/ (other agents are editing everything else concurrently). Zero npm deps, pure ES modules,
+NO node: imports (must also run in a browser), fetch injectable via an optional {fetchImpl} param. Use as many parallel subagents as you can
+(e.g. one per sport family + one for crypto + one for tests).
+
+1. server/context/espn.js: fetch ESPN public scoreboards (https://site.api.espn.com/apis/site/v2/sports/{sport}/{league}/scoreboard) for
+   football/nfl, football/college-football, basketball/nba, basketball/wnba, baseball/mlb, hockey/nhl, soccer/{eng.1, usa.1, esp.1, uefa.champions, ita.1, ger.1, fra.1},
+   tennis/atp and tennis/wta if available. Inspect real responses with curl first. Cache each scoreboard ~15s.
+   Extract for in-progress games: status pre/in/post, clock, period, score + team names/abbrevs, `situation` (NFL/CFB: down & distance + yard line,
+   red zone flag; MLB: outs + runners on base; NHL: power play if present; soccer: recent key events; tennis: set/game score, break point if derivable),
+   lastPlay text, and `imminent` = {type, team, confidence, text}. Be explicit and conservative: red zone / goal-to-go => touchdown imminent;
+   runners in scoring position => run; power play => goal; soccer => only report what the data supports (e.g. recent shots/corners if present), else null.
+2. server/context/assets.js: crypto spot via https://api.coinbase.com/v2/prices/{SYM}-USD/spot plus a short in-memory price history to compute change5m/change1h
+   (or use Coinbase Exchange candles https://api.exchange.coinbase.com/products/{SYM}-USD/candles?granularity=60). Detect symbols from market titles
+   (Bitcoin/BTC, Ethereum/ETH, Solana/SOL, XRP, DOGE ...).
+3. server/context/index.js: export async getLiveContext(market, {fetchImpl, now}) per the contract → null or context object; never throws.
+   Market matching: map a Market (title, tags, category, startTime, source) to an ESPN game by team names/abbreviations/cities; require strong
+   matches (both teams, or one team + same-day start time); return null when unsure. Also export matchGame(market, games) for testing.
+4. Tests with node:test in server/context/*.test.js using saved real JSON fixtures (save small trimmed fixtures in server/context/fixtures/).
+   Run: node --test 'server/context/*.test.js' and make them pass.
+5. Live check: run a script against today's real Oddshot markets: `curl -s 'localhost:8787/api/markets?category=sports&limit=200'` (server may be
+   restarting; retry) and report how many sports markets matched a live/pre game, with 10 example matches incl. situation text, and any crypto markets matched.
+   Write that to server/context/LIVE_CHECK.txt.
+Finish with a concise summary in your last message: exported API, match rate, examples, limitations.

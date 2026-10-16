@@ -105,7 +105,7 @@ JSON files in `data/`. Subscription:
 ```
 Recent alerts ring buffer (last 500 spikes) persisted too.
 
-## HTTP API (agent B), all JSON, port `process.env.PORT || 8787`
+## HTTP API (agent B), all JSON, port `process.env.PORT || 4317`
 - `GET  /api/health` → `{ok, lastPollAt, marketCount, sources: {polymarket: {ok, count, error}, kalshi: {...}}}`
 - `GET  /api/markets?q=&category=&source=&limit=50` → `Market[]` (with `change1h` merged in if known)
 - `GET  /api/markets/:id/history` → `{ marketId, points: [{t, p}] }` (id is URL-encoded, contains ':')

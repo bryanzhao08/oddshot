@@ -1,0 +1,378 @@
+{
+  "events": [
+    {
+      "id": "315-2026",
+      "name": "Rolex Shanghai Masters",
+      "shortName": "Rolex Shanghai Masters",
+      "date": "2026-10-05T04:00Z",
+      "season": {
+        "year": 2026,
+        "type": 2
+      },
+      "groupings": [
+        {
+          "grouping": {
+            "id": "1",
+            "slug": "mens-singles",
+            "displayName": "Men's Singles"
+          },
+          "competitions": [
+            {
+              "id": "184956",
+              "uid": "s:850~l:851~e:315-2026~c:184956",
+              "date": "2026-10-16T06:30Z",
+              "startDate": "2026-10-16T06:30Z",
+              "timeValid": true,
+              "status": {
+                "period": 1,
+                "type": {
+                  "id": "1",
+                  "name": "STATUS_SCHEDULED",
+                  "state": "pre",
+                  "completed": false,
+                  "description": "Scheduled",
+                  "detail": "Fri, October 15th at 2:30 AM EDT",
+                  "shortDetail": "10/16 - 2:30 AM EDT"
+                }
+              },
+              "venue": {
+                "fullName": "Shanghai, China PR",
+                "court": "Stadium Court"
+              },
+              "format": {
+                "regulation": {
+                  "periods": 5
+                }
+              },
+              "notes": [],
+              "competitors": [
+                {
+                  "id": "2989",
+                  "type": "athlete",
+                  "order": 2,
+                  "homeAway": "away",
+                  "winner": null,
+                  "score": null,
+                  "linescores": null,
+                  "athlete": {
+                    "displayName": "Casper Ruud",
+                    "shortName": "C. Ruud"
+                  },
+                  "statistics": []
+                },
+                {
+                  "id": "12657",
+                  "type": "athlete",
+                  "order": 1,
+                  "homeAway": "home",
+                  "winner": null,
+                  "score": null,
+                  "linescores": null,
+                  "athlete": {
+                    "displayName": "Rafael Jodar",
+                    "shortName": "R. Jodar"
+                  },
+                  "statistics": []
+                }
+              ],
+              "round": {
+                "id": "5",
+                "displayName": "Quarterfinal"
+              },
+              "tournamentId": 315,
+              "type": {
+                "id": "1",
+                "text": "Men's Singles",
+                "slug": "mens-singles"
+              }
+            },
+            {
+              "id": "186308",
+              "uid": "s:850~l:851~e:315-2026~c:186308",
+              "date": "2026-10-05T04:05Z",
+              "startDate": "2026-10-05T04:05Z",
+              "timeValid": true,
+              "status": {
+                "period": 3,
+                "type": {
+                  "id": "3",
+                  "name": "STATUS_FINAL",
+                  "state": "post",
+                  "completed": true,
+                  "description": "Final",
+                  "detail": "Final",
+                  "shortDetail": "Final"
+                }
+              },
+              "venue": {
+                "fullName": "Shanghai, China PR",
+                "court": "Court 7"
+              },
+              "format": {
+                "regulation": {
+                  "periods": 5
+                }
+              },
+              "notes": [
+                {
+                  "text": "Nikoloz Basilashvili (GEO) bt Andre Ilagan (USA) 6-3 6-7 (1-7) 7-5",
+                  "type": "event"
+                }
+              ],
+              "competitors": [
+                {
+                  "id": "2498",
+                  "type": "athlete",
+                  "order": 2,
+                  "homeAway": "away",
+                  "winner": true,
+                  "score": null,
+                  "linescores": [
+                    {
+                      "value": 6.0,
+                      "winner": true
+                    },
+                    {
+                      "value": 6.0,
+                      "tiebreak": 1,
+                      "winner": false
+                    },
+                    {
+                      "value": 7.0,
+                      "winner": true
+                    }
+                  ],
+                  "athlete": {
+                    "displayName": "Nikoloz Basilashvili",
+                    "shortName": "N. Basilashvili"
+                  },
+                  "statistics": []
+                },
+                {
+                  "id": "13358",
+                  "type": "athlete",
+                  "order": 1,
+                  "homeAway": "home",
+                  "winner": false,
+                  "score": null,
+                  "linescores": [
+                    {
+                      "value": 3.0,
+                      "winner": false
+                    },
+                    {
+                      "value": 7.0,
+                      "tiebreak": 7,
+                      "winner": true
+                    },
+                    {
+                      "value": 5.0,
+                      "winner": false
+                    }
+                  ],
+                  "athlete": {
+                    "displayName": "Andre Ilagan",
+                    "shortName": "A. Ilagan"
+                  },
+                  "statistics": []
+                }
+              ],
+              "round": {
+                "id": "11",
+                "displayName": "Qualifying 1st Round"
+              },
+              "tournamentId": 315,
+              "type": {
+                "id": "1",
+                "text": "Men's Singles",
+                "slug": "mens-singles"
+              }
+            }
+          ]
+        },
+        {
+          "grouping": {
+            "id": "3",
+            "slug": "mens-doubles",
+            "displayName": "Men's Doubles"
+          },
+          "competitions": [
+            {
+              "id": "184989",
+              "uid": "s:850~l:851~e:315-2026~c:184989",
+              "date": "2026-10-16T04:00Z",
+              "startDate": "2026-10-16T04:00Z",
+              "timeValid": true,
+              "status": {
+                "period": 1,
+                "type": {
+                  "id": "1",
+                  "name": "STATUS_SCHEDULED",
+                  "state": "pre",
+                  "completed": false,
+                  "description": "Scheduled",
+                  "detail": "Fri, October 15th at 12:00 AM EDT",
+                  "shortDetail": "10/16 - 12:00 AM EDT"
+                }
+              },
+              "venue": {
+                "fullName": "Shanghai, China PR",
+                "court": "Stadium Court"
+              },
+              "format": {
+                "regulation": {
+                  "periods": 5
+                }
+              },
+              "notes": [],
+              "competitors": [
+                {
+                  "id": "3825-11172",
+                  "type": "team",
+                  "order": 2,
+                  "homeAway": "away",
+                  "winner": null,
+                  "score": null,
+                  "linescores": null,
+                  "athlete": {
+                    "displayName": null,
+                    "shortName": null
+                  },
+                  "statistics": []
+                },
+                {
+                  "id": "10882-1965",
+                  "type": "team",
+                  "order": 1,
+                  "homeAway": "home",
+                  "winner": null,
+                  "score": null,
+                  "linescores": null,
+                  "athlete": {
+                    "displayName": null,
+                    "shortName": null
+                  },
+                  "statistics": []
+                }
+              ],
+              "round": {
+                "id": "6",
+                "displayName": "Semifinal"
+              },
+              "tournamentId": 315,
+              "type": {
+                "id": "3",
+                "text": "Men's Doubles",
+                "slug": "mens-doubles"
+              }
+            },
+            {
+              "id": "184982",
+              "uid": "s:850~l:851~e:315-2026~c:184982",
+              "date": "2026-10-09T04:10Z",
+              "startDate": "2026-10-09T04:10Z",
+              "timeValid": true,
+              "status": {
+                "period": 3,
+                "type": {
+                  "id": "3",
+                  "name": "STATUS_FINAL",
+                  "state": "post",
+                  "completed": true,
+                  "description": "Final",
+                  "detail": "Final",
+                  "shortDetail": "Final"
+                }
+              },
+              "venue": {
+                "fullName": "Shanghai, China PR",
+                "court": "Court 7"
+              },
+              "format": {
+                "regulation": {
+                  "periods": 5
+                }
+              },
+              "notes": [
+                {
+                  "text": "Ignacio Buse (PER) & Adolfo Daniel Vallejo (PAR) bt (6) Guido Andreozzi (ARG) & Manuel Guinard (FRA) 6-3 6-7 (7-9) 1-0 (10-7)",
+                  "type": "event"
+                }
+              ],
+              "competitors": [
+                {
+                  "id": "2292-3735",
+                  "type": "team",
+                  "order": 2,
+                  "homeAway": "away",
+                  "winner": false,
+                  "score": null,
+                  "linescores": [
+                    {
+                      "value": 3.0,
+                      "winner": false
+                    },
+                    {
+                      "value": 7.0,
+                      "tiebreak": 9,
+                      "winner": true
+                    },
+                    {
+                      "value": 0.0,
+                      "tiebreak": 7,
+                      "winner": false
+                    }
+                  ],
+                  "athlete": {
+                    "displayName": null,
+                    "shortName": null
+                  },
+                  "statistics": []
+                },
+                {
+                  "id": "11226-11396",
+                  "type": "team",
+                  "order": 1,
+                  "homeAway": "home",
+                  "winner": true,
+                  "score": null,
+                  "linescores": [
+                    {
+                      "value": 6.0,
+                      "winner": true
+                    },
+                    {
+                      "value": 6.0,
+                      "tiebreak": 7,
+                      "winner": false
+                    },
+                    {
+                      "value": 1.0,
+                      "tiebreak": 10,
+                      "winner": true
+                    }
+                  ],
+                  "athlete": {
+                    "displayName": null,
+                    "shortName": null
+                  },
+                  "statistics": []
+                }
+              ],
+              "round": {
+                "id": "1",
+                "displayName": "Round 1"
+              },
+              "tournamentId": 315,
+              "type": {
+                "id": "3",
+                "text": "Men's Doubles",
+                "slug": "mens-doubles"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

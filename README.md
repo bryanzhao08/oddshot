@@ -96,12 +96,12 @@ Requires Node.js 20+.
 
 ```sh
 npm start
-# open http://localhost:8787
+# open http://localhost:4317
 ```
 
 The first poll gives the detector its baseline, so real spikes appear only after a
 few ticks. Markets can be quiet; press **Simulate spike** in the UI (or
-`curl -X POST localhost:8787/api/demo/spike`) to push a synthetic spike, built on a
+`curl -X POST localhost:4317/api/demo/spike`) to push a synthetic spike, built on a
 real market, through the whole pipeline: matching, webhooks, live feed and history.
 
 Run the tests:
@@ -114,7 +114,7 @@ node --test 'server/**/*.test.js'
 
 | Variable   | Default   | Description                                    |
 |------------|-----------|------------------------------------------------|
-| `PORT`     | `8787`    | HTTP port                                      |
+| `PORT`     | `4317`    | HTTP port                                      |
 | `HOST`     | all       | Interface to bind (e.g. `127.0.0.1`)           |
 | `POLL_MS`  | `20000`   | Market poll interval in milliseconds           |
 | `DATA_DIR` | `./data`  | Where `subscriptions.json`, `alerts.json` and `insights.json` live |
@@ -237,7 +237,7 @@ Oddshot sets ntfy's `Title`, `Priority` (major = urgent), `Tags`, and `Click`, s
 notification opens the market.
 
 ```sh
-curl -X POST localhost:8787/api/subscriptions -H 'content-type: application/json' -d '{
+curl -X POST localhost:4317/api/subscriptions -H 'content-type: application/json' -d '{
   "name": "Anything big", "persona": "general", "minSeverity": "major",
   "webhook": {"type": "ntfy", "url": "https://ntfy.sh/oddshot-7f3k2q"}
 }'

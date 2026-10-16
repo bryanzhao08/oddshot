@@ -1,0 +1,5 @@
+Implemented the live context module in `server/context/`: `getLiveContext` and `matchGame` in [index.js](/Users/bryan/oddshot/server/context/index.js), ESPN scoreboard fetching and normalization in [espn.js](/Users/bryan/oddshot/server/context/espn.js), and Coinbase crypto context in [assets.js](/Users/bryan/oddshot/server/context/assets.js). Added real-response fixtures and tests.
+
+The live check matched **77 of 200 sports markets (38.5%)** to pregame or in-progress ESPN games, covering 17 distinct games. **54 of 54 crypto markets** matched Coinbase spot context. Ten market examples and the results are in [LIVE_CHECK.txt](/Users/bryan/oddshot/server/context/LIVE_CHECK.txt).
+
+Verification: `node --test 'server/context/*.test.js'` passed all 9 tests. Current ESPN payloads often omit situation details; those fields remain null when unsupported, and crypto change values are null until in-memory history accumulates.

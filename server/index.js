@@ -843,7 +843,7 @@ export function createApp({
   });
   server.keepAliveTimeout = 65_000;
 
-  async function start(port = 8787, host) {
+  async function start(port = 4317, host) {
     await store.load();
     insightEngine.restore(store.listInsights?.(300) || []);
     await new Promise((r, j) => {
@@ -913,7 +913,7 @@ async function main() {
   }
   const mlModel = ml?.loadModel?.();
   console.log(mlModel ? `[ml] spike classifier loaded (${mlModel.meta?.model || mlModel.model || 'xgboost'})` : '[ml] no model loaded; spikes will be unscored');
-  const port = Number(process.env.PORT) || 8787;
+  const port = Number(process.env.PORT) || 4317;
   const pollMs = Number(process.env.POLL_MS) || 20000;
   const app = createApp({
     fetchAllMarkets: sources.fetchAllMarkets,

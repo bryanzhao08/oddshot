@@ -1,0 +1,193 @@
+{
+  "events": [
+    {
+      "id": "401892506",
+      "date": "2026-10-15T23:00Z",
+      "name": "Buffalo Sabres at Toronto Maple Leafs",
+      "shortName": "BUF @ TOR",
+      "competitions": [
+        {
+          "id": "401892506",
+          "date": "2026-10-15T23:00Z",
+          "competitors": [
+            {
+              "id": "21",
+              "homeAway": "home",
+              "team": {
+                "id": "21",
+                "location": "Toronto",
+                "name": "Maple Leafs",
+                "abbreviation": "TOR",
+                "displayName": "Toronto Maple Leafs",
+                "shortDisplayName": "Maple Leafs"
+              },
+              "score": "2",
+              "linescores": [
+                {
+                  "value": 2.0,
+                  "displayValue": "2",
+                  "period": 1
+                }
+              ]
+            },
+            {
+              "id": "2",
+              "homeAway": "away",
+              "team": {
+                "id": "2",
+                "location": "Buffalo",
+                "name": "Sabres",
+                "abbreviation": "BUF",
+                "displayName": "Buffalo Sabres",
+                "shortDisplayName": "Sabres"
+              },
+              "score": "1",
+              "linescores": [
+                {
+                  "value": 1.0,
+                  "displayValue": "1",
+                  "period": 1
+                }
+              ]
+            }
+          ],
+          "situation": {
+            "lastPlay": {
+              "id": "401892506000003420",
+              "type": {
+                "id": "506",
+                "text": "Shot",
+                "abbreviation": "shot-on-goal"
+              },
+              "text": "William Nylander Wrist Shot saved by Ukko-Pekka Luukkonen",
+              "scoreValue": 0,
+              "team": {
+                "id": "21"
+              },
+              "athletesInvolved": [
+                {
+                  "id": "3114736",
+                  "fullName": "William Nylander",
+                  "displayName": "William Nylander",
+                  "shortName": "W. Nylander",
+                  "links": [
+                    {
+                      "rel": [
+                        "playercard",
+                        "desktop",
+                        "athlete"
+                      ],
+                      "href": "https://www.espn.com/nhl/player/_/id/3114736"
+                    }
+                  ],
+                  "headshot": "https://a.espncdn.com/i/headshots/nhl/players/full/3114736.png",
+                  "jersey": "88",
+                  "position": "RW",
+                  "team": {
+                    "id": "21"
+                  }
+                }
+              ]
+            }
+          },
+          "status": {
+            "clock": 16.0,
+            "displayClock": "0:16",
+            "period": 1,
+            "type": {
+              "id": "2",
+              "name": "STATUS_IN_PROGRESS",
+              "state": "in",
+              "completed": false,
+              "description": "In Progress",
+              "detail": "0:16 - 1st Period",
+              "shortDetail": "0:16 - 1st"
+            }
+          }
+        }
+      ],
+      "status": {
+        "clock": 16.0,
+        "displayClock": "0:16",
+        "period": 1,
+        "type": {
+          "id": "2",
+          "name": "STATUS_IN_PROGRESS",
+          "state": "in",
+          "completed": false,
+          "description": "In Progress",
+          "detail": "0:16 - 1st Period",
+          "shortDetail": "0:16 - 1st"
+        }
+      }
+    },
+    {
+      "id": "401892512",
+      "date": "2026-10-16T00:00Z",
+      "name": "Winnipeg Jets at Chicago Blackhawks",
+      "shortName": "WPG @ CHI",
+      "competitions": [
+        {
+          "id": "401892512",
+          "date": "2026-10-16T00:00Z",
+          "competitors": [
+            {
+              "id": "4",
+              "homeAway": "home",
+              "team": {
+                "id": "4",
+                "location": "Chicago",
+                "name": "Blackhawks",
+                "abbreviation": "CHI",
+                "displayName": "Chicago Blackhawks",
+                "shortDisplayName": "Blackhawks"
+              },
+              "score": "0"
+            },
+            {
+              "id": "28",
+              "homeAway": "away",
+              "team": {
+                "id": "28",
+                "location": "Winnipeg",
+                "name": "Jets",
+                "abbreviation": "WPG",
+                "displayName": "Winnipeg Jets",
+                "shortDisplayName": "Jets"
+              },
+              "score": "0"
+            }
+          ],
+          "status": {
+            "clock": 0.0,
+            "displayClock": "0:00",
+            "period": 0,
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false,
+              "description": "Scheduled",
+              "detail": "Thu, October 15th at 8:00 PM EDT",
+              "shortDetail": "10/15 - 8:00 PM EDT"
+            }
+          }
+        }
+      ],
+      "status": {
+        "clock": 0.0,
+        "displayClock": "0:00",
+        "period": 0,
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "Thu, October 15th at 8:00 PM EDT",
+          "shortDetail": "10/15 - 8:00 PM EDT"
+        }
+      }
+    }
+  ]
+}

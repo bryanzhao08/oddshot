@@ -68,7 +68,8 @@ export function sides(market = {}) {
   const title = String(market.title || market.id || 'This market');
   const outcome = String(market.outcome || 'Yes');
   const isYes = /^(yes|no)$/i.test(outcome);
-  const mm = title.match(MATCHUP_RE);
+  // Drop a league/tournament prefix ("LoL: ", "Jinan: ", "Dota 2: ") so it isn't read as part of a team name.
+  const mm = title.replace(/^[^:?]{1,24}:\s+(?=.+\s(?:vs\.?|v\.?|@|at)\s)/i, '').match(MATCHUP_RE);
   const sub = /\b(o\/u|over\/under|spread|handicap|total|first \d+ innings|1st half|draw|tie)\b/i.test(title);
   let a = mm ? cleanSide(mm[1]) : null;
   let b = mm ? cleanSide(mm[2]) : null;
