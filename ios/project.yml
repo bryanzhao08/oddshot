@@ -11,7 +11,7 @@ settings:
     SWIFT_STRICT_CONCURRENCY: complete
     MARKETING_VERSION: "1.0"
     CURRENT_PROJECT_VERSION: "1"
-    DEVELOPMENT_TEAM: ""
+    DEVELOPMENT_TEAM: 38LHN9PGZP  # change to your team in Xcode → Signing & Capabilities
     CODE_SIGN_STYLE: Automatic
 targets:
   Oddshot:
@@ -19,9 +19,11 @@ targets:
     platform: iOS
     sources:
       - path: Oddshot
+      - path: ../server/ml/forecaster.json   # the trained model, shared with the web app
+        buildPhase: resources
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.oddshot.app
+        PRODUCT_BUNDLE_IDENTIFIER: com.bryanzhao.oddshot
         PRODUCT_NAME: Oddshot
         TARGETED_DEVICE_FAMILY: "1"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
@@ -46,13 +48,25 @@ targets:
           - fetch
         BGTaskSchedulerPermittedIdentifiers:
           - com.oddshot.app.refresh
-        NSAppTransportSecurity:
-          NSAllowsLocalNetworking: true
-        NSLocalNetworkUsageDescription: Oddshot connects to your Oddshot server on the local network to stream market spikes.
+  OddshotUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: OddshotUITests
+    dependencies:
+      - target: Oddshot
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bryanzhao.oddshot.uitests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: Oddshot
 schemes:
   Oddshot:
     build:
       targets:
         Oddshot: all
+    test:
+      targets:
+        - OddshotUITests
     run:
       config: Debug
