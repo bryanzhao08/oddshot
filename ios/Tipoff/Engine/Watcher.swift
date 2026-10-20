@@ -291,7 +291,8 @@ final class Watcher {
     /// What's going on, in plain words. Live scoreboard first, then X chatter, then what the odds alone say.
     func moment(for m: Market) -> GameMoment? {
         var mo: GameMoment?
-        if m.live, let g = ESPN.match(m, in: games) {
+        let espnGame = m.live ? ESPN.match(m, in: games) : nil
+        if let g = espnGame {
             let rule = g.moment
             if var model = modelMoments[g.id] {
                 // Model headline ("Arsenal pressing: 31% chance of a goal in 10 min") + what's on the scoreboard.
@@ -310,6 +311,11 @@ final class Watcher {
                 mo!.detail = [mo!.detail, line].compactMap { $0 }.joined(separator: ". ")
                 mo!.mustSee = mo!.mustSee || buzz.mustSee
             }
+        }
+        // No live scoreboard: read the game state from how the odds are moving (ml/state model).
+        if mo == nil, m.live, let model = StateModel.shared, let sport = StateModel.sport(of: m, espn: espnGame),
+           let h = history[m.id], h.count >= 10 {
+            mo = model.moment(for: m, history: h, sport: sport)
         }
         return mo ?? oddsMoment(m)
     }

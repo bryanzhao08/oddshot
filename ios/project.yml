@@ -21,7 +21,13 @@ targets:
       - path: Tipoff
       - path: ../server/ml/forecaster.json   # the trained model, shared with the web app
         buildPhase: resources
-      - path: ../server/ml/sports            # in-game models (soccer, football, basketball)
+      - path: ../server/ml/sports/soccer.json       # in-game models
+        buildPhase: resources
+      - path: ../server/ml/sports/football.json
+        buildPhase: resources
+      - path: ../server/ml/sports/basketball.json
+        buildPhase: resources
+      - path: ../server/ml/state             # game-state reader (odds → what's happening)
         type: folder
         buildPhase: resources
         optional: true

@@ -15,3 +15,8 @@ ml/sports/data/models/
 ml/sports/codex_run.log
 ml/sports/__pycache__/
 ml/sports/data/*.log
+ml/state/data/*.parquet
+ml/state/data/*.ubj
+ml/state/data/*.log
+ml/state/__pycache__/
+ml/state/agy_run.log

@@ -1,0 +1,9 @@
+You are working in the repo at ~/oddshot. Read ml/state/SPEC.md. Your job is ONLY workstream A
+("Odds data"): build ml/state/collect_odds.py and produce ml/state/data/markets.parquet and
+ml/state/data/prices.parquet exactly as specified, matched to ESPN event ids. Use the Python venv at
+ml/.venv (use `requests`; the system Python lacks SSL certs). Cache every HTTP response under
+ml/state/data/raw/. Public read-only APIs only, no keys, no trading, at most 8 concurrent requests.
+First find out how far back Polymarket keeps 1-minute price history for closed game markets, then
+collect as many games as that allows. Only write files under ml/state/. Do not commit.
+When done, write ml/state/ODDS_DATA.md with: games per sport/league, date range, how many matched to
+ESPN, median points per game, and any problems.
