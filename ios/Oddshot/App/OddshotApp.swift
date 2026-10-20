@@ -15,7 +15,7 @@ struct OddshotApp: App {
             RootView()
                 .environment(watcher)
                 .preferredColorScheme(.dark)
-                .tint(Theme.accent)
+                .tint(Theme.ember)
         }
         .onChange(of: phase) { _, phase in
             switch phase {

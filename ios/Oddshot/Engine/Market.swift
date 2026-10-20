@@ -27,6 +27,16 @@ struct Market: Codable, Sendable, Identifiable, Hashable {
         return t.count <= 60 ? t : String(t.prefix(57)) + "…"
     }
 
+    /// "Japan Women's Open: Valentova vs Zhang" → ("Japan Women's Open", "Valentova vs Zhang").
+    var split: (league: String?, name: String) {
+        let t = eventTitle ?? title
+        if let c = t.firstIndex(of: ":"), t.distance(from: t.startIndex, to: c) < 32 {
+            let rest = t[t.index(after: c)...].trimmingCharacters(in: .whitespaces)
+            if !rest.isEmpty { return (String(t[..<c]), rest) }
+        }
+        return (nil, t)
+    }
+
     /// "Yes" markets read better as the question; named-outcome markets as the outcome.
     var sideLabel: String {
         let o = outcome.lowercased()
@@ -108,6 +118,18 @@ enum Polymarket {
         return pages.joined()
             .filter { seen.insert($0.id).inserted }
             .sorted { $0.volume24h > $1.volume24h }
+    }
+
+    /// Specific markets by id ("polymarket:123"), for followed matches outside the top list.
+    static func markets(ids: [String]) async -> [Market] {
+        let raw = ids.compactMap { $0.split(separator: ":").last.map(String.init) }
+        guard !raw.isEmpty else { return [] }
+        let q = raw.prefix(20).map { "id=\($0)" }.joined(separator: "&")
+        guard let url = URL(string: "\(gamma)/markets?include_tag=true&\(q)"),
+              let (data, _) = try? await session.data(from: url),
+              let rows = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] else { return [] }
+        let now = Date()
+        return rows.compactMap { normalize($0, now: now) }
     }
 
     /// 1-minute price history for the last `hours` hours (CLOB prices-history).

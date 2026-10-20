@@ -5,6 +5,8 @@ struct SettingsView: View {
     @Environment(Watcher.self) private var watcher
     @Environment(\.dismiss) private var dismiss
     @State private var status: UNAuthorizationStatus = .notDetermined
+    @State private var xToken = ""
+    @State private var xSaved = Keychain.read("xBearerToken") != nil
 
     var body: some View {
         NavigationStack {
@@ -22,9 +24,39 @@ struct SettingsView: View {
                             if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
                         }
                     }
+                    Toggle("Only matches I follow", isOn: Bindable(watcher).onlyFollowed)
                     Button("Send a test alert") { watcher.sendTest() }
                 } footer: {
                     Text("👀 Heads-up: a big swing just became likely. ⚡ It's happening: the odds just jumped.")
+                }
+
+                Section {
+                    if xSaved {
+                        HStack {
+                            Text("X connected")
+                            Spacer()
+                            Button("Remove", role: .destructive) {
+                                Keychain.write("xBearerToken", nil)
+                                xSaved = false
+                                watcher.xTokenChanged()
+                            }
+                        }
+                    } else {
+                        SecureField("X API bearer token", text: $xToken)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                        Button("Connect X") {
+                            Keychain.write("xBearerToken", xToken.trimmingCharacters(in: .whitespacesAndNewlines))
+                            xToken = ""
+                            xSaved = true
+                            watcher.xTokenChanged()
+                        }
+                        .disabled(xToken.trimmingCharacters(in: .whitespaces).isEmpty)
+                    }
+                } header: {
+                    Text("Live posts from X")
+                } footer: {
+                    Text("Shows what people are posting about your top pick and alerts you when chatter suddenly spikes. Needs a bearer token from developer.x.com (X's paid API). It's stored in your iPhone's Keychain and only sent to X.")
                 }
 
                 Section("How it works") {
@@ -32,15 +64,14 @@ struct SettingsView: View {
                     Text("Alerts are instant while the app is open. When it's closed, iOS lets it check in now and then (about every 15 min at best).")
                 }
                 .font(.footnote)
-                .foregroundStyle(Theme.muted)
+                .foregroundStyle(Theme.soft)
             }
-            .scrollContentBackground(.hidden)
-            .background(Theme.bg)
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
             .task { await refresh() }
         }
+        .sheetBackground()
     }
 
     private func refresh() async { status = await Notifier.status() }

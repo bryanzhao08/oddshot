@@ -11,7 +11,7 @@ final class OddshotUITests: XCTestCase {
         app.launch()
         snap("1-onboarding")
 
-        app.staticTexts["Out & about"].tap()
+        app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Out & about")).firstMatch.tap()
         app.buttons["Start watching"].tap()
         let allow = XCUIApplication(bundleIdentifier: "com.apple.springboard").buttons["Allow"]
         if allow.waitForExistence(timeout: 5) { allow.tap() }
@@ -20,8 +20,21 @@ final class OddshotUITests: XCTestCase {
         sleep(20) // load odds, backfill history, forecast
         snap("2-home-out")
 
+        // Follow a match from the picker.
+        app.buttons["pickMatches"].tap()
+        let live = app.buttons["Live now"]
+        if live.waitForExistence(timeout: 5) { live.tap() }   // show everything
+        let star = app.collectionViews.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Follow '")).firstMatch
+        XCTAssertTrue(star.waitForExistence(timeout: 10))
+        star.tap()
+        snap("2b-picker")
+        app.buttons["Done"].firstMatch.tap()
+        XCTAssertTrue(app.staticTexts["Following"].waitForExistence(timeout: 10))
+        sleep(4)
+        snap("2c-following")
+
         app.buttons["modeButton"].tap()
-        app.staticTexts["A bit of everything"].tap()
+        app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "A bit of everything")).firstMatch.tap()
         sleep(15)
         snap("3-home-everything")
 

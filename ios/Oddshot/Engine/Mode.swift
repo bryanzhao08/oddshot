@@ -17,6 +17,18 @@ enum Mode: String, CaseIterable, Codable, Sendable, Identifiable {
         }
     }
 
+    /// SF Symbol for the UI (notifications keep the emoji).
+    var symbol: String {
+        switch self {
+        case .sports: "sportscourt.fill"
+        case .out: "wineglass.fill"
+        case .markets: "chart.line.uptrend.xyaxis"
+        case .news: "newspaper.fill"
+        case .creator: "camera.fill"
+        case .everything: "globe"
+        }
+    }
+
     var name: String {
         switch self {
         case .sports: "Watching sports"
@@ -96,6 +108,17 @@ enum Mode: String, CaseIterable, Codable, Sendable, Identifiable {
         case .news: return ("🗞️ Odds just moved: \(t)", "\(move). News may be breaking.")
         case .creator: return ("📸 It's happening: \(t)", "\(move). Shoot now.")
         case .everything: return ("⚡ \(t)", "\(move).")
+        }
+    }
+
+    /// X chatter about this market suddenly spiked.
+    func xBuzz(_ m: Market, surge: Double) -> (title: String, body: String) {
+        let x = "\(Int(surge.rounded()))×"
+        switch self {
+        case .out: return ("🍻 Everyone's talking about \(m.shortTitle)", "Posts on X just jumped \(x). Something's happening. Find a screen.")
+        case .markets: return ("📈 X is buzzing: \(m.shortTitle)", "Posts jumped \(x) in 5 min. Odds may follow. Signal, not financial advice.")
+        case .creator: return ("📸 X is lighting up: \(m.shortTitle)", "Posts jumped \(x) in 5 min. Be ready.")
+        default: return ("💬 X is buzzing about \(m.shortTitle)", "Posts jumped \(x) in the last 5 minutes. Something may be happening.")
         }
     }
 }
