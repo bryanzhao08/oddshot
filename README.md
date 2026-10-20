@@ -1,11 +1,11 @@
-# Oddshot
+# Tipoff
 
 **The odds move before the headlines do.**
 
-Oddshot watches live prediction markets (Polymarket and Kalshi) and tells you the
+Tipoff watches live prediction markets (Polymarket and Kalshi) and tells you the
 moment something is happening, whatever you care about. When the crowd's
 probability for an outcome jumps from 42% to 61% in four minutes, something just
-happened: a go-ahead drive, a debate gaffe, a leak out of the Fed. Oddshot catches
+happened: a go-ahead drive, a debate gaffe, a leak out of the Fed. Tipoff catches
 that move and pings you, usually before the news alert, the box score or the
 timeline catches up.
 
@@ -14,7 +14,7 @@ Node server, so the demo runs the same detector and ML model in your browser
 (`public/standalone.js`). It covers Polymarket only, because Kalshi blocks browser
 requests, and it keeps your alerts in browser storage. Run `npm start` for the full
 version with Kalshi, server-side webhooks and persistent alerts. To point the
-static page at a deployed server, add `?api=https://your-oddshot-server`.
+static page at a deployed server, add `?api=https://your-tipoff-server`.
 
 ## Why
 
@@ -27,7 +27,7 @@ watching. So: turn sudden market moves into a tap on the shoulder.
 That turned out to be useful for far more than photographers. Traders want to know
 when volatility hits. Journalists want the tip before the wire. Fans want to tune in
 when the game gets interesting. Anyone who doesn't want to miss the moment can
-point Oddshot at the topics they care about and get alerted on their phone, in
+point Tipoff at the topics they care about and get alerted on their phone, in
 Discord or Slack, or in the browser.
 
 ## How it works
@@ -242,16 +242,16 @@ Use **Send test** in the UI (or `POST /api/subscriptions/:id/test`) to check a w
 ### ntfy.sh (easiest: phone push in a minute)
 
 1. Install the ntfy app (iOS/Android) and subscribe to a hard-to-guess topic, e.g.
-   `oddshot-7f3k2q`.
-2. Create a subscription with webhook `{"type": "ntfy", "url": "https://ntfy.sh/oddshot-7f3k2q"}`.
+   `tipoff-7f3k2q`.
+2. Create a subscription with webhook `{"type": "ntfy", "url": "https://ntfy.sh/tipoff-7f3k2q"}`.
 
-Oddshot sets ntfy's `Title`, `Priority` (major = urgent), `Tags`, and `Click`, so tapping the
+Tipoff sets ntfy's `Title`, `Priority` (major = urgent), `Tags`, and `Click`, so tapping the
 notification opens the market.
 
 ```sh
 curl -X POST localhost:4317/api/subscriptions -H 'content-type: application/json' -d '{
   "name": "Anything big", "persona": "general", "minSeverity": "major",
-  "webhook": {"type": "ntfy", "url": "https://ntfy.sh/oddshot-7f3k2q"}
+  "webhook": {"type": "ntfy", "url": "https://ntfy.sh/tipoff-7f3k2q"}
 }'
 ```
 
@@ -271,7 +271,7 @@ Create an app with Incoming Webhooks enabled, add it to a channel, then use
 Any other URL with `"type": "generic"` receives a POST like:
 
 ```json
-{ "type": "oddshot.spike", "text": "🚨 … \nhttps://…", "spike": { … }, "subscription": { "id": "…", "name": "…" } }
+{ "type": "tipoff.spike", "text": "🚨 … \nhttps://…", "spike": { … }, "subscription": { "id": "…", "name": "…" } }
 ```
 
 Good for Zapier, n8n, Home Assistant, IFTTT, or your own code.

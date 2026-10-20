@@ -1,6 +1,6 @@
-# Oddshot — build contract
+# Tipoff — build contract
 
-Product name: **Oddshot** — "The odds move before the headlines do." (formerly EventPulse)
+Product name: **Tipoff** — "The odds move before the headlines do." (formerly EventPulse)
 
 Shared interface spec for everyone building this. Zero runtime npm dependencies:
 Node >= 20 built-ins only (`node:http`, global `fetch`, `node:fs`, `node:test`). ES modules.
@@ -136,9 +136,9 @@ Single page, dark "terminal/broadcast" aesthetic, responsive. Talks to the API a
 
 ---
 
-# v2: Shot List & Insights (Oddshot is a recommender, not just a tracker)
+# v2: Shot List & Insights (Tipoff is a recommender, not just a tracker)
 
-Oddshot reads market *fluctuations* to recommend **what to watch next** ("shots") and to explain
+Tipoff reads market *fluctuations* to recommend **what to watch next** ("shots") and to explain
 what the crowd is thinking ("insights"). Reactive spike alerts remain, but the hero of the
 product is now the forward-looking **Shot List**.
 

@@ -1,4 +1,4 @@
-// Oddshot server: REST + SSE + static files + poll loop. Zero dependencies.
+// Tipoff server: REST + SSE + static files + poll loop. Zero dependencies.
 
 import http from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
@@ -931,7 +931,7 @@ async function main() {
   });
   await app.start(port, process.env.HOST);
   console.log(app.recommender ? `[agent] recommendations: ${app.recommender.available ? `rules + Claude (${app.recommender.model})` : 'rules only (no Anthropic credentials or OD_AGENT=rules)'}` : '[agent] recommendations disabled');
-  console.log(`Oddshot — the odds move before the headlines do.`);
+  console.log(`Tipoff — the odds move before the headlines do.`);
   console.log(`Listening on http://localhost:${port}  (polling every ${Math.round(pollMs / 1000)}s)`);
 
   let shuttingDown = false;
@@ -954,7 +954,7 @@ async function main() {
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   main().catch((err) => {
-    console.error('Failed to start Oddshot:', err);
+    console.error('Failed to start Tipoff:', err);
     process.exit(1);
   });
 }

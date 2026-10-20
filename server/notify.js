@@ -1,4 +1,4 @@
-// Oddshot webhook delivery: generic JSON, Discord, Slack, ntfy.sh.
+// Tipoff webhook delivery: generic JSON, Discord, Slack, ntfy.sh.
 // deliver() never throws; it resolves to {ok, status?, error?}.
 
 const TIMEOUT_MS = 8000;
@@ -105,15 +105,15 @@ function buildInsightRequest(webhook, ins, subscription) {
     return {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
-        username: 'Oddshot',
+        username: 'Tipoff',
         content: text.slice(0, 2000),
         embeds: [{
-          author: { name: `Oddshot · ${ins.type}` },
+          author: { name: `Tipoff · ${ins.type}` },
           title: `${INSIGHT_ICON[ins.type] || '💡'} ${ins.title}`.slice(0, 256),
           url: url || undefined,
           description: String(ins.body).slice(0, 2000),
           color: SEVERITY_COLOR[ins.severity] ?? SEVERITY_COLOR.info,
-          footer: { text: subscription ? `Oddshot · ${subscription.name}` : 'Oddshot' },
+          footer: { text: subscription ? `Tipoff · ${subscription.name}` : 'Tipoff' },
           timestamp: ins.createdAt || new Date().toISOString(),
         }],
       }),
@@ -135,7 +135,7 @@ function buildInsightRequest(webhook, ins, subscription) {
   if (type === 'ntfy') {
     const headers = {
       'content-type': 'text/plain; charset=utf-8',
-      Title: headerSafe(`Oddshot: ${ins.title}`.slice(0, 200)),
+      Title: headerSafe(`Tipoff: ${ins.title}`.slice(0, 200)),
       Priority: NTFY_PRIORITY[ins.severity] || '3',
       Tags: ['bulb', ins.category].filter(Boolean).join(','),
     };
@@ -144,7 +144,7 @@ function buildInsightRequest(webhook, ins, subscription) {
   }
   return {
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ type: 'oddshot.insight', text, insight: ins, recommendation: recommendationFor(ins, subscription), subscription: subscription ? { id: subscription.id, name: subscription.name } : null }),
+    body: JSON.stringify({ type: 'tipoff.insight', text, insight: ins, recommendation: recommendationFor(ins, subscription), subscription: subscription ? { id: subscription.id, name: subscription.name } : null }),
   };
 }
 
@@ -160,11 +160,11 @@ export function buildRequest(webhook, spike, subscription = null) {
     return {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
-        username: 'Oddshot',
+        username: 'Tipoff',
         content: text.slice(0, 2000),
         embeds: [
           {
-            author: { name: 'Oddshot' },
+            author: { name: 'Tipoff' },
             title: headline(spike).slice(0, 256),
             url: spike.url || undefined,
             description: `${moveText(spike)}${spike.live ? ' · LIVE' : ''}`,
@@ -174,7 +174,7 @@ export function buildRequest(webhook, spike, subscription = null) {
               { name: 'Source', value: String(spike.source || '?'), inline: true },
               { name: 'Category', value: String(spike.category || 'other'), inline: true },
             ],
-            footer: { text: subscription ? `Oddshot · ${subscription.name}` : 'Oddshot' },
+            footer: { text: subscription ? `Tipoff · ${subscription.name}` : 'Tipoff' },
             timestamp: spike.detectedAt || new Date().toISOString(),
           },
         ],
@@ -209,7 +209,7 @@ export function buildRequest(webhook, spike, subscription = null) {
   if (type === 'ntfy') {
     const headers = {
       'content-type': 'text/plain; charset=utf-8',
-      Title: headerSafe(`Oddshot: ${spike.live ? 'LIVE ' : ''}${recHead || headline(spike)}`.slice(0, 200)),
+      Title: headerSafe(`Tipoff: ${spike.live ? 'LIVE ' : ''}${recHead || headline(spike)}`.slice(0, 200)),
       Priority: NTFY_PRIORITY[spike.severity] || '3',
       Tags: [NTFY_TAG[spike.severity] || NTFY_TAG.info, spike.category].filter(Boolean).join(','),
     };
@@ -221,7 +221,7 @@ export function buildRequest(webhook, spike, subscription = null) {
   return {
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({
-      type: 'oddshot.spike',
+      type: 'tipoff.spike',
       text,
       spike,
       recommendation: recommendationFor(spike, subscription),
@@ -237,7 +237,7 @@ export async function deliver(webhook, spike, subscription = null, { timeoutMs =
     const { headers, body } = buildRequest(webhook, spike, subscription);
     const res = await fetchImpl(webhook.url, {
       method: 'POST',
-      headers: { 'user-agent': 'Oddshot/0.1', ...headers },
+      headers: { 'user-agent': 'Tipoff/0.1', ...headers },
       body,
       signal: AbortSignal.timeout(timeoutMs),
     });

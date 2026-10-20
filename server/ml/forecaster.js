@@ -1,4 +1,4 @@
-// Oddshot Moment Forecaster: from info available NOW, how likely is a market to
+// Tipoff Moment Forecaster: from info available NOW, how likely is a market to
 // make a big move soon?  pMove30 = P(max |p(now+k) - p(now)| >= 0.05 for some
 // k in (0, 30 min]); expectedMovePts = expected max |move| over the next 30 min.
 //

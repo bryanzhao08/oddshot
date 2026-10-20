@@ -4,7 +4,7 @@ import BackgroundTasks
 
 /// Local notifications + background refresh. No server or APNs account needed.
 enum Notifier {
-    static let refreshTaskId = "com.oddshot.app.refresh"
+    static let refreshTaskId = "com.bryanzhao.tipoff.refresh"
 
     static func requestAuthorization() async -> Bool {
         (try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge])) ?? false

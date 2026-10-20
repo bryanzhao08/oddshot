@@ -45,7 +45,7 @@ export function detectCredentials({ env = process.env, exec = execFileSync, fsEx
 
 // ---------- prompt & schemas ----------
 
-export const SYSTEM_PROMPT = `You are Oddshot's recommendation agent. Oddshot watches Polymarket and Kalshi prediction markets for sudden price and volatility spikes and tells people what is about to happen, worded for their role.
+export const SYSTEM_PROMPT = `You are Tipoff's recommendation agent. Tipoff watches Polymarket and Kalshi prediction markets for sudden price and volatility spikes and tells people what is about to happen, worded for their role.
 
 You get one market event (a price spike, a volatility spike, a ranked "shot" to watch, or an insight) and the user's role. Use the tools to check what you need (recent price history, the live game or asset situation, the model's 30-minute move forecast, sibling markets), then return one recommendation as JSON.
 
@@ -108,7 +108,7 @@ export const TOOL_DEFS = [
   {
     name: 'get_forecast',
     description:
-      "Oddshot's model forecast for the next 30 minutes: pMove30 (probability of a 5+ point swing), expected max move in points, and top drivers. Call this when deciding how urgent the recommendation is.",
+      "Tipoff's model forecast for the next 30 minutes: pMove30 (probability of a 5+ point swing), expected max move in points, and top drivers. Call this when deciding how urgent the recommendation is.",
     strict: true,
     input_schema: idOnly(),
   },

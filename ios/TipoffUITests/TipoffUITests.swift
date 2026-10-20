@@ -2,7 +2,7 @@ import XCTest
 
 /// First run like a new user: pick a mode, allow notifications, see the list, switch modes,
 /// send a test alert. Screenshots are attached to the test result.
-final class OddshotUITests: XCTestCase {
+final class TipoffUITests: XCTestCase {
     @MainActor
     func testFirstRun() throws {
         continueAfterFailure = false

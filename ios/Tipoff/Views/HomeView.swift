@@ -115,18 +115,21 @@ private struct TopPick: View {
                 .multilineTextAlignment(.leading)
                 .fixedSize(horizontal: false, vertical: true)
 
-            HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text("±\(item.expectedPts)")
-                    .font(Theme.display(52))
+            if let mo = item.moment { MomentLine(moment: mo) }
+
+            HStack(alignment: .firstTextBaseline, spacing: 10) {
+                Text("\(item.expectedPts)%")
+                    .font(Theme.display(48))
                     .foregroundStyle(Theme.swingColor(item.expectedPts))
                     .contentTransition(.numericText())
-                Text("points could swing\nin the next 30 min")
+                Text("possible jump in the odds\nin the next 30 minutes")
                     .font(.footnote)
                     .foregroundStyle(Theme.soft)
             }
+            .accessibilityElement(children: .combine)
 
             HStack(alignment: .bottom) {
-                Text("\(m.sideLabel) \(Int((m.probability * 100).rounded()))%")
+                Text("\(m.sideLabel) has a \(Int((m.probability * 100).rounded()))% chance")
                     .font(.headline)
                 Spacer()
                 if item.recent.count > 2 { Sparkline(points: item.recent, lineWidth: 2.5).frame(width: 130, height: 40) }
@@ -158,6 +161,27 @@ private struct EmptyPick: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .glass(28)
         .padding(.top, 8)
+    }
+}
+
+/// "🎾 Ann Li is a game from winning the set" with the score underneath; gold when it's a must-see.
+private struct MomentLine: View {
+    var moment: GameMoment
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 8) {
+                Image(systemName: moment.symbol)
+                Text(moment.headline).font(.headline)
+                if moment.mustSee {
+                    Text("Must-see").font(.caption.weight(.bold))
+                        .padding(.horizontal, 8).padding(.vertical, 3)
+                        .background(Theme.gold, in: Capsule()).foregroundStyle(Theme.dusk)
+                }
+            }
+            .foregroundStyle(moment.mustSee ? Theme.gold : Theme.mist)
+            if let d = moment.detail { Text(d).font(.footnote).foregroundStyle(Theme.soft) }
+        }
+        .accessibilityElement(children: .combine)
     }
 }
 
@@ -316,16 +340,26 @@ private struct WatchRow: View {
                     Text(m.split.name).font(.subheadline.weight(.semibold)).lineLimit(2)
                     if m.live { Circle().fill(Theme.down).frame(width: 6, height: 6).accessibilityLabel("Live") }
                 }
+                if let mo = item.moment {
+                    Label(mo.headline, systemImage: mo.symbol)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(mo.mustSee ? Theme.gold : Theme.mist)
+                        .lineLimit(2)
+                }
                 Text([m.split.league, "\(m.sideLabel) \(Int((m.probability * 100).rounded()))%"].compactMap { $0 }.joined(separator: ", "))
                     .font(.caption).foregroundStyle(Theme.soft).lineLimit(1)
             }
             Spacer(minLength: 6)
             if item.recent.count > 2 { Sparkline(points: item.recent, lineWidth: 1.5).frame(width: 52, height: 24) }
-            Text("±\(item.expectedPts)")
-                .font(Theme.display(18, .bold))
-                .foregroundStyle(Theme.swingColor(item.expectedPts))
-                .frame(minWidth: 46, alignment: .trailing)
-                .accessibilityLabel("could swing \(item.expectedPts) points")
+            VStack(alignment: .trailing, spacing: 0) {
+                Text("\(item.expectedPts)%")
+                    .font(Theme.display(18, .bold))
+                    .foregroundStyle(Theme.swingColor(item.expectedPts))
+                Text("could jump").font(.system(size: 10)).foregroundStyle(Theme.soft)
+            }
+            .frame(minWidth: 52, alignment: .trailing)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Odds could jump \(item.expectedPts) percent in 30 minutes")
             FollowStar(market: m)
         }
         .padding(.leading, 16)

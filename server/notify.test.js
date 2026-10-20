@@ -14,7 +14,7 @@ test('payload shapes per webhook type', () => {
   const d = JSON.parse(buildRequest({ type: 'discord' }, spike).body);
   assert.ok(d.content.includes('https://x.test/m'));
   assert.equal(d.embeds[0].url, 'https://x.test/m');
-  assert.equal(d.embeds[0].author.name, 'Oddshot');
+  assert.equal(d.embeds[0].author.name, 'Tipoff');
   const s = JSON.parse(buildRequest({ type: 'slack' }, spike).body);
   assert.ok(s.text && Array.isArray(s.blocks));
   const g = JSON.parse(buildRequest({ type: 'generic' }, spike).body);
@@ -23,7 +23,7 @@ test('payload shapes per webhook type', () => {
   assert.equal(typeof n.body, 'string');
   assert.equal(n.headers.Click, 'https://x.test/m');
   assert.equal(n.headers.Priority, '5');
-  assert.equal(n.headers.Title, 'Oddshot: Lakers vs Celtics: Lakers win');
+  assert.equal(n.headers.Title, 'Tipoff: Lakers vs Celtics: Lakers win');
   const n2 = buildRequest({ type: 'ntfy' }, { ...spike, title: 'Señor → win' });
   assert.match(n2.headers.Title, /^=\?UTF-8\?B\?/);
 });
@@ -67,7 +67,7 @@ test('insight payloads per webhook type', async () => {
   const ins = { id: 'i', type: 'upset-brewing', title: 'Upset brewing in Rays vs Guardians', body: 'Guardians came in at 69%.', marketIds: ['m'], category: 'sports', severity: 'major', createdAt: new Date().toISOString(), data: { url: 'https://x' } };
   assert.equal(isInsight(ins), true);
   assert.match(formatInsight(ins), /Upset brewing in Rays vs Guardians: Guardians came in at 69%/);
-  assert.equal(JSON.parse(buildRequest({ type: 'generic', url: 'u' }, ins).body).type, 'oddshot.insight');
+  assert.equal(JSON.parse(buildRequest({ type: 'generic', url: 'u' }, ins).body).type, 'tipoff.insight');
   assert.match(JSON.parse(buildRequest({ type: 'discord', url: 'u' }, ins).body).embeds[0].title, /Upset brewing/);
   assert.match(JSON.parse(buildRequest({ type: 'slack', url: 'u' }, ins).body).text, /Rays vs Guardians/);
   const n = buildRequest({ type: 'ntfy', url: 'u' }, ins);

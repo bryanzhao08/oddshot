@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { Store, atomicWriteJSON } from './store.js';
 
 async function tmp() {
-  return mkdtemp(join(tmpdir(), 'oddshot-store-'));
+  return mkdtemp(join(tmpdir(), 'tipoff-store-'));
 }
 
 test('creates data dir and persists subscriptions CRUD', async () => {

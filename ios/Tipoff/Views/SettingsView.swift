@@ -27,7 +27,7 @@ struct SettingsView: View {
                     Toggle("Only matches I follow", isOn: Bindable(watcher).onlyFollowed)
                     Button("Send a test alert") { watcher.sendTest() }
                 } footer: {
-                    Text("👀 Heads-up: a big swing just became likely. ⚡ It's happening: the odds just jumped.")
+                    Text("You'll hear about must-see moments (tiebreaks, overtime, match point), heads-ups when the odds are likely to jump soon, and jumps the moment they happen, like \"Ann Li jumped from 42% to 60% in 3 min\".")
                 }
 
                 Section {
@@ -60,7 +60,7 @@ struct SettingsView: View {
                 }
 
                 Section("How it works") {
-                    Text("Oddshot reads live Polymarket odds on your phone. A model trained on 889k past moments predicts which ones are about to swing.")
+                    Text("Tipoff reads live Polymarket odds on your phone. A model trained on 889k past moments predicts which ones are about to swing, and ESPN's live scores explain what's happening on the field.")
                     Text("Alerts are instant while the app is open. When it's closed, iOS lets it check in now and then (about every 15 min at best).")
                 }
                 .font(.footnote)

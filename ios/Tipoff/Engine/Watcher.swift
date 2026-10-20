@@ -16,8 +16,9 @@ struct WatchItem: Identifiable, Hashable, Sendable {
     var market: Market
     var forecast: MoveForecast?
     var recent: [PricePoint]          // last hour, for the sparkline
+    var moment: GameMoment?           // what's going on, in plain words
     var id: String { market.id }
-    /// Typical biggest swing over the next 30 min, in points.
+    /// How far the odds could jump in the next 30 min (percentage points of probability).
     var expectedPts: Int { Int((forecast?.expectedMovePts ?? 0).rounded()) }
 }
 
@@ -43,6 +44,7 @@ final class Watcher {
     private(set) var xPulse: XPulse?
     private(set) var xStatus: String?
     private(set) var xTopic: String?
+    private var xMarketKey: String?
     private var lastXCheck: Date?
 
     private var markets: [String: Market] = [:]
@@ -50,6 +52,9 @@ final class Watcher {
     private var forecasts: [String: MoveForecast] = [:]
     private var earlier: [String: MoveForecast] = [:]   // the same forecast as of 15 min ago
     private var backfilled: Set<String> = []
+    private var games: [LiveGame] = []
+    private var lastGamesFetch: Date?
+    private var lastMustSee: [String: String] = [:]   // match → last must-see headline we sent
     private var lastAlert: [String: Date] = [:]
     private var lastAnyAlert: Date?
     private var model: ForecastModel?
@@ -103,6 +108,11 @@ final class Watcher {
         let relevant = mine + fetched.filter { mode.cares(about: $0) && !isFollowed($0) }
         await backfill(relevant, max: background ? 8 : 24)
         await forecast(Array(relevant.prefix(background ? 30 : 80)))
+        if relevant.contains(where: { $0.category == .sports && $0.live }),
+           lastGamesFetch.map({ now.timeIntervalSince($0) > 40 }) ?? true {
+            lastGamesFetch = now
+            games = await ESPN.liveGames()
+        }
         checkForAlerts(onlyFollowed ? mine : relevant, now: now)
         rerank()
         lastUpdate = now
@@ -121,10 +131,12 @@ final class Watcher {
         do {
             let pulse = try await XFeed.search(XFeed.query(for: top))
             xPulse = pulse
+            xMarketKey = Self.key(top)
             xStatus = nil
+            rerank()
             let key = top.eventTitle ?? top.id
             if pulse.isSpiking, lastAlert[key].map({ now.timeIntervalSince($0) >= 20 * 60 }) ?? true {
-                alert(.headsUp, top, mode.xBuzz(top, surge: pulse.surge), now)
+                alert(.headsUp, top, mode.xBuzz(top, surge: pulse.surge, phrase: pulse.buzzPhrase?.phrase), now)
             }
         } catch XFeed.Failure.unauthorized {
             xStatus = "X rejected the token. Check it in Settings."
@@ -183,6 +195,14 @@ final class Watcher {
         if let last = lastAnyAlert, now.timeIntervalSince(last) < 180 { return }
         let quiet = { (m: Market) in self.lastAlert[m.eventTitle ?? m.id].map { now.timeIntervalSince($0) < 20 * 60 } ?? false }
 
+        // 🎾 Must-see moments (tiebreak, match point, overtime...) beat everything, once per new moment.
+        for m in ms where m.live {
+            guard let mo = moment(for: m), mo.mustSee, lastMustSee[Self.key(m)] != mo.headline else { continue }
+            lastMustSee[Self.key(m)] = mo.headline
+            alert(.happening, m, ("\(mo.emoji) Must-see: \(mo.headline)", "\(m.split.name)\(mo.detail.map { ". \($0)" } ?? ""). \(mode.nudge)"), now)
+            return
+        }
+
         for m in ms where !quiet(m) {
             guard let h = history[m.id] else { continue }
             let window = h.filter { now.timeIntervalSince($0.t) <= 10 * 60 }
@@ -190,8 +210,8 @@ final class Watcher {
             let delta = m.probability - from.p
             let bar = max(0.06 * mode.pickiness, 0.45 * (forecasts[m.id]?.expectedMovePts ?? 0) / 100) * (isFollowed(m) ? 0.7 : 1)
             guard abs(delta) >= bar else { continue }
-            let copy = mode.happening(m, deltaPts: delta * 100, minutes: Int(now.timeIntervalSince(from.t) / 60))
-            alert(.happening, m, copy, now)
+            let move = Self.describeMove(m, from: from.p, minutes: Int(now.timeIntervalSince(from.t) / 60))
+            alert(.happening, m, mode.happening(m, move: move, moment: moment(for: m)), now)
             return
         }
 
@@ -202,7 +222,7 @@ final class Watcher {
             return (m, f.pMove30)
         }
         if let (m, p) = heatingUp.max(by: { $0.1 < $1.1 }) {
-            alert(.headsUp, m, mode.headsUp(m, chance: Int((p * 100).rounded())), now)
+            alert(.headsUp, m, mode.headsUp(m, chance: Int((p * 100).rounded()), moment: moment(for: m)), now)
         }
     }
 
@@ -214,6 +234,8 @@ final class Watcher {
     }
 
     private func post(_ moment: Moment) {
+        var moment = moment
+        moment.body = moment.body.replacingOccurrences(of: "  ", with: " ").trimmingCharacters(in: .whitespaces)
         moments = Array(([moment] + moments).filter { Date().timeIntervalSince($0.date) < 12 * 3600 }.prefix(30))
         UserDefaults.standard.set(try? JSONEncoder().encode(moments), forKey: "moments")
         Notifier.post(moment)
@@ -222,7 +244,8 @@ final class Watcher {
     private func rerank() {
         let now = Date()
         func item(_ m: Market) -> WatchItem {
-            WatchItem(market: m, forecast: forecasts[m.id], recent: (history[m.id] ?? []).filter { now.timeIntervalSince($0.t) < 3600 })
+            WatchItem(market: m, forecast: forecasts[m.id], recent: (history[m.id] ?? []).filter { now.timeIntervalSince($0.t) < 3600 },
+                      moment: moment(for: m))
         }
         let bySwing: (WatchItem, WatchItem) -> Bool = { a, b in
             let sa = a.forecast?.expectedMovePts ?? 0, sb = b.forecast?.expectedMovePts ?? 0
@@ -238,6 +261,63 @@ final class Watcher {
         var seen = Set<String>()
         return xs.filter { seen.insert(Self.key($0.market)).inserted }
     }
+
+    // MARK: explaining
+
+    /// What's going on, in plain words. Live scoreboard first, then X chatter, then what the odds alone say.
+    func moment(for m: Market) -> GameMoment? {
+        var mo = m.live ? ESPN.match(m, in: games)?.moment : nil
+        if let pulse = xPulse, xMarketKey == Self.key(m), let buzz = pulse.buzzPhrase {
+            let line = "People on X are posting \"\(buzz.phrase)\" (\(buzz.posts) posts)"
+            if mo == nil {
+                mo = GameMoment(symbol: "bubble.left.and.text.bubble.right.fill", emoji: "💬", headline: line, mustSee: buzz.mustSee)
+            } else {
+                mo!.detail = [mo!.detail, line].compactMap { $0 }.joined(separator: ". ")
+                mo!.mustSee = mo!.mustSee || buzz.mustSee
+            }
+        }
+        return mo ?? oddsMoment(m)
+    }
+
+    /// Reads the last 15 minutes of odds: lead changes, surges, someone closing in.
+    private func oddsMoment(_ m: Market) -> GameMoment? {
+        guard let then = history[m.id]?.last(where: { Date().timeIntervalSince($0.t) >= 15 * 60 })
+                ?? history[m.id]?.first, Date().timeIntervalSince(then.t) >= 5 * 60 else { return nil }
+        let (side, from, to) = Self.risingSide(m, from: then.p)
+        let mins = Int(Date().timeIntervalSince(then.t) / 60)
+        let sports = m.category == .sports
+        if from < 0.5 && to > 0.5 && to - from >= 0.05 {
+            return GameMoment(symbol: "arrow.left.arrow.right", emoji: "🔄", headline: sports ? "Lead change: \(side) now favored" : "Flip: \(side) now more likely than not",
+                              detail: "\(side) \(Self.pct(from)) → \(Self.pct(to)) in \(mins) min")
+        }
+        if to >= 0.85 && to - from >= 0.08 {
+            return GameMoment(symbol: "flag.checkered", emoji: "🏁", headline: sports ? "\(side) closing in on the win" : "\(side) now very likely",
+                              detail: "\(side) \(Self.pct(from)) → \(Self.pct(to)) in \(mins) min")
+        }
+        if to - from >= 0.08 {
+            return GameMoment(symbol: "arrow.up.right", emoji: "📈", headline: "\(side) surging",
+                              detail: "\(side) \(Self.pct(from)) → \(Self.pct(to)) in \(mins) min")
+        }
+        if m.live, (0.4...0.6).contains(m.probability), (forecasts[m.id]?.expectedMovePts ?? 0) >= 12 {
+            return GameMoment(symbol: "scalemass.fill", emoji: "⚖️", headline: "Neck and neck. Could go either way",
+                              detail: "\(m.sideLabel) \(Self.pct(m.probability))")
+        }
+        return nil
+    }
+
+    /// The side whose odds went up, with its before and after: ("Ann Li", 0.42, 0.60).
+    static func risingSide(_ m: Market, from p0: Double) -> (String, Double, Double) {
+        if m.probability >= p0 { return (m.sideLabel, p0, m.probability) }
+        let other = m.otherOutcome ?? (m.outcome.lowercased() == "yes" ? "No" : "the other side")
+        return (other, 1 - p0, 1 - m.probability)
+    }
+
+    static func describeMove(_ m: Market, from p0: Double, minutes: Int) -> String {
+        let (side, a, b) = risingSide(m, from: p0)
+        return "\(side) jumped from \(pct(a)) to \(pct(b)) in \(max(minutes, 1)) min"
+    }
+
+    static func pct(_ p: Double) -> String { "\(Int((p * 100).rounded()))%" }
 
     // MARK: following
 
@@ -266,7 +346,7 @@ final class Watcher {
         let m = items.first?.market ?? Market(id: "demo", title: "Chiefs vs Bills", eventTitle: "Chiefs vs Bills", groupTitle: nil,
                                                outcome: "Chiefs", otherOutcome: "Bills", probability: 0.62, volume24h: 0,
                                                category: .sports, url: nil, endDate: nil, startTime: nil, live: true, tokenId: nil)
-        let copy = mode.headsUp(m, chance: 47)
+        let copy = mode.headsUp(m, chance: 47, moment: moment(for: m))
         post(Moment(id: "test-\(Int(Date().timeIntervalSince1970))", kind: .headsUp,
                     title: copy.title, body: copy.body + " (test)", date: Date()))
     }

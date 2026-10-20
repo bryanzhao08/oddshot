@@ -1,4 +1,4 @@
-// Oddshot Moment Forecaster (Swift port of server/ml/forecaster.js).
+// Tipoff Moment Forecaster (Swift port of server/ml/forecaster.js).
 //
 // pMove30 = P(max |p(now+k) - p(now)| >= 0.05 for some k in (0, 30 min]);
 // expectedMovePts = expected max |move| over the next 30 min, in points (0-100).

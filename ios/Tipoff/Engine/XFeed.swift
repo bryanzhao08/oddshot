@@ -89,7 +89,7 @@ enum XFeed {
 /// Minimal Keychain wrapper for the X token.
 enum Keychain {
     private static func base(_ key: String) -> [String: Any] {
-        [kSecClass as String: kSecClassGenericPassword, kSecAttrService as String: "com.oddshot", kSecAttrAccount as String: key]
+        [kSecClass as String: kSecClassGenericPassword, kSecAttrService as String: "com.tipoff", kSecAttrAccount as String: key]
     }
 
     static func read(_ key: String) -> String? {

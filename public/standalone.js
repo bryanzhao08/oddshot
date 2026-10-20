@@ -1,10 +1,10 @@
-// Oddshot browser mode: when there is no Oddshot server (e.g. GitHub Pages), run the
+// Tipoff browser mode: when there is no Tipoff server (e.g. GitHub Pages), run the
 // same pipeline in the page. It answers app.js's /api/* fetches and /api/stream SSE
 // with the shared server modules (detector, matcher, ML scorer, webhooks), polling
 // Polymarket directly. Kalshi blocks cross-origin browser requests, so it needs the server.
 //
 // Modes:
-//   ?api=https://your-oddshot-server   → send /api/* to a remote Oddshot server
+//   ?api=https://your-tipoff-server   → send /api/* to a remote Tipoff server
 //   ?standalone (or any *.github.io)   → run in the browser
 //   otherwise                          → untouched; the page talks to its own server
 
@@ -34,7 +34,7 @@ function installStandalone() {
   const POLL_MS = 20000;
   const VIX_HISTORY_MS = 6 * 3600 * 1000;
   const ALERTS_MAX = 200;
-  const KALSHI_NOTE = 'needs the Oddshot server (Kalshi blocks browser requests)';
+  const KALSHI_NOTE = 'needs the Tipoff server (Kalshi blocks browser requests)';
   const mod = (p) => import(new URL(SERVER_BASE + p, import.meta.url).href);
 
   const state = {
@@ -48,8 +48,8 @@ function installStandalone() {
   const historyCache = new Map(); // marketId -> {at, points}
 
   const store = {
-    load(k, d) { try { return JSON.parse(localStorage.getItem(`oddshot.${k}`)) ?? d; } catch { return d; } },
-    save(k, v) { try { localStorage.setItem(`oddshot.${k}`, JSON.stringify(v)); } catch { /* quota */ } },
+    load(k, d) { try { return JSON.parse(localStorage.getItem(`tipoff.${k}`)) ?? d; } catch { return d; } },
+    save(k, v) { try { localStorage.setItem(`tipoff.${k}`, JSON.stringify(v)); } catch { /* quota */ } },
   };
   let subs = store.load('subs', []);
   let alerts = store.load('alerts', []);
@@ -202,11 +202,11 @@ function installStandalone() {
         if (ins) fresh.push(ins);
       }
       for (const ins of fresh) handleInsight(r, ins);
-    } catch (err) { console.warn('[oddshot] insights failed', err); }
+    } catch (err) { console.warn('[tipoff] insights failed', err); }
     try {
       shots = computeShots(r);
       emit('shots', shots);
-    } catch (err) { console.warn('[oddshot] shots failed', err); }
+    } catch (err) { console.warn('[tipoff] shots failed', err); }
   }
 
   async function pollOnce() {
@@ -243,11 +243,11 @@ function installStandalone() {
     const r = await ready;
     try {
       const stats = await r.hist.backfillHistory(state.markets, r.detector, { polymarket: 30, kalshi: 0, hours: 6, concurrency: 4 });
-      console.info(`[oddshot] backfilled ${stats.polymarket} markets (${stats.points} points) in ${stats.ms} ms`);
+      console.info(`[tipoff] backfilled ${stats.polymarket} markets (${stats.points} points) in ${stats.ms} ms`);
       forecastMemo = new Map();
       shots = computeShots(r);
       emit('shots', shots);
-    } catch (err) { console.warn('[oddshot] backfill failed', err); }
+    } catch (err) { console.warn('[tipoff] backfill failed', err); }
   });
   setInterval(pollOnce, POLL_MS);
 

@@ -9,8 +9,8 @@ struct OnboardingView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 VStack(alignment: .leading, spacing: 10) {
-                    Text("Oddshot").font(Theme.display(40))
-                    Text("Betting odds move before the big play, the breaking news, the price jump. Oddshot watches them and taps you on the shoulder.")
+                    Text("Tipoff").font(Theme.display(40))
+                    Text("Betting odds move before the big play, the breaking news, the price jump. Tipoff watches them and taps you on the shoulder.")
                         .foregroundStyle(Theme.soft)
                 }
                 .padding(.top, 28)

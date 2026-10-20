@@ -1,5 +1,5 @@
 {
-  "name": "oddshot",
+  "name": "tipoff",
   "version": "0.1.0",
   "description": "Real-time event alerts driven by prediction-market volatility. Don't miss the moment.",
   "type": "module",

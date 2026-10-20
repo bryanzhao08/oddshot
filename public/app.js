@@ -1,4 +1,4 @@
-/* Oddshot frontend: vanilla JS, no dependencies.
+/* Tipoff frontend: vanilla JS, no dependencies.
  * All API-derived text is inserted via textContent / attributes (never innerHTML). */
 (() => {
   'use strict';
@@ -21,8 +21,8 @@
   };
   const VIX_WINDOW_MS = 6 * 3600 * 1000;
   const MAX_ALERTS = 300;
-  const LS = { onboarded: 'oddshot.onboarded', sound: 'oddshot.sound', cat: 'oddshot.cat', muted: 'oddshot.muted', noise: 'oddshot.hideNoise',
-    persona: 'oddshot.persona', briefDismissed: 'oddshot.briefingDismissed', lastVisit: 'oddshot.lastVisit', wire: 'oddshot.wire' };
+  const LS = { onboarded: 'tipoff.onboarded', sound: 'tipoff.sound', cat: 'tipoff.cat', muted: 'tipoff.muted', noise: 'tipoff.hideNoise',
+    persona: 'tipoff.persona', briefDismissed: 'tipoff.briefingDismissed', lastVisit: 'tipoff.lastVisit', wire: 'tipoff.wire' };
   // Persona switcher order (general = "Everyone").
   const PERSONA_ORDER = ['photographer', 'trader', 'fan', 'journalist', 'general'];
   const PERSONA_SHORT = { photographer: 'Photographer', trader: 'Trader', fan: 'Fan', journalist: 'Journalist', general: 'Everyone' };
@@ -444,7 +444,7 @@
       renderNotifyBtn();
       if (p === 'granted') {
         toast('Alerts enabled. We\'ll ping you when the odds jump.');
-        try { new Notification('Oddshot alerts are on', { body: 'The odds move before the headlines do.', icon: 'favicon.svg', tag: 'oddshot-hello' }); } catch { /* some browsers need SW */ }
+        try { new Notification('Tipoff alerts are on', { body: 'The odds move before the headlines do.', icon: 'favicon.svg', tag: 'tipoff-hello' }); } catch { /* some browsers need SW */ }
       }
     } catch { toast('Could not request notification permission.', 'err'); }
   }
@@ -792,7 +792,7 @@
     if (n > 0) return;
     const title = $('#feed-empty-title');
     const count = (state.lastTick && state.lastTick.marketCount) || (state.health && state.health.marketCount);
-    if (state.backendUp === false) title.textContent = 'Waiting for the Oddshot server…';
+    if (state.backendUp === false) title.textContent = 'Waiting for the Tipoff server…';
     else if (state.feedFilter === 'mine' && !state.subs.length) title.textContent = 'Set up an alert to see your matches here';
     else if (state.wire === 'insights') title.textContent = state.insightsAvailable === false ? 'Insights aren\'t available on this server yet' : 'No insights yet. They appear as the crowd changes its mind.';
     else if (state.alerts.length && (state.category || state.feedFilter !== 'all')) title.textContent = `No ${state.category ? state.category + ' ' : ''}${state.feedFilter === 'notable' ? 'notable ' : state.feedFilter === 'mine' ? 'matching ' : ''}spikes yet`;
@@ -1702,7 +1702,7 @@
     empty.hidden = list.length > 0;
     if (!list.length) {
       const t = $('#shots-empty-title'), x = $('#shots-empty-text');
-      if (state.backendUp === false) { t.textContent = 'Waiting for the Oddshot server…'; x.textContent = 'The shot list comes back the moment we reconnect.'; }
+      if (state.backendUp === false) { t.textContent = 'Waiting for the Tipoff server…'; x.textContent = 'The shot list comes back the moment we reconnect.'; }
       else if (state.shotsStatus === 'loading') { t.textContent = 'Lining up the first shots…'; x.textContent = 'Reading the markets for what is about to move.'; }
       else if (state.shotsStatus === 'unavailable') { t.textContent = 'The shot list is warming up'; x.textContent = 'This server doesn\'t serve recommendations yet. Spikes, movers and alerts below work as usual.'; }
       else if (state.category) { t.textContent = `Nothing worth framing in ${state.category} right now`; x.textContent = 'Try All categories, or check back as events go live.'; }
@@ -2145,7 +2145,7 @@
     const was = state.backendUp;
     state.backendUp = up;
     const b = $('#banner');
-    if (!up) { b.hidden = false; b.textContent = 'Can\'t reach the Oddshot server. Retrying automatically…'; }
+    if (!up) { b.hidden = false; b.textContent = 'Can\'t reach the Tipoff server. Retrying automatically…'; }
     else b.hidden = true;
     if (was === false && up) { toast('Back online.'); bootData(); }
     if (was !== up) { renderFeedEmpty($('#feed').children.length); renderSeismo(); if (!state.movers.length) renderMovers(); if (!state.shots.length) renderShots(); }

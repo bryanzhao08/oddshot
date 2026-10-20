@@ -20,7 +20,7 @@ class FakeDetector {
 }
 
 async function setup() {
-  const root = await mkdtemp(join(tmpdir(), 'oddshot-app-'));
+  const root = await mkdtemp(join(tmpdir(), 'tipoff-app-'));
   const pub = join(root, 'public');
   await mkdir(pub);
   await writeFile(join(pub, 'index.html'), '<h1>hi</h1>');
@@ -158,7 +158,7 @@ test('REST endpoints, static, SSE, demo spike', async () => {
 
 test('v2 endpoints: shots, insights, stories, briefing, forecast, SSE shots/insight, insight webhooks, backfill', async () => {
   const { Detector } = await import('./engine/detector.js');
-  const root = await mkdtemp(join(tmpdir(), 'oddshot-v2-'));
+  const root = await mkdtemp(join(tmpdir(), 'tipoff-v2-'));
   const pub = join(root, 'public');
   await mkdir(pub);
   await writeFile(join(pub, 'index.html'), 'x');
@@ -258,7 +258,7 @@ test('v2 endpoints: shots, insights, stories, briefing, forecast, SSE shots/insi
     assert.ok(names.includes('shots'), names.join());
     // the lead change fired on the first poll (before SSE connected); the webhook got it
     for (let i = 0; i < 50 && !hooks.length; i++) await new Promise((r2) => setTimeout(r2, 20));
-    assert.ok(hooks.some((h) => h.type === 'oddshot.insight' && h.insight.type === 'lead-change'), JSON.stringify(hooks).slice(0, 300));
+    assert.ok(hooks.some((h) => h.type === 'tipoff.insight' && h.insight.type === 'lead-change'), JSON.stringify(hooks).slice(0, 300));
 
     // insights persist in the store
     await app.store.flushInsights();
@@ -276,7 +276,7 @@ test('v2 endpoints: shots, insights, stories, briefing, forecast, SSE shots/insi
 test('v3: context + recommendations on spikes/shots/insights, context & recommendation endpoints, persona webhooks', async () => {
   const { Detector } = await import('./engine/detector.js');
   const { createRecommender } = await import('./agent/index.js');
-  const root = await mkdtemp(join(tmpdir(), 'oddshot-v3-'));
+  const root = await mkdtemp(join(tmpdir(), 'tipoff-v3-'));
   const pub = join(root, 'public');
   await mkdir(pub);
   await writeFile(join(pub, 'index.html'), 'x');
@@ -325,7 +325,7 @@ test('v3: context + recommendations on spikes/shots/insights, context & recommen
     for (const role of ['photographer', 'trader', 'fan', 'journalist', 'general']) assert.ok(spike.recommendations?.[role]?.headline, role);
     assert.equal(spike.recommendations.trader.disclaimer, 'Signal, not financial advice.');
     for (let i = 0; i < 50 && !hooks.length; i++) await new Promise((r2) => setTimeout(r2, 20));
-    const hook = hooks.find((h) => h.type === 'oddshot.spike');
+    const hook = hooks.find((h) => h.type === 'tipoff.spike');
     assert.ok(hook, 'webhook delivered');
     assert.equal(hook.recommendation.role, 'photographer');
     assert.ok(hook.text.startsWith('📸 '), hook.text);

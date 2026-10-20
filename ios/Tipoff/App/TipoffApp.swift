@@ -2,7 +2,7 @@ import SwiftUI
 import UserNotifications
 
 @main
-struct OddshotApp: App {
+struct TipoffApp: App {
     @Environment(\.scenePhase) private var phase
     @State private var watcher = Watcher.shared
 

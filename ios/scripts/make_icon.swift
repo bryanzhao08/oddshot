@@ -1,4 +1,4 @@
-// Generates the Oddshot app icon (1024x1024 PNG) with CoreGraphics only.
+// Generates the Tipoff app icon (1024x1024 PNG) with CoreGraphics only.
 // Usage: swift ios/scripts/make_icon.swift <output.png>
 import AppKit
 import CoreGraphics

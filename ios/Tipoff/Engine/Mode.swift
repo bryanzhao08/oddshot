@@ -81,44 +81,54 @@ enum Mode: String, CaseIterable, Codable, Sendable, Identifiable {
 
     // MARK: wording
 
-    /// Heads-up before it happens.
-    func headsUp(_ m: Market, chance: Int) -> (title: String, body: String) {
-        let t = m.shortTitle
+    /// What to do about it, in this mode's voice.
+    var nudge: String {
         switch self {
-        case .sports: return ("📺 \(t) is heating up", "\(chance)% chance of a big swing in the next 30 min. Worth watching.")
-        case .out: return ("🍻 Head back to the TV", "\(t) is about to get interesting (\(chance)% chance of a big swing in 30 min).")
-        case .markets: return ("📈 \(t) is getting jumpy", "\(chance)% chance the odds move 5+ pts in 30 min. Signal, not financial advice.")
-        case .news: return ("🗞️ Something's brewing", "\(t): \(chance)% chance of a big move in the next 30 min.")
-        case .creator: return ("📸 Get ready: \(t)", "A big moment is likely soon (\(chance)% in 30 min). Get in position.")
-        case .everything: return ("👀 Keep an eye on \(t)", "\(chance)% chance of a big swing in the next 30 min.")
+        case .sports: "Worth watching now."
+        case .out: "Find a screen."
+        case .markets: "Signal, not financial advice."
+        case .news: "News may be breaking."
+        case .creator: "Get in position."
+        case .everything: ""
         }
     }
 
-    /// It just happened.
-    func happening(_ m: Market, deltaPts: Double, minutes: Int) -> (title: String, body: String) {
-        let pts = Int(abs(deltaPts).rounded())
-        let dir = deltaPts > 0 ? "up" : "down"
-        let now = Int((m.probability * 100).rounded())
-        let move = "\(m.sideLabel) \(dir) \(pts) pts to \(now)% in \(max(minutes, 1)) min"
-        let t = m.shortTitle
+    /// Heads-up before it happens.
+    func headsUp(_ m: Market, chance: Int, moment: GameMoment?) -> (title: String, body: String) {
+        let name = m.split.name
+        if let mo = moment { return ("\(mo.emoji) \(mo.headline)", "\(name): \(chance)% chance the odds jump 5%+ in the next 30 min. \(nudge)") }
+        let title: String
         switch self {
-        case .sports: return ("⚡ Big moment: \(t)", "\(move). Something just happened.")
-        case .out: return ("🍻 You're missing something", "\(t): \(move).")
-        case .markets: return ("📈 \(t) is moving", "\(move). Signal, not financial advice.")
-        case .news: return ("🗞️ Odds just moved: \(t)", "\(move). News may be breaking.")
-        case .creator: return ("📸 It's happening: \(t)", "\(move). Shoot now.")
-        case .everything: return ("⚡ \(t)", "\(move).")
+        case .sports: title = "📺 \(name) is heating up"
+        case .out: title = "🍻 Head back to the TV: \(name)"
+        case .markets: title = "📈 \(name) is getting jumpy"
+        case .news: title = "🗞️ Something's brewing: \(name)"
+        case .creator: title = "📸 Get ready: \(name)"
+        case .everything: title = "👀 Keep an eye on \(name)"
         }
+        return (title, "\(chance)% chance the odds jump 5%+ in the next 30 min. \(nudge)")
+    }
+
+    /// It just happened. `move` reads like "Ann Li up from 42% to 60% in 3 min".
+    func happening(_ m: Market, move: String, moment: GameMoment?) -> (title: String, body: String) {
+        let name = m.split.name
+        if let mo = moment { return ("\(mo.emoji) \(mo.headline)", "\(name): \(move). \(nudge)") }
+        let title: String
+        switch self {
+        case .sports: title = "⚡ Big moment: \(name)"
+        case .out: title = "🍻 You're missing something: \(name)"
+        case .markets: title = "📈 \(name) is moving"
+        case .news: title = "🗞️ Odds just moved: \(name)"
+        case .creator: title = "📸 It's happening: \(name)"
+        case .everything: title = "⚡ \(name)"
+        }
+        return (title, "\(move). \(nudge)")
     }
 
     /// X chatter about this market suddenly spiked.
-    func xBuzz(_ m: Market, surge: Double) -> (title: String, body: String) {
+    func xBuzz(_ m: Market, surge: Double, phrase: String?) -> (title: String, body: String) {
         let x = "\(Int(surge.rounded()))×"
-        switch self {
-        case .out: return ("🍻 Everyone's talking about \(m.shortTitle)", "Posts on X just jumped \(x). Something's happening. Find a screen.")
-        case .markets: return ("📈 X is buzzing: \(m.shortTitle)", "Posts jumped \(x) in 5 min. Odds may follow. Signal, not financial advice.")
-        case .creator: return ("📸 X is lighting up: \(m.shortTitle)", "Posts jumped \(x) in 5 min. Be ready.")
-        default: return ("💬 X is buzzing about \(m.shortTitle)", "Posts jumped \(x) in the last 5 minutes. Something may be happening.")
-        }
+        let what = phrase.map { "People are posting \"\($0)\"." } ?? "Something may be happening."
+        return ("💬 X is buzzing about \(m.split.name)", "Posts jumped \(x) in 5 min. \(what) \(nudge)")
     }
 }

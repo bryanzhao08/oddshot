@@ -1,4 +1,4 @@
-// Oddshot spike scorer: pReal = probability that a detected spike is a REAL,
+// Tipoff spike scorer: pReal = probability that a detected spike is a REAL,
 // sustained information event (vs. thin-book noise that reverts).
 //
 // Pure JS, zero deps. Evaluates the XGBoost model exported by ml/train.py

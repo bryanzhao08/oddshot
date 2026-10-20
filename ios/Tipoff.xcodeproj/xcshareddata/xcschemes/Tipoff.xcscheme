@@ -15,10 +15,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "C68DDD1A2994B6CB789C9AC5"
-               BuildableName = "Oddshot.app"
-               BlueprintName = "Oddshot"
-               ReferencedContainer = "container:Oddshot.xcodeproj">
+               BlueprintIdentifier = "A056050D6542D90AB5C9B4F1"
+               BuildableName = "Tipoff.app"
+               BlueprintName = "Tipoff"
+               ReferencedContainer = "container:Tipoff.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -32,10 +32,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "C68DDD1A2994B6CB789C9AC5"
-            BuildableName = "Oddshot.app"
-            BlueprintName = "Oddshot"
-            ReferencedContainer = "container:Oddshot.xcodeproj">
+            BlueprintIdentifier = "A056050D6542D90AB5C9B4F1"
+            BuildableName = "Tipoff.app"
+            BlueprintName = "Tipoff"
+            ReferencedContainer = "container:Tipoff.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <Testables>
@@ -44,10 +44,10 @@
             parallelizable = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "FAC88FA3C2E8ECC6E571DDB9"
-               BuildableName = "OddshotUITests.xctest"
-               BlueprintName = "OddshotUITests"
-               ReferencedContainer = "container:Oddshot.xcodeproj">
+               BlueprintIdentifier = "555E4C85AD9E5743743A8FC7"
+               BuildableName = "TipoffUITests.xctest"
+               BlueprintName = "TipoffUITests"
+               ReferencedContainer = "container:Tipoff.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -68,10 +68,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "C68DDD1A2994B6CB789C9AC5"
-            BuildableName = "Oddshot.app"
-            BlueprintName = "Oddshot"
-            ReferencedContainer = "container:Oddshot.xcodeproj">
+            BlueprintIdentifier = "A056050D6542D90AB5C9B4F1"
+            BuildableName = "Tipoff.app"
+            BlueprintName = "Tipoff"
+            ReferencedContainer = "container:Tipoff.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <CommandLineArguments>
@@ -87,10 +87,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "C68DDD1A2994B6CB789C9AC5"
-            BuildableName = "Oddshot.app"
-            BlueprintName = "Oddshot"
-            ReferencedContainer = "container:Oddshot.xcodeproj">
+            BlueprintIdentifier = "A056050D6542D90AB5C9B4F1"
+            BuildableName = "Tipoff.app"
+            BlueprintName = "Tipoff"
+            ReferencedContainer = "container:Tipoff.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

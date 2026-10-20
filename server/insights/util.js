@@ -1,4 +1,4 @@
-// Shared helpers for the Oddshot recommender (shots, insights, stories, briefing).
+// Shared helpers for the Tipoff recommender (shots, insights, stories, briefing).
 // Pure ES module: no node: imports, so it runs in the browser too (public/standalone.js).
 
 export const MIN = 60_000;
