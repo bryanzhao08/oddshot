@@ -1,0 +1,719 @@
+{
+  "sport": "football",
+  "features": [
+    "yardline_100",
+    "down",
+    "ydstogo",
+    "goal_to_go",
+    "qtr",
+    "half_seconds_remaining",
+    "game_seconds_remaining",
+    "score_differential",
+    "posteam_timeouts_remaining",
+    "defteam_timeouts_remaining"
+  ],
+  "labels": {
+    "td_drive": {
+      "metrics": {
+        "baseline": {
+          "auc": 0.7178924663994186,
+          "log_loss": 0.5271791978715107,
+          "brier": 0.17569338005321483,
+          "base_rate": 0.28032314629258515,
+          "top_decile_rate": 0.6288827655310621,
+          "top_decile_lift": 2.243420758679237,
+          "calibration_deciles": [
+            {
+              "decile": 1,
+              "n": 7984,
+              "mean_predicted": 0.05552724760392779,
+              "observed": 0.05460921843687375
+            },
+            {
+              "decile": 2,
+              "n": 7984,
+              "mean_predicted": 0.11287406255771024,
+              "observed": 0.12174348697394789
+            },
+            {
+              "decile": 3,
+              "n": 7984,
+              "mean_predicted": 0.15769257916054455,
+              "observed": 0.18023547094188377
+            },
+            {
+              "decile": 4,
+              "n": 7984,
+              "mean_predicted": 0.19679970210619843,
+              "observed": 0.20829158316633267
+            },
+            {
+              "decile": 5,
+              "n": 7984,
+              "mean_predicted": 0.23360256387109632,
+              "observed": 0.23647294589178355
+            },
+            {
+              "decile": 6,
+              "n": 7984,
+              "mean_predicted": 0.2692831395974194,
+              "observed": 0.2597695390781563
+            },
+            {
+              "decile": 7,
+              "n": 7984,
+              "mean_predicted": 0.3139821915272042,
+              "observed": 0.30561122244488975
+            },
+            {
+              "decile": 8,
+              "n": 7984,
+              "mean_predicted": 0.37205217832817333,
+              "observed": 0.36385270541082165
+            },
+            {
+              "decile": 9,
+              "n": 7984,
+              "mean_predicted": 0.45226033955028305,
+              "observed": 0.4437625250501002
+            },
+            {
+              "decile": 10,
+              "n": 7984,
+              "mean_predicted": 0.6031486906807956,
+              "observed": 0.6288827655310621
+            }
+          ]
+        },
+        "xgboost": {
+          "auc": 0.7479458117881501,
+          "log_loss": 0.504818536237577,
+          "brier": 0.16913004031121964,
+          "base_rate": 0.28032314629258515,
+          "top_decile_rate": 0.6515531062124249,
+          "top_decile_lift": 2.3242929270363257,
+          "calibration_deciles": [
+            {
+              "decile": 1,
+              "n": 7984,
+              "mean_predicted": 0.014589638901556672,
+              "observed": 0.011022044088176353
+            },
+            {
+              "decile": 2,
+              "n": 7984,
+              "mean_predicted": 0.08086541982858492,
+              "observed": 0.08892785571142285
+            },
+            {
+              "decile": 3,
+              "n": 7984,
+              "mean_predicted": 0.1540223664299908,
+              "observed": 0.16457915831663328
+            },
+            {
+              "decile": 4,
+              "n": 7984,
+              "mean_predicted": 0.19847203054482151,
+              "observed": 0.20453406813627253
+            },
+            {
+              "decile": 5,
+              "n": 7984,
+              "mean_predicted": 0.23530130210950342,
+              "observed": 0.24261022044088176
+            },
+            {
+              "decile": 6,
+              "n": 7984,
+              "mean_predicted": 0.2721154732043614,
+              "observed": 0.27241983967935873
+            },
+            {
+              "decile": 7,
+              "n": 7984,
+              "mean_predicted": 0.3179512684100974,
+              "observed": 0.32352204408817636
+            },
+            {
+              "decile": 8,
+              "n": 7984,
+              "mean_predicted": 0.3768773780863187,
+              "observed": 0.3807615230460922
+            },
+            {
+              "decile": 9,
+              "n": 7984,
+              "mean_predicted": 0.4576001095031211,
+              "observed": 0.46330160320641284
+            },
+            {
+              "decile": 10,
+              "n": 7984,
+              "mean_predicted": 0.6443457799349614,
+              "observed": 0.6515531062124249
+            }
+          ]
+        },
+        "xgboost_calibrated": {
+          "auc": 0.7479458102329279,
+          "log_loss": 0.5060737657848258,
+          "brier": 0.169530713356642,
+          "base_rate": 0.28032314629258515,
+          "top_decile_rate": 0.6515531062124249,
+          "top_decile_lift": 2.3242929270363257,
+          "calibration_deciles": [
+            {
+              "decile": 1,
+              "n": 7984,
+              "mean_predicted": 0.01116941608197813,
+              "observed": 0.011022044088176353
+            },
+            {
+              "decile": 2,
+              "n": 7984,
+              "mean_predicted": 0.06862640363012136,
+              "observed": 0.08892785571142285
+            },
+            {
+              "decile": 3,
+              "n": 7984,
+              "mean_predicted": 0.13665356113293575,
+              "observed": 0.16457915831663328
+            },
+            {
+              "decile": 4,
+              "n": 7984,
+              "mean_predicted": 0.1796747048017765,
+              "observed": 0.20453406813627253
+            },
+            {
+              "decile": 5,
+              "n": 7984,
+              "mean_predicted": 0.21603712214451873,
+              "observed": 0.24261022044088176
+            },
+            {
+              "decile": 6,
+              "n": 7984,
+              "mean_predicted": 0.25293971117369396,
+              "observed": 0.27241983967935873
+            },
+            {
+              "decile": 7,
+              "n": 7984,
+              "mean_predicted": 0.29952341568598406,
+              "observed": 0.32352204408817636
+            },
+            {
+              "decile": 8,
+              "n": 7984,
+              "mean_predicted": 0.36026216928804206,
+              "observed": 0.3807615230460922
+            },
+            {
+              "decile": 9,
+              "n": 7984,
+              "mean_predicted": 0.4446749065355034,
+              "observed": 0.46330160320641284
+            },
+            {
+              "decile": 10,
+              "n": 7984,
+              "mean_predicted": 0.6418234633434869,
+              "observed": 0.6515531062124249
+            }
+          ]
+        },
+        "mlp": {
+          "auc": 0.7449234369129899,
+          "log_loss": 0.5075415069907923,
+          "brier": 0.1699519854074538,
+          "base_rate": 0.28032314629258515,
+          "top_decile_rate": 0.6452905811623246,
+          "top_decile_lift": 2.30195254903713,
+          "calibration_deciles": [
+            {
+              "decile": 1,
+              "n": 7984,
+              "mean_predicted": 0.00928696206584951,
+              "observed": 0.013902805611222445
+            },
+            {
+              "decile": 2,
+              "n": 7984,
+              "mean_predicted": 0.07044873271702666,
+              "observed": 0.09105711422845691
+            },
+            {
+              "decile": 3,
+              "n": 7984,
+              "mean_predicted": 0.15231437290680902,
+              "observed": 0.16157314629258518
+            },
+            {
+              "decile": 4,
+              "n": 7984,
+              "mean_predicted": 0.20603011350897452,
+              "observed": 0.20728957915831664
+            },
+            {
+              "decile": 5,
+              "n": 7984,
+              "mean_predicted": 0.24662598724087198,
+              "observed": 0.2469939879759519
+            },
+            {
+              "decile": 6,
+              "n": 7984,
+              "mean_predicted": 0.2846859092364308,
+              "observed": 0.2741733466933868
+            },
+            {
+              "decile": 7,
+              "n": 7984,
+              "mean_predicted": 0.32924458426944536,
+              "observed": 0.31976452905811625
+            },
+            {
+              "decile": 8,
+              "n": 7984,
+              "mean_predicted": 0.38510709477066757,
+              "observed": 0.37712925851703405
+            },
+            {
+              "decile": 9,
+              "n": 7984,
+              "mean_predicted": 0.470007901943191,
+              "observed": 0.4660571142284569
+            },
+            {
+              "decile": 10,
+              "n": 7984,
+              "mean_predicted": 0.6589837996084388,
+              "observed": 0.6452905811623246
+            }
+          ]
+        }
+      },
+      "n_train_rows": 286826,
+      "n_calibration_rows": 40486,
+      "n_test_rows": 79840,
+      "mlp_train_rows": 286826,
+      "tuning": {
+        "internal_validation_log_loss": 0.4938381612300873,
+        "best_iteration": 180,
+        "parameters": {
+          "max_depth": 5,
+          "learning_rate": 0.05,
+          "min_child_weight": 80,
+          "subsample": 0.8
+        }
+      },
+      "best_test_model": "xgboost",
+      "calibration": "platt",
+      "top_features": [
+        [
+          "goal_to_go",
+          0.3416759967803955
+        ],
+        [
+          "yardline_100",
+          0.21250976622104645
+        ],
+        [
+          "down",
+          0.199534609913826
+        ],
+        [
+          "ydstogo",
+          0.05667700618505478
+        ],
+        [
+          "half_seconds_remaining",
+          0.05407118797302246
+        ],
+        [
+          "defteam_timeouts_remaining",
+          0.0412585586309433
+        ],
+        [
+          "game_seconds_remaining",
+          0.028854133561253548
+        ],
+        [
+          "score_differential",
+          0.028190549463033676
+        ],
+        [
+          "qtr",
+          0.02363109402358532
+        ],
+        [
+          "posteam_timeouts_remaining",
+          0.01359707023948431
+        ]
+      ]
+    },
+    "score_drive": {
+      "metrics": {
+        "baseline": {
+          "auc": 0.7770567957728701,
+          "log_loss": 0.5665927356586269,
+          "brier": 0.19224862411573101,
+          "base_rate": 0.5056112224448898,
+          "top_decile_rate": 0.8830160320641283,
+          "top_decile_lift": 1.7464328180737219,
+          "calibration_deciles": [
+            {
+              "decile": 1,
+              "n": 7984,
+              "mean_predicted": 0.1268455861285885,
+              "observed": 0.13163827655310623
+            },
+            {
+              "decile": 2,
+              "n": 7984,
+              "mean_predicted": 0.2244050764982051,
+              "observed": 0.23196392785571143
+            },
+            {
+              "decile": 3,
+              "n": 7984,
+              "mean_predicted": 0.297182105430052,
+              "observed": 0.31751002004008017
+            },
+            {
+              "decile": 4,
+              "n": 7984,
+              "mean_predicted": 0.36325841411722426,
+              "observed": 0.3697394789579158
+            },
+            {
+              "decile": 5,
+              "n": 7984,
+              "mean_predicted": 0.428907111180066,
+              "observed": 0.4406312625250501
+            },
+            {
+              "decile": 6,
+              "n": 7984,
+              "mean_predicted": 0.5136779212520934,
+              "observed": 0.5201653306613226
+            },
+            {
+              "decile": 7,
+              "n": 7984,
+              "mean_predicted": 0.6068705334695075,
+              "observed": 0.624123246492986
+            },
+            {
+              "decile": 8,
+              "n": 7984,
+              "mean_predicted": 0.7029715227209025,
+              "observed": 0.7244488977955912
+            },
+            {
+              "decile": 9,
+              "n": 7984,
+              "mean_predicted": 0.7970985838942966,
+              "observed": 0.813001002004008
+            },
+            {
+              "decile": 10,
+              "n": 7984,
+              "mean_predicted": 0.8920584162011495,
+              "observed": 0.8828907815631263
+            }
+          ]
+        },
+        "xgboost": {
+          "auc": 0.8055047231361221,
+          "log_loss": 0.5295403450785161,
+          "brier": 0.17917179764531127,
+          "base_rate": 0.5056112224448898,
+          "top_decile_rate": 0.9203406813627254,
+          "top_decile_lift": 1.820253666270313,
+          "calibration_deciles": [
+            {
+              "decile": 1,
+              "n": 7984,
+              "mean_predicted": 0.050110740653371705,
+              "observed": 0.045090180360721446
+            },
+            {
+              "decile": 2,
+              "n": 7984,
+              "mean_predicted": 0.2101056472172509,
+              "observed": 0.22595190380761523
+            },
+            {
+              "decile": 3,
+              "n": 7984,
+              "mean_predicted": 0.3014071356833638,
+              "observed": 0.3217685370741483
+            },
+            {
+              "decile": 4,
+              "n": 7984,
+              "mean_predicted": 0.36438538251306585,
+              "observed": 0.3817635270541082
+            },
+            {
+              "decile": 5,
+              "n": 7984,
+              "mean_predicted": 0.421120783724712,
+              "observed": 0.438627254509018
+            },
+            {
+              "decile": 6,
+              "n": 7984,
+              "mean_predicted": 0.49305061963508146,
+              "observed": 0.5095190380761523
+            },
+            {
+              "decile": 7,
+              "n": 7984,
+              "mean_predicted": 0.6009399668576723,
+              "observed": 0.62437374749499
+            },
+            {
+              "decile": 8,
+              "n": 7984,
+              "mean_predicted": 0.7356391674829629,
+              "observed": 0.7454909819639278
+            },
+            {
+              "decile": 9,
+              "n": 7984,
+              "mean_predicted": 0.8469311115154642,
+              "observed": 0.843186372745491
+            },
+            {
+              "decile": 10,
+              "n": 7984,
+              "mean_predicted": 0.9176574628837482,
+              "observed": 0.9203406813627254
+            }
+          ]
+        },
+        "xgboost_calibrated": {
+          "auc": 0.805504721880949,
+          "log_loss": 0.5300166020780314,
+          "brier": 0.17938506433359164,
+          "base_rate": 0.5056112224448898,
+          "top_decile_rate": 0.9203406813627254,
+          "top_decile_lift": 1.820253666270313,
+          "calibration_deciles": [
+            {
+              "decile": 1,
+              "n": 7984,
+              "mean_predicted": 0.044342835409124544,
+              "observed": 0.045090180360721446
+            },
+            {
+              "decile": 2,
+              "n": 7984,
+              "mean_predicted": 0.19799598524690362,
+              "observed": 0.22595190380761523
+            },
+            {
+              "decile": 3,
+              "n": 7984,
+              "mean_predicted": 0.29005151124809214,
+              "observed": 0.3217685370741483
+            },
+            {
+              "decile": 4,
+              "n": 7984,
+              "mean_predicted": 0.3546764676222104,
+              "observed": 0.3817635270541082
+            },
+            {
+              "decile": 5,
+              "n": 7984,
+              "mean_predicted": 0.41339792643406825,
+              "observed": 0.438627254509018
+            },
+            {
+              "decile": 6,
+              "n": 7984,
+              "mean_predicted": 0.48829151986387065,
+              "observed": 0.5095190380761523
+            },
+            {
+              "decile": 7,
+              "n": 7984,
+              "mean_predicted": 0.6009324134620493,
+              "observed": 0.62437374749499
+            },
+            {
+              "decile": 8,
+              "n": 7984,
+              "mean_predicted": 0.740720851903031,
+              "observed": 0.7454909819639278
+            },
+            {
+              "decile": 9,
+              "n": 7984,
+              "mean_predicted": 0.8540819759717685,
+              "observed": 0.843186372745491
+            },
+            {
+              "decile": 10,
+              "n": 7984,
+              "mean_predicted": 0.9239547638845945,
+              "observed": 0.9203406813627254
+            }
+          ]
+        },
+        "mlp": {
+          "auc": 0.8019286366979324,
+          "log_loss": 0.5341101838907871,
+          "brier": 0.18081012244473155,
+          "base_rate": 0.5056112224448898,
+          "top_decile_rate": 0.908191382765531,
+          "top_decile_lift": 1.7962247324613556,
+          "calibration_deciles": [
+            {
+              "decile": 1,
+              "n": 7984,
+              "mean_predicted": 0.033903068901904164,
+              "observed": 0.04546593186372745
+            },
+            {
+              "decile": 2,
+              "n": 7984,
+              "mean_predicted": 0.19658024367743218,
+              "observed": 0.23584669338677355
+            },
+            {
+              "decile": 3,
+              "n": 7984,
+              "mean_predicted": 0.2956951195340304,
+              "observed": 0.32327154308617234
+            },
+            {
+              "decile": 4,
+              "n": 7984,
+              "mean_predicted": 0.3638003475275366,
+              "observed": 0.3832665330661323
+            },
+            {
+              "decile": 5,
+              "n": 7984,
+              "mean_predicted": 0.42614493912579327,
+              "observed": 0.437750501002004
+            },
+            {
+              "decile": 6,
+              "n": 7984,
+              "mean_predicted": 0.5002307511981451,
+              "observed": 0.5097695390781564
+            },
+            {
+              "decile": 7,
+              "n": 7984,
+              "mean_predicted": 0.6015589878947915,
+              "observed": 0.6198647294589178
+            },
+            {
+              "decile": 8,
+              "n": 7984,
+              "mean_predicted": 0.7248781481196623,
+              "observed": 0.7427354709418837
+            },
+            {
+              "decile": 9,
+              "n": 7984,
+              "mean_predicted": 0.838256659867807,
+              "observed": 0.8499498997995992
+            },
+            {
+              "decile": 10,
+              "n": 7984,
+              "mean_predicted": 0.9148000964212354,
+              "observed": 0.908191382765531
+            }
+          ]
+        }
+      },
+      "n_train_rows": 286826,
+      "n_calibration_rows": 40486,
+      "n_test_rows": 79840,
+      "mlp_train_rows": 286826,
+      "tuning": {
+        "internal_validation_log_loss": 0.5209488272666931,
+        "best_iteration": 217,
+        "parameters": {
+          "max_depth": 5,
+          "learning_rate": 0.05,
+          "min_child_weight": 80,
+          "subsample": 0.8
+        }
+      },
+      "best_test_model": "xgboost",
+      "calibration": "platt",
+      "top_features": [
+        [
+          "goal_to_go",
+          0.38836678862571716
+        ],
+        [
+          "yardline_100",
+          0.3275533616542816
+        ],
+        [
+          "down",
+          0.13967499136924744
+        ],
+        [
+          "game_seconds_remaining",
+          0.03202585503458977
+        ],
+        [
+          "ydstogo",
+          0.027029458433389664
+        ],
+        [
+          "qtr",
+          0.02451435476541519
+        ],
+        [
+          "score_differential",
+          0.021048100665211678
+        ],
+        [
+          "half_seconds_remaining",
+          0.019532913342118263
+        ],
+        [
+          "defteam_timeouts_remaining",
+          0.013414097018539906
+        ],
+        [
+          "posteam_timeouts_remaining",
+          0.006840107962489128
+        ]
+      ]
+    }
+  },
+  "n_games": 2761,
+  "n_rows": 407152,
+  "split": {
+    "train": {
+      "games": 1932,
+      "rows": 286826
+    },
+    "calibration": {
+      "games": 276,
+      "rows": 40486
+    },
+    "test": {
+      "games": 553,
+      "rows": 79840
+    }
+  },
+  "export_bytes": 638649,
+  "export_path": "/Users/bryan/oddshot/server/ml/sports/football.json"
+}

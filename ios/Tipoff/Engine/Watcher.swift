@@ -54,7 +54,8 @@ final class Watcher {
     private var backfilled: Set<String> = []
     private var games: [LiveGame] = []
     private var lastGamesFetch: Date?
-    private var lastMustSee: [String: String] = [:]   // match → last must-see headline we sent
+    private var lastMustSee: [String: String] = [:]
+    private var modelMoments: [String: GameMoment] = [:]   // ESPN game id → in-game model's take   // match → last must-see headline we sent
     private var lastAlert: [String: Date] = [:]
     private var lastAnyAlert: Date?
     private var model: ForecastModel?
@@ -112,6 +113,7 @@ final class Watcher {
            lastGamesFetch.map({ now.timeIntervalSince($0) > 40 }) ?? true {
             lastGamesFetch = now
             games = await ESPN.liveGames()
+            await runSportModels(relevant)
         }
         checkForAlerts(onlyFollowed ? mine : relevant, now: now)
         rerank()
@@ -264,9 +266,42 @@ final class Watcher {
 
     // MARK: explaining
 
+    /// Runs the in-game models for live games you can see (soccer and basketball need play-by-play).
+    private func runSportModels(_ ms: [Market]) async {
+        var seen = Set<String>()
+        let live = ms.filter(\.live).compactMap { ESPN.match($0, in: games) }.filter { seen.insert($0.id).inserted }.prefix(8)
+        var out: [String: GameMoment] = [:]
+        for g in live where g.sport == "football" { out[g.id] = SportModels.football(g) }
+        let needSummary = live.filter { $0.sport == "soccer" || $0.sport == "basketball" }
+        let results = await withTaskGroup(of: (String, GameMoment?).self) { group in
+            for g in needSummary {
+                group.addTask {
+                    guard let sum = await ESPN.summary(g) else { return (g.id, nil) }
+                    return (g.id, g.sport == "soccer" ? SportModels.soccer(g, summary: sum) : SportModels.basketball(g, summary: sum))
+                }
+            }
+            var r: [(String, GameMoment?)] = []
+            for await x in group { r.append(x) }
+            return r
+        }
+        for (id, mo) in results { out[id] = mo }
+        modelMoments = out.compactMapValues { $0 }
+    }
+
     /// What's going on, in plain words. Live scoreboard first, then X chatter, then what the odds alone say.
     func moment(for m: Market) -> GameMoment? {
-        var mo = m.live ? ESPN.match(m, in: games)?.moment : nil
+        var mo: GameMoment?
+        if m.live, let g = ESPN.match(m, in: games) {
+            let rule = g.moment
+            if var model = modelMoments[g.id] {
+                // Model headline ("Arsenal pressing: 31% chance of a goal in 10 min") + what's on the scoreboard.
+                model.detail = [rule?.headline, model.detail].compactMap { $0 }.joined(separator: ". ")
+                model.mustSee = model.mustSee || rule?.mustSee == true
+                mo = model
+            } else {
+                mo = rule
+            }
+        }
         if let pulse = xPulse, xMarketKey == Self.key(m), let buzz = pulse.buzzPhrase {
             let line = "People on X are posting \"\(buzz.phrase)\" (\(buzz.posts) posts)"
             if mo == nil {

@@ -1,0 +1,397 @@
+{
+  "sport": "soccer",
+  "features": [
+    "minute",
+    "is_home",
+    "goal_diff",
+    "goals_us",
+    "goals_them",
+    "red_us",
+    "red_them",
+    "shots_us",
+    "shots_them",
+    "sot_us",
+    "sot_them",
+    "corners_us",
+    "corners_them",
+    "shots_us_10",
+    "shots_them_10",
+    "sot_us_10",
+    "sot_them_10",
+    "corners_us_10",
+    "corners_them_10",
+    "shots_us_5",
+    "sot_us_5",
+    "corners_us_5",
+    "mins_since_goal",
+    "mins_since_our_shot",
+    "second_half",
+    "box_shots_us_10",
+    "box_shots_them_10",
+    "close_shots_us_10",
+    "box_shots_us",
+    "box_shots_them"
+  ],
+  "labels": {
+    "goal_next_10m": {
+      "metrics": {
+        "baseline": {
+          "auc": 0.5547494292054138,
+          "log_loss": 0.4120213661517285,
+          "brier": 0.12354021489341842,
+          "base_rate": 0.14518334229872693,
+          "top_decile_rate": 0.1914607497058329,
+          "top_decile_lift": 1.3187514950019976,
+          "calibration_deciles": [
+            {
+              "decile": 1,
+              "n": 17847,
+              "mean_predicted": 0.11662796145359182,
+              "observed": 0.1110550792850339
+            },
+            {
+              "decile": 2,
+              "n": 17846,
+              "mean_predicted": 0.12545196471592465,
+              "observed": 0.11896223243303822
+            },
+            {
+              "decile": 3,
+              "n": 17847,
+              "mean_predicted": 0.13113362272260284,
+              "observed": 0.12114080797893204
+            },
+            {
+              "decile": 4,
+              "n": 17846,
+              "mean_predicted": 0.13687134528602424,
+              "observed": 0.129384736075311
+            },
+            {
+              "decile": 5,
+              "n": 17846,
+              "mean_predicted": 0.14239912411161237,
+              "observed": 0.14815644962456573
+            },
+            {
+              "decile": 6,
+              "n": 17847,
+              "mean_predicted": 0.14821129679865314,
+              "observed": 0.15005323023477335
+            },
+            {
+              "decile": 7,
+              "n": 17846,
+              "mean_predicted": 0.15454765184054378,
+              "observed": 0.15829877843774515
+            },
+            {
+              "decile": 8,
+              "n": 17847,
+              "mean_predicted": 0.1620487180186944,
+              "observed": 0.15352720345156048
+            },
+            {
+              "decile": 9,
+              "n": 17846,
+              "mean_predicted": 0.17221088805171347,
+              "observed": 0.16984198139639134
+            },
+            {
+              "decile": 10,
+              "n": 17846,
+              "mean_predicted": 0.19514951432073557,
+              "observed": 0.19141544323657964
+            }
+          ]
+        },
+        "xgboost": {
+          "auc": 0.581195278723381,
+          "log_loss": 0.40913745068930885,
+          "brier": 0.12276299458364501,
+          "base_rate": 0.14518334229872693,
+          "top_decile_rate": 0.2216619039614501,
+          "top_decile_lift": 1.5267722897945284,
+          "calibration_deciles": [
+            {
+              "decile": 1,
+              "n": 17847,
+              "mean_predicted": 0.10074325804267002,
+              "observed": 0.09715918641788536
+            },
+            {
+              "decile": 2,
+              "n": 17846,
+              "mean_predicted": 0.11715114543179579,
+              "observed": 0.10086293847360753
+            },
+            {
+              "decile": 3,
+              "n": 17847,
+              "mean_predicted": 0.12645891542901458,
+              "observed": 0.12259763545693954
+            },
+            {
+              "decile": 4,
+              "n": 17846,
+              "mean_predicted": 0.13392640170656378,
+              "observed": 0.12568642833127872
+            },
+            {
+              "decile": 5,
+              "n": 17846,
+              "mean_predicted": 0.1380076093880382,
+              "observed": 0.13807015577720497
+            },
+            {
+              "decile": 6,
+              "n": 17847,
+              "mean_predicted": 0.1432013977386841,
+              "observed": 0.14052781980164733
+            },
+            {
+              "decile": 7,
+              "n": 17846,
+              "mean_predicted": 0.1511649731840973,
+              "observed": 0.15908326795920655
+            },
+            {
+              "decile": 8,
+              "n": 17847,
+              "mean_predicted": 0.16279727149815923,
+              "observed": 0.16607833249285595
+            },
+            {
+              "decile": 9,
+              "n": 17846,
+              "mean_predicted": 0.18226452594722958,
+              "observed": 0.1800963801412081
+            },
+            {
+              "decile": 10,
+              "n": 17846,
+              "mean_predicted": 0.2306176052774988,
+              "observed": 0.2216743247786619
+            }
+          ]
+        },
+        "xgboost_calibrated": {
+          "auc": 0.5811952789763742,
+          "log_loss": 0.4093240168198561,
+          "brier": 0.1228166095718755,
+          "base_rate": 0.14518334229872693,
+          "top_decile_rate": 0.2216619039614501,
+          "top_decile_lift": 1.5267722897945284,
+          "calibration_deciles": [
+            {
+              "decile": 1,
+              "n": 17847,
+              "mean_predicted": 0.08800317980726874,
+              "observed": 0.09715918641788536
+            },
+            {
+              "decile": 2,
+              "n": 17846,
+              "mean_predicted": 0.10564317196276936,
+              "observed": 0.10086293847360753
+            },
+            {
+              "decile": 3,
+              "n": 17847,
+              "mean_predicted": 0.11610269637725905,
+              "observed": 0.12259763545693954
+            },
+            {
+              "decile": 4,
+              "n": 17846,
+              "mean_predicted": 0.12461293272396033,
+              "observed": 0.12568642833127872
+            },
+            {
+              "decile": 5,
+              "n": 17846,
+              "mean_predicted": 0.12930840903031615,
+              "observed": 0.13807015577720497
+            },
+            {
+              "decile": 6,
+              "n": 17847,
+              "mean_predicted": 0.13532779354047073,
+              "observed": 0.14052781980164733
+            },
+            {
+              "decile": 7,
+              "n": 17846,
+              "mean_predicted": 0.14464673595061472,
+              "observed": 0.15908326795920655
+            },
+            {
+              "decile": 8,
+              "n": 17847,
+              "mean_predicted": 0.15843365084806357,
+              "observed": 0.16607833249285595
+            },
+            {
+              "decile": 9,
+              "n": 17846,
+              "mean_predicted": 0.18192952718019192,
+              "observed": 0.1800963801412081
+            },
+            {
+              "decile": 10,
+              "n": 17846,
+              "mean_predicted": 0.24216017961438616,
+              "observed": 0.2216743247786619
+            }
+          ]
+        },
+        "mlp": {
+          "auc": 0.5370223070045436,
+          "log_loss": 0.42231616150037715,
+          "brier": 0.1260003360555591,
+          "base_rate": 0.14518334229872693,
+          "top_decile_rate": 0.18832296744550905,
+          "top_decile_lift": 1.297138944893683,
+          "calibration_deciles": [
+            {
+              "decile": 1,
+              "n": 17847,
+              "mean_predicted": 0.05422744131726128,
+              "observed": 0.11979604415307894
+            },
+            {
+              "decile": 2,
+              "n": 17846,
+              "mean_predicted": 0.08891688258866633,
+              "observed": 0.13790205087974897
+            },
+            {
+              "decile": 3,
+              "n": 17847,
+              "mean_predicted": 0.10793765122444987,
+              "observed": 0.1389589286714854
+            },
+            {
+              "decile": 4,
+              "n": 17846,
+              "mean_predicted": 0.12289366914761943,
+              "observed": 0.1312899249131458
+            },
+            {
+              "decile": 5,
+              "n": 17846,
+              "mean_predicted": 0.134764029076133,
+              "observed": 0.13616496693937016
+            },
+            {
+              "decile": 6,
+              "n": 17847,
+              "mean_predicted": 0.14837819453993623,
+              "observed": 0.13979940606264357
+            },
+            {
+              "decile": 7,
+              "n": 17846,
+              "mean_predicted": 0.1636768151166635,
+              "observed": 0.1466995405132803
+            },
+            {
+              "decile": 8,
+              "n": 17847,
+              "mean_predicted": 0.17886291686622313,
+              "observed": 0.14854037093068864
+            },
+            {
+              "decile": 9,
+              "n": 17846,
+              "mean_predicted": 0.20428946198023648,
+              "observed": 0.16435055474616161
+            },
+            {
+              "decile": 10,
+              "n": 17846,
+              "mean_predicted": 0.2822941546791214,
+              "observed": 0.18833352011655272
+            }
+          ]
+        }
+      },
+      "n_train_rows": 624096,
+      "n_calibration_rows": 89232,
+      "n_test_rows": 178464,
+      "mlp_train_rows": 300000,
+      "tuning": {
+        "internal_validation_log_loss": 0.41340839862823486,
+        "best_iteration": 86,
+        "parameters": {
+          "max_depth": 4,
+          "learning_rate": 0.05,
+          "min_child_weight": 40,
+          "subsample": 0.85
+        }
+      },
+      "best_test_model": "xgboost",
+      "calibration": "platt",
+      "top_features": [
+        [
+          "shots_us",
+          0.11297351866960526
+        ],
+        [
+          "second_half",
+          0.09726552665233612
+        ],
+        [
+          "box_shots_us",
+          0.09111820161342621
+        ],
+        [
+          "red_them",
+          0.07895288616418839
+        ],
+        [
+          "red_us",
+          0.07343007624149323
+        ],
+        [
+          "is_home",
+          0.05693325400352478
+        ],
+        [
+          "minute",
+          0.04147128388285637
+        ],
+        [
+          "shots_them",
+          0.040236104279756546
+        ],
+        [
+          "box_shots_them",
+          0.03464234992861748
+        ],
+        [
+          "box_shots_us_10",
+          0.03060683235526085
+        ]
+      ]
+    }
+  },
+  "n_games": 5067,
+  "n_rows": 891792,
+  "split": {
+    "train": {
+      "games": 3546,
+      "rows": 624096
+    },
+    "calibration": {
+      "games": 507,
+      "rows": 89232
+    },
+    "test": {
+      "games": 1014,
+      "rows": 178464
+    }
+  },
+  "export_bytes": 168526,
+  "export_path": "/Users/bryan/oddshot/server/ml/sports/soccer.json"
+}

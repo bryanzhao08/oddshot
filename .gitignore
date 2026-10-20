@@ -9,3 +9,9 @@ ios/build/
 *.xcodeproj/xcuserdata/
 DerivedData/
 _site/
+ml/sports/data/raw/
+ml/sports/data/*.parquet
+ml/sports/data/models/
+ml/sports/codex_run.log
+ml/sports/__pycache__/
+ml/sports/data/*.log

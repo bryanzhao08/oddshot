@@ -144,7 +144,7 @@ struct TreeEnsemble: Sendable {
     let miss: [Int32]
     let value: [Double]
 
-    fileprivate init?(_ r: RawEnsemble, nFeatures: Int) {
+    init?(_ r: RawEnsemble, nFeatures: Int) {
         guard !r.trees.isEmpty else { return nil }
         var roots = [Int32](), feat = [Int32](), thr = [Double](), yes = [Int32](), no = [Int32](),
             miss = [Int32](), value = [Double]()
@@ -205,7 +205,7 @@ enum Calibration: Sendable {
     case platt(a: Double, b: Double)
     case isotonic(x: [Double], y: [Double])
 
-    fileprivate init(_ r: RawCalibration?) {
+    init(_ r: RawCalibration?) {
         guard let r else { self = .none; return }
         switch r.type {
         case "platt":
@@ -624,13 +624,13 @@ private struct RawFeatureParams: Decodable {
     var min_history_min: Double?
 }
 
-private struct RawEnsemble: Decodable {
+struct RawEnsemble: Decodable {
     var base_margin: Double
     var trees: [RawTree]
     var calibration: RawCalibration?
 }
 
-private struct RawTree: Decodable {
+struct RawTree: Decodable {
     var f: [Int]
     var t: [Double]
     var y: [Int]
@@ -639,7 +639,7 @@ private struct RawTree: Decodable {
     var v: [Double]
 }
 
-private struct RawCalibration: Decodable {
+struct RawCalibration: Decodable {
     var type: String
     var a: Double?
     var b: Double?

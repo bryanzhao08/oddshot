@@ -12,6 +12,10 @@ struct GameMoment: Sendable, Hashable {
 
 /// One live game from ESPN's public scoreboard (no key needed).
 struct LiveGame {
+    var id: String
+    var league: String
+    var teamIds: [String]
+    var abbrs: [String]
     var sport: String
     var sides: [[String]]       // name aliases for each side, used for matching
     var names: [String]         // display name for each side
@@ -42,7 +46,7 @@ enum ESPN {
                     guard let url = URL(string: "\(base)/\(sport)/\(league)/scoreboard"),
                           let (data, _) = try? await URLSession.shared.data(from: url),
                           let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return [] }
-                    return parse(obj, sport: sport)
+                    return parse(obj, sport: sport, league: league)
                 }
             }
             var all: [LiveGame] = []
@@ -51,7 +55,7 @@ enum ESPN {
         }
     }
 
-    private static func parse(_ obj: [String: Any], sport: String) -> [LiveGame] {
+    private static func parse(_ obj: [String: Any], sport: String, league: String) -> [LiveGame] {
         let events = obj["events"] as? [[String: Any]] ?? []
         // Tennis nests matches under tournament groupings; team sports have one competition per event.
         let comps: [[String: Any]] = events.flatMap { e -> [[String: Any]] in
@@ -84,11 +88,20 @@ enum ESPN {
             let last = (situation["lastPlay"] as? [String: Any])?["text"] as? String
                 ?? ((c["details"] as? [[String: Any]])?.last?["text"] as? String)
                 ?? ((c["details"] as? [[String: Any]])?.last.flatMap { ($0["type"] as? [String: Any])?["text"] as? String })
-            return LiveGame(sport: sport, sides: sides, names: names,
+            let ids = competitors.map { ($0["team"] as? [String: Any])?["id"] as? String ?? $0["id"] as? String ?? "" }
+            let abbrs = competitors.map { ($0["team"] as? [String: Any])?["abbreviation"] as? String ?? "" }
+            return LiveGame(id: c["id"] as? String ?? "", league: league, teamIds: ids, abbrs: abbrs, sport: sport, sides: sides, names: names,
                             scores: competitors.map { Int($0["score"] as? String ?? "") ?? ($0["score"] as? NSNumber)?.intValue },
                             sets: sets, period: (status["period"] as? NSNumber)?.intValue ?? 0,
                             clock: status["displayClock"] as? String, raw: situation, lastPlay: last)
         }
+    }
+
+    /// Full match data (play-by-play / commentary) for the in-game models.
+    static func summary(_ g: LiveGame) async -> [String: Any]? {
+        guard let url = URL(string: "\(base)/\(g.sport)/\(g.league)/summary?event=\(g.id)"),
+              let (data, _) = try? await URLSession.shared.data(from: url) else { return nil }
+        return try? JSONSerialization.jsonObject(with: data) as? [String: Any]
     }
 
     /// Both sides have to be named in the market for a match (keeps false matches out).
@@ -116,7 +129,7 @@ extension LiveGame {
         }
     }
 
-    private var scoreLine: String? {
+    var scoreLine: String? {
         guard let a = scores.first ?? nil, let b = scores.last ?? nil else { return nil }
         return "\(names[0]) \(a), \(names[1]) \(b)"
     }
@@ -128,7 +141,14 @@ extension LiveGame {
         guard let a = scores.first ?? nil, let b = scores.last ?? nil, a != b else { return nil }
         return a > b ? names[0] : names[1]
     }
-    private var clockSeconds: Int? {
+    /// Soccer match minute from "63'" or "90'+2'".
+    var minute: Int? {
+        guard sport == "soccer", let c = clock else { return nil }
+        let parts = c.replacingOccurrences(of: "'", with: "").split(separator: "+").compactMap { Int($0) }
+        return parts.isEmpty ? nil : parts.reduce(0, +)
+    }
+
+    var clockSeconds: Int? {
         guard let c = clock else { return nil }
         let parts = c.split(separator: ":").compactMap { Double($0) }
         return parts.count == 2 ? Int(parts[0] * 60 + parts[1]) : parts.first.map(Int.init)
@@ -242,6 +262,9 @@ extension XPulse {
         ("buzzer beater", true), ("game 7", true), ("walk-off", true), ("walkoff", true), ("final seconds", true),
         ("break point", false), ("free throws", false), ("red card", false), ("penalty", false), ("corner", false),
         ("comeback", false), ("upset", false), ("hat trick", false), ("injury", false), ("power play", false),
+        // Concerts and shows: surprise guests and big moments on stage.
+        ("surprise guest", true), ("special guest", true), ("brought out", true), ("on stage now", true),
+        ("encore", false), ("setlist", false),
     ]
 
     /// The most-mentioned phrase in the last 10 minutes of posts, if at least two posts use it.

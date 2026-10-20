@@ -21,6 +21,10 @@ targets:
       - path: Tipoff
       - path: ../server/ml/forecaster.json   # the trained model, shared with the web app
         buildPhase: resources
+      - path: ../server/ml/sports            # in-game models (soccer, football, basketball)
+        type: folder
+        buildPhase: resources
+        optional: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.bryanzhao.tipoff

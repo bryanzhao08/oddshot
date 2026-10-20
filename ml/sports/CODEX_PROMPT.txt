@@ -1,0 +1,7 @@
+Read ml/sports/SPEC.md and build everything it asks for, end to end, in this repo (~/oddshot).
+Use multi-agent mode with as many parallel subagents as you can: at minimum one per sport for data
+collection (split soccer further by league/season), one for training/evaluation, and one that checks
+leakage and the export round-trip (JSON tree evaluation must match xgboost margins to 1e-4).
+Only write under ml/sports/ and server/ml/sports/. Do not modify any other file. Do not commit.
+Public data only, no keys, no trading. Be honest in REPORT.md about what worked and what didn't.
+When finished, print a short summary with the test AUC / log loss of baseline vs XGBoost vs MLP per sport.
