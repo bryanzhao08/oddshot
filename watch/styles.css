@@ -1,0 +1,85 @@
+/* Tipoff Watch. Built for 45–70-year-old fans: big legible type, high contrast, large targets, plain words. */
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap');
+
+:root {
+  --bg: #f4f6f9; --card: #ffffff; --ink: #0f172a; --muted: #475569; --line: #d6dde6;
+  --field: #0b6e4f; --field-ink: #ffffff; --field-soft: #e3f3ec;
+  --warn: #9a4b00; --warn-soft: #fff1df; --local: #1d4ed8; --local-soft: #e6eeff; --live: #c81e3a;
+  --radius: 18px;
+}
+* { box-sizing: border-box; }
+html { font-size: 20px; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: "Atkinson Hyperlegible", system-ui, -apple-system, sans-serif; line-height: 1.5; }
+a { color: var(--field); }
+:focus-visible { outline: 4px solid #f59e0b; outline-offset: 3px; border-radius: 8px; }
+
+.top { background: var(--ink); color: #fff; }
+.top .in { max-width: 900px; margin: 0 auto; padding: 18px 22px; display: flex; align-items: center; gap: 16px; }
+.logo { font-weight: 700; font-size: 1.25rem; letter-spacing: -.01em; }
+.logo b { color: #5eead4; }
+.top nav { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+.top nav button { font: inherit; font-size: .9rem; background: transparent; color: #fff; border: 2px solid rgba(255,255,255,.35); border-radius: 999px; padding: 6px 14px; cursor: pointer; }
+.top nav button[aria-current="page"] { background: #fff; color: var(--ink); border-color: #fff; }
+
+main:focus { outline: none; }
+main { max-width: 900px; margin: 0 auto; padding: 26px 22px 80px; }
+h1 { font-size: 1.9rem; line-height: 1.2; margin: 0 0 8px; letter-spacing: -.01em; }
+h2 { font-size: 1.35rem; margin: 30px 0 12px; }
+.lede { color: var(--muted); font-size: 1.05rem; margin: 0 0 22px; }
+
+.btn { font: inherit; font-weight: 700; font-size: 1rem; border-radius: 14px; padding: 14px 22px; border: 0; cursor: pointer; background: var(--field); color: var(--field-ink); min-height: 56px; }
+.btn.secondary { background: #fff; color: var(--ink); border: 2px solid var(--line); }
+.btn:disabled { opacity: .45; cursor: default; }
+.row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px 22px; margin-bottom: 14px; }
+input[type=search], input[type=email], select { font: inherit; width: 100%; padding: 14px 16px; border-radius: 14px; border: 2px solid var(--line); background: #fff; min-height: 56px; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0 4px; }
+.chip { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; background: var(--field-soft); font-weight: 700; font-size: .9rem; }
+.chip button { font: inherit; border: 0; background: transparent; cursor: pointer; font-size: 1rem; line-height: 1; color: var(--muted); }
+.chip img, .team img { width: 28px; height: 28px; object-fit: contain; }
+
+.results { margin-top: 10px; display: grid; gap: 8px; max-height: 360px; overflow: auto; }
+.results button { font: inherit; text-align: left; display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 12px; border: 2px solid var(--line); background: #fff; cursor: pointer; min-height: 56px; }
+.results small { color: var(--muted); margin-left: auto; }
+
+.services { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+.services label { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; border: 2px solid var(--line); background: #fff; cursor: pointer; min-height: 60px; }
+.services input { width: 26px; height: 26px; accent-color: var(--field); }
+.services label:has(input:checked) { border-color: var(--field); background: var(--field-soft); }
+.group-title { font-weight: 700; color: var(--muted); margin: 18px 0 8px; font-size: .9rem; }
+
+.game { display: grid; grid-template-columns: 150px 1fr; gap: 18px; align-items: start; }
+.when { font-weight: 700; }
+.when .day { font-size: 1.1rem; }
+.when .time { color: var(--muted); }
+.matchup { font-size: 1.15rem; font-weight: 700; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.matchup .team { display: inline-flex; align-items: center; gap: 8px; }
+.watch { margin-top: 10px; padding: 12px 14px; border-radius: 14px; font-size: 1rem; }
+.watch.yes { background: var(--field-soft); color: #063a2a; }
+.watch.no { background: var(--warn-soft); color: #4a2600; }
+.watch.local { background: var(--local-soft); color: #0b2a7a; }
+.watch.unknown { background: #eef1f5; color: var(--muted); }
+.watch strong { display: block; font-size: 1.05rem; }
+.live { display: inline-flex; align-items: center; gap: 6px; color: var(--live); font-weight: 700; }
+.live::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--live); }
+.close { background: var(--live); color: #fff; border-radius: 999px; padding: 2px 10px; font-size: .85rem; }
+
+.stat { font-size: 2.2rem; font-weight: 700; color: var(--field); line-height: 1.1; }
+.svc { display: grid; grid-template-columns: 1fr auto; gap: 6px 14px; align-items: baseline; padding: 14px 0; border-top: 1px solid var(--line); }
+.svc:first-child { border-top: 0; }
+.svc .verdict { font-weight: 700; }
+.svc .verdict.cancel { color: var(--warn); }
+.svc .verdict.keep { color: var(--field); }
+.muted { color: var(--muted); }
+.note { font-size: .85rem; color: var(--muted); }
+.empty { text-align: center; padding: 40px 20px; color: var(--muted); }
+
+@media (max-width: 600px) {
+  html { font-size: 19px; }
+  .game { grid-template-columns: 1fr; gap: 6px; }
+  .top .in { flex-wrap: wrap; }
+  .top nav { margin-left: 0; }
+}
+@media (prefers-reduced-motion: no-preference) { .btn, .chip, .results button { transition: transform .08s ease; } .btn:active { transform: scale(.98); } }

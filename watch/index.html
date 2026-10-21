@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tipoff Watch: never hunt for the channel again</title>
+<meta name="description" content="Every game for your teams, and exactly how to watch it with the services you already pay for. Plus what you can cancel.">
+<link rel="icon" href="icon.svg">
+<link rel="stylesheet" href="styles.css">
+<!-- Set this to a form endpoint (Tally, Formspree, Google Apps Script…) to collect real sign-ups. -->
+<meta name="waitlist-endpoint" content="">
+<style>
+  .hero { background: var(--ink); color: #fff; }
+  .hero .in { max-width: 900px; margin: 0 auto; padding: 56px 22px 48px; }
+  .hero h1 { font-size: 2.6rem; line-height: 1.12; margin: 0 0 16px; max-width: 16ch; }
+  .hero p { font-size: 1.2rem; color: #cbd5e1; max-width: 34ch; margin: 0 0 26px; }
+  .hero .btn { font-size: 1.1rem; }
+  .eg { margin-top: 34px; display: grid; gap: 12px; max-width: 560px; }
+  .eg .watch { margin: 0; }
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+  .steps .num { font-weight: 700; color: var(--field); font-size: 1.5rem; }
+  .price { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+  .price .card { margin: 0; }
+  .price .amt { font-size: 2.2rem; font-weight: 700; }
+  .price ul { padding-left: 1.1em; margin: 10px 0 0; }
+  .price li { margin-bottom: 6px; }
+  .member { border: 3px solid var(--field); }
+  form .row { margin-top: 12px; }
+  .ok { background: var(--field-soft); padding: 14px 16px; border-radius: 14px; font-weight: 700; }
+</style>
+</head>
+<body>
+<section class="hero"><div class="in">
+  <div class="logo" style="margin-bottom:28px">Tipoff <b>Watch</b></div>
+  <h1>Never hunt for the channel again.</h1>
+  <p>Every game for your teams, and exactly how to watch it with the services you already pay for.</p>
+  <div class="row"><a class="btn" href="app.html" style="text-decoration:none;display:inline-flex;align-items:center">Try it free</a>
+    <a class="btn secondary" href="app.html?demo" style="text-decoration:none;display:inline-flex;align-items:center">See a demo</a></div>
+  <div class="eg" aria-label="Examples">
+    <div class="watch yes"><strong>✅ Chiefs at Seahawks · Sun 5:20 PM on NBC</strong>You have it with your YouTube TV.</div>
+    <div class="watch no"><strong>⚠️ Patriots at Bears · Thu 5:15 PM on Prime Video</strong>You don't have it. Cheapest way: Prime Video ($15/mo).</div>
+    <div class="watch local"><strong>📍 Bucks at Wizards · Tonight on your local sports channel</strong>Usually through cable or the team's own app.</div>
+  </div>
+</div></section>
+
+<main>
+  <h2>Games are scattered across a dozen apps now</h2>
+  <p class="lede">One week it's on CBS, the next on Peacock, then Prime Video, then a channel you've never heard of. Tipoff Watch keeps track so you don't have to.</p>
+  <div class="steps">
+    <div class="card"><div class="num">1</div><b>Pick your teams</b><p class="muted" style="margin:6px 0 0">NFL, college football, NBA, MLB, NHL, soccer.</p></div>
+    <div class="card"><div class="num">2</div><b>Tell us what you pay for</b><p class="muted" style="margin:6px 0 0">Cable, YouTube TV, Peacock, Prime and the rest.</p></div>
+    <div class="card"><div class="num">3</div><b>See exactly where to watch</b><p class="muted" style="margin:6px 0 0">A reminder before kickoff, and a nudge when it's a close one.</p></div>
+  </div>
+
+  <h2>It can pay for itself</h2>
+  <p class="lede">Most fans pay for services their teams barely use. Tipoff Watch shows which ones you could cancel, and the one you'd need to add so you don't miss a game.</p>
+
+  <h2 id="pricing">Pricing</h2>
+  <div class="price">
+    <div class="card"><b>Free</b><div class="amt">$0</div><ul><li>1 team</li><li>Where to watch every game</li><li>Alerts on this device</li></ul></div>
+    <div class="card member"><b>Member</b><div class="amt">$3.99<span class="muted" style="font-size:1rem">/mo</span></div><div class="muted">or $29 a year</div>
+      <ul><li>All your teams</li><li><b>Text-message alerts:</b> "Starts in 30 min on NBC"</li><li>Close-game alerts by text</li><li>Monthly subscription check-up: what to cancel</li><li>Help line: a real person helps you find the game</li></ul></div>
+  </div>
+
+  <div class="card" style="margin-top:20px">
+    <h2 style="margin-top:0">Get early access</h2>
+    <p class="muted" style="margin-top:0">Join the list and lock in the founding price of $29/year.</p>
+    <form id="wait">
+      <label for="email">Email</label>
+      <input type="email" id="email" required autocomplete="email" placeholder="you@example.com">
+      <div class="row">
+        <label><input type="radio" name="plan" value="yearly" checked> $29/year</label>
+        <label><input type="radio" name="plan" value="monthly"> $3.99/month</label>
+      </div>
+      <div class="row"><button class="btn" type="submit">Reserve my spot</button></div>
+    </form>
+    <div id="thanks" class="ok" hidden>Thanks! You're on the list. We'll email you when membership opens.</div>
+  </div>
+  <p class="note">Tipoff Watch isn't affiliated with any league, network or streaming service. Channel listings come from public schedules and can change.</p>
+</main>
+<script>
+document.getElementById('wait').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const endpoint = document.querySelector('meta[name="waitlist-endpoint"]').content;
+  const data = { email: document.getElementById('email').value, plan: document.querySelector('input[name=plan]:checked').value, at: new Date().toISOString(), page: location.href };
+  try {
+    if (endpoint) await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+    const list = JSON.parse(localStorage.getItem('tw.waitlist') || '[]'); list.push(data); localStorage.setItem('tw.waitlist', JSON.stringify(list));
+  } catch { /* still thank them; the local copy is kept */ }
+  e.target.hidden = true; document.getElementById('thanks').hidden = false;
+});
+</script>
+</body>
+</html>

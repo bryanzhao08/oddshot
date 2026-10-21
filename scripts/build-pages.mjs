@@ -17,6 +17,8 @@ const rel = (p) => relative(ROOT, p).split('\\').join('/');
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT, { recursive: true });
 cpSync(join(ROOT, 'public'), OUT, { recursive: true });
+// Tipoff Watch (where-to-watch app + pricing page) ships at /watch/.
+cpSync(join(ROOT, 'watch'), join(OUT, 'watch'), { recursive: true });
 cpSync(join(ROOT, 'server'), join(OUT, 'server'), {
   recursive: true,
   filter: (src) => !SKIP.some((re) => re.test(rel(src))),
