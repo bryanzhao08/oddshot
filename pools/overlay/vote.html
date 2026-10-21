@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vote · Tipoff Pools</title>
+<style>
+  :root { --dusk:#141a3a; --orchid:#8a3fd1; --ember:#ff6a3d; --gold:#ffc24b; --mist:#f5f3ff; --soft:rgba(245,243,255,.68); --up:#5be7c4; }
+  * { box-sizing:border-box; }
+  body { margin:0; min-height:100vh; font-family:system-ui,-apple-system,sans-serif; color:var(--mist);
+         background: radial-gradient(800px 500px at 100% 100%, rgba(255,106,61,.4), transparent 60%), radial-gradient(700px 500px at 0 0, rgba(138,63,209,.5), transparent 60%), var(--dusk); }
+  main { max-width:520px; margin:0 auto; padding:28px 20px 40px; }
+  h1 { font-size:20px; margin:0 0 20px; }
+  .card { background:rgba(245,243,255,.08); border:1px solid rgba(245,243,255,.18); border-radius:22px; padding:22px; backdrop-filter: blur(16px); }
+  .q { font-size:24px; font-weight:700; line-height:1.25; margin:6px 0 8px; }
+  .why { color:var(--soft); margin-bottom:18px; }
+  button.opt { display:block; width:100%; text-align:left; font:inherit; font-size:18px; font-weight:600; color:var(--mist); padding:16px 18px; margin-bottom:10px;
+               border-radius:16px; border:1px solid rgba(245,243,255,.2); background:rgba(245,243,255,.06); cursor:pointer; }
+  button.opt:focus-visible { outline:3px solid var(--gold); outline-offset:2px; }
+  button.opt.picked { border-color:var(--gold); background:rgba(255,194,75,.16); }
+  label { display:block; font-size:14px; color:var(--soft); margin-bottom:6px; }
+  input { width:100%; font:inherit; font-size:17px; padding:12px 14px; border-radius:12px; border:1px solid rgba(245,243,255,.25); background:rgba(0,0,0,.2); color:var(--mist); margin-bottom:18px; }
+  .msg { color:var(--soft); margin-top:8px; min-height:1.4em; }
+  .kicker { color:var(--gold); font-weight:600; font-size:14px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Tipoff Pools</h1>
+  <label for="name">Your name on the leaderboard</label>
+  <input id="name" maxlength="24" autocomplete="nickname" placeholder="e.g. bryan">
+  <div class="card" id="card"><div class="kicker">Waiting</div><div class="q">The next pool opens automatically.</div><div class="why">Keep this page open.</div></div>
+  <div class="msg" id="msg" role="status"></div>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const uid = localStorage.uid || (localStorage.uid = Math.random().toString(36).slice(2, 10));
+$('name').value = localStorage.name || '';
+$('name').addEventListener('input', () => localStorage.name = $('name').value);
+let picked = {};
+function render(s) {
+  const p = s.open?.[0];
+  if (!p) { $('card').innerHTML = `<div class="kicker">Waiting</div><div class="q">The next pool opens automatically.</div><div class="why">Keep this page open.</div>`; return; }
+  const open = p.status === 'open';
+  $('card').innerHTML = `<div class="kicker">${open ? 'Pool open' : 'Votes locked'}</div><div class="q">${esc(p.question)}</div>${p.why ? `<div class="why">${esc(p.why)}</div>` : ''}` +
+    p.options.map((o, i) => `<button class="opt ${picked[p.id] === i ? 'picked' : ''}" data-i="${i}" ${open ? '' : 'disabled'}>${esc(o)}</button>`).join('');
+  $('card').querySelectorAll('button.opt').forEach((b) => b.onclick = () => vote(p.id, Number(b.dataset.i)));
+}
+async function vote(poolId, i) {
+  const name = $('name').value.trim() || 'guest';
+  const r = await fetch('/api/vote', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ user: uid, name, option: i + 1 }) }).then((r) => r.json());
+  $('msg').textContent = r.ok ? `Locked in: ${r.option}` : r.error;
+  if (r.ok) { picked[poolId] = i; }
+}
+const es = new EventSource('/api/stream');
+let last = null;
+es.addEventListener('state', (e) => { last = JSON.parse(e.data); render(last); });
+es.addEventListener('settle', (e) => {
+  const p = JSON.parse(e.data); const me = (p.winners || []).find((w) => w.user === `web:${uid}`);
+  $('msg').textContent = `${p.outcomeLabel}. ${me ? `You called it, +${me.points}!` : picked[p.id] != null ? 'Not this time.' : ''}`;
+});
+</script>
+</body>
+</html>

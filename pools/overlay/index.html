@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tipoff Moment Pools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Instrument+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root { --dusk:#141a3a; --indigo:#2b2f8f; --orchid:#8a3fd1; --ember:#ff6a3d; --gold:#ffc24b; --mist:#f5f3ff; --soft:rgba(245,243,255,.68); --up:#5be7c4; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:"Instrument Sans",system-ui,sans-serif; color:var(--mist); min-height:100vh;
+         background: radial-gradient(1200px 700px at 80% 110%, rgba(255,106,61,.45), transparent 60%),
+                     radial-gradient(900px 600px at 10% -10%, rgba(138,63,209,.55), transparent 60%), var(--dusk); }
+  body.transparent { background: transparent; }
+  .wrap { display:grid; grid-template-columns: minmax(0, 1fr) 340px; gap:24px; padding:28px; max-width:1280px; }
+  .glass { background: rgba(245,243,255,.08); border:1px solid rgba(245,243,255,.18); border-radius:26px;
+           backdrop-filter: blur(18px) saturate(140%); -webkit-backdrop-filter: blur(18px) saturate(140%); }
+  header { grid-column: 1 / -1; display:flex; align-items:center; gap:14px; }
+  .brand { font-family:Unbounded; font-weight:800; font-size:22px; letter-spacing:-.01em; }
+  .game { margin-left:auto; padding:10px 16px; font-weight:600; font-size:16px; }
+  .live { display:inline-block; width:8px; height:8px; border-radius:50%; background:#ff7a8a; margin-right:8px; vertical-align:middle;
+          animation: pulse 1.2s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity:.3 } }
+  @media (prefers-reduced-motion: reduce) { .live, .bar i { animation:none; transition:none; } }
+
+  .pool { padding:28px 30px; min-height:360px; position:relative; overflow:hidden; }
+  .pool.idle { display:flex; flex-direction:column; justify-content:center; }
+  .kicker { font-size:15px; font-weight:600; color:var(--gold); }
+  .q { font-family:Unbounded; font-weight:800; font-size:34px; line-height:1.15; margin:10px 0 8px; letter-spacing:-.01em; }
+  .why { color:var(--soft); font-size:17px; margin-bottom:22px; }
+  .opts { display:grid; gap:12px; }
+  .opt { position:relative; padding:14px 18px; border-radius:16px; background:rgba(245,243,255,.06); border:1px solid rgba(245,243,255,.14); overflow:hidden; }
+  .opt .bar { position:absolute; inset:0; }
+  .opt .bar i { position:absolute; inset:0 auto 0 0; width:0; background:linear-gradient(90deg, rgba(138,63,209,.55), rgba(255,106,61,.55)); transition: width .6s cubic-bezier(.2,.9,.25,1); }
+  .opt .row { position:relative; display:flex; align-items:baseline; gap:12px; font-size:20px; font-weight:600; }
+  .opt .cmd { font-family:Unbounded; font-weight:800; color:var(--gold); font-size:18px; min-width:34px; }
+  .opt .n { margin-left:auto; font-variant-numeric: tabular-nums; color:var(--soft); }
+  .opt.win { border-color: var(--up); box-shadow: 0 0 0 2px rgba(91,231,196,.35) inset; }
+  .opt.win .row::after { content:"✓"; color:var(--up); font-weight:800; }
+  .status { margin-top:18px; display:flex; align-items:center; gap:12px; color:var(--soft); font-size:16px; }
+  .timer { font-family:Unbounded; font-weight:800; color:var(--mist); font-size:20px; font-variant-numeric: tabular-nums; }
+  .banner { margin-top:16px; padding:14px 18px; border-radius:16px; font-weight:600; font-size:18px; background:rgba(91,231,196,.14); border:1px solid rgba(91,231,196,.4); }
+
+  aside { display:grid; gap:24px; align-content:start; }
+  .board { padding:22px; }
+  .board h2, .recent h2 { font-family:Unbounded; font-weight:600; font-size:16px; margin:0 0 14px; }
+  .lb { list-style:none; margin:0; padding:0; display:grid; gap:8px; }
+  .lb li { display:flex; gap:10px; align-items:baseline; font-size:16px; }
+  .lb .rk { width:22px; color:var(--soft); font-variant-numeric: tabular-nums; }
+  .lb .nm { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .lb .pts { font-weight:600; font-variant-numeric: tabular-nums; }
+  .lb .bot { color:var(--soft); font-size:12px; }
+  .recent { padding:22px; }
+  .recent div { font-size:14px; color:var(--soft); margin-bottom:8px; }
+  .recent b { color:var(--mist); font-weight:600; }
+  .how { font-size:14px; color:var(--soft); padding:0 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">Tipoff Pools</div>
+    <div class="game glass" id="game">Waiting for a game…</div>
+  </header>
+  <main class="pool glass idle" id="pool">
+    <div class="kicker">Next pool opens automatically</div>
+    <div class="q">Watching for the next big moment</div>
+    <div class="why">Pools open right before something is likely to happen, and settle themselves.</div>
+  </main>
+  <aside>
+    <section class="board glass"><h2>Leaderboard</h2><ol class="lb" id="lb"><li><span class="nm" style="color:var(--soft)">No calls yet</span></li></ol></section>
+    <section class="recent glass"><h2>Recent pools</h2><div id="recent">None yet</div></section>
+    <div class="how">Vote in chat with <b>!1</b>, <b>!2</b>, <b>!3</b>, or on your phone at <b id="voteurl"></b></div>
+  </aside>
+</div>
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+if (new URLSearchParams(location.search).has('transparent')) document.body.classList.add('transparent');
+$('voteurl').textContent = `${location.host}/vote`;
+let state = null, lastSettle = null;
+
+function renderPool() {
+  const p = state?.open?.[0];
+  const el = $('pool');
+  if (!p) {
+    if (lastSettle && Date.now() - lastSettle.at < 12000) return renderSettled(lastSettle.p);
+    el.className = 'pool glass idle';
+    el.innerHTML = `<div class="kicker">Next pool opens automatically</div><div class="q">Watching for the next big moment</div><div class="why">Pools open right before something is likely to happen, and settle themselves.</div>`;
+    return;
+  }
+  el.className = 'pool glass';
+  const total = p.total || 0;
+  const left = Math.max(0, Math.ceil((p.locksAt - Date.now()) / 1000));
+  el.innerHTML = `
+    <div class="kicker">${p.status === 'open' ? 'Pool open' : 'Votes locked, waiting for the play'}${p.chance != null ? ` · model ${Math.round(p.chance * 100)}%` : ''}</div>
+    <div class="q">${esc(p.question)}</div>
+    ${p.why ? `<div class="why">${esc(p.why)}</div>` : ''}
+    <div class="opts">${p.options.map((o, i) => {
+      const n = p.counts[i] || 0, share = total ? n / total : 0;
+      return `<div class="opt"><div class="bar"><i style="width:${(share * 100).toFixed(1)}%"></i></div>
+        <div class="row"><span class="cmd">!${i + 1}</span><span>${esc(o)}</span><span class="n">${Math.round(share * 100)}% · ${n}</span></div></div>`;
+    }).join('')}</div>
+    <div class="status">${p.status === 'open' ? `<span class="timer">${left}s</span> to vote · ${total} in` : `${total} votes locked in`}</div>`;
+}
+
+function renderSettled(p) {
+  const el = $('pool');
+  el.className = 'pool glass';
+  el.innerHTML = `<div class="kicker">Settled</div><div class="q">${esc(p.question)}</div>
+    <div class="opts">${p.options.map((o, i) => `<div class="opt ${i === p.outcome ? 'win' : ''}"><div class="row"><span class="cmd">!${i + 1}</span><span>${esc(o)}</span><span class="n">${p.counts[i] || 0}</span></div></div>`).join('')}</div>
+    <div class="banner">${esc(p.outcomeLabel)}. ${p.winners?.length || 0} of ${p.total} called it, +${p.award} each${p.winners?.length ? `: ${p.winners.slice(0, 4).map((w) => esc(w.name)).join(', ')}` : ''}</div>`;
+}
+
+function render() {
+  if (!state) return;
+  const g = state.games?.[0];
+  $('game').innerHTML = g ? `<span class="live"></span>${esc(g.teams[1])} ${g.scores?.[1] ?? ''} · ${esc(g.teams[0])} ${g.scores?.[0] ?? ''}${g.clock ? ` · ${esc(g.clock)}` : ''}` : 'Waiting for a game…';
+  const lb = state.leaderboard || [];
+  $('lb').innerHTML = lb.length ? lb.map((p, i) => `<li><span class="rk">${i + 1}</span><span class="nm">${esc(p.name)}${p.source === 'bot' ? ' <span class="bot">demo bot</span>' : ''}</span><span class="pts">${p.points}</span></li>`).join('')
+    : '<li><span class="nm" style="color:var(--soft)">No calls yet</span></li>';
+  const rec = state.recent || [];
+  $('recent').innerHTML = rec.length ? rec.slice(0, 5).map((p) => `<div>${esc(p.question)} <b>${p.status === 'void' ? 'no votes' : esc(p.outcomeLabel)}</b></div>`).join('') : 'None yet';
+  renderPool();
+}
+
+const es = new EventSource('/api/stream');
+es.addEventListener('state', (e) => { state = JSON.parse(e.data); render(); });
+es.addEventListener('game', (e) => { if (state) { state.games = JSON.parse(e.data); render(); } });
+es.addEventListener('settle', (e) => { lastSettle = { p: JSON.parse(e.data), at: Date.now() }; });
+setInterval(renderPool, 1000);
+</script>
+</body>
+</html>
