@@ -20,3 +20,5 @@ ml/state/data/*.ubj
 ml/state/data/*.log
 ml/state/__pycache__/
 ml/state/agy_run.log
+.stats_token
+.vercel

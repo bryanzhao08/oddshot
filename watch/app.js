@@ -3,6 +3,7 @@
 // a game gets close. Runs entirely in the browser on ESPN's public data.
 
 import { SERVICES, serviceById, howToWatch, watchLink } from './services.js';
+import { track } from './track.js';
 
 const ESPN = 'https://site.web.api.espn.com/apis/site/v2/sports';
 const LEAGUES = [
@@ -211,6 +212,7 @@ function viewGames() {
 
 function viewSubs() {
   if (!teams.length) return viewSetup();
+  track('checkup_view');
   const usable = games.filter((g) => g.broadcasts.length);
   const mine = services.map((id) => serviceById[id]).filter(Boolean);
   const rows = mine.map((s) => {
@@ -240,8 +242,19 @@ function viewSubs() {
     <p class="note">Channel lineups and prices change. These are estimates; check your provider before cancelling.</p>`;
 }
 
+const POPULAR = [
+  ['nfl', 'Kansas City Chiefs', 'Chiefs'], ['nfl', 'Dallas Cowboys', 'Cowboys'], ['nfl', 'Philadelphia Eagles', 'Eagles'],
+  ['nfl', 'Green Bay Packers', 'Packers'], ['nfl', 'Buffalo Bills', 'Bills'], ['nfl', 'Pittsburgh Steelers', 'Steelers'],
+  ['nba', 'Los Angeles Lakers', 'Lakers'], ['nba', 'Boston Celtics', 'Celtics'], ['nba', 'Golden State Warriors', 'Warriors'],
+  ['mlb', 'New York Yankees', 'Yankees'], ['mlb', 'Los Angeles Dodgers', 'Dodgers'], ['mlb', 'Boston Red Sox', 'Red Sox'],
+  ['mlb', 'Chicago Cubs', 'Cubs'], ['nhl', 'Boston Bruins', 'Bruins'], ['nhl', 'Chicago Blackhawks', 'Blackhawks'],
+  ['cfb', 'Alabama Crimson Tide', 'Alabama'],
+];
+const COMMON = ['cable', 'antenna', 'youtube_tv', 'hulu_live', 'prime', 'peacock', 'paramount', 'espn_unlimited'];
+
 async function viewSetup() {
   const groups = [...new Set(SERVICES.map((s) => s.group))];
+  const box = (s) => `<label><input type="checkbox" value="${s.id}" ${services.includes(s.id) ? 'checked' : ''}><span>${esc(s.name)}${s.note ? `<br><span class="note">${esc(s.note)}</span>` : ''}</span></label>`;
   $main.innerHTML = `
     <h1>${teams.length ? 'Settings' : 'Never hunt for the channel again'}</h1>
     <p class="lede">Pick your teams and the TV services you already pay for. We'll show every game and exactly how you can watch it.</p>
@@ -250,9 +263,14 @@ async function viewSetup() {
     <label for="q" class="note">Search any NFL, college football, NBA, WNBA, MLB, NHL, MLS or Premier League team</label>
     <input type="search" id="q" placeholder="e.g. Chiefs, Lakers, Red Sox" autocomplete="off">
     <div class="results" id="results"></div>
+    <div class="group-title">Or tap a popular team</div>
+    <div class="chips" id="popular">${POPULAR.map(([, , label], i) => `<button class="pick" data-i="${i}">${esc(label)}</button>`).join('')}</div>
     <h2>2. What you pay for</h2>
-    ${groups.map((g) => `<div class="group-title">${esc(g)}</div><div class="services">${SERVICES.filter((s) => s.group === g).map((s) =>
-      `<label><input type="checkbox" value="${s.id}" ${services.includes(s.id) ? 'checked' : ''}><span>${esc(s.name)}${s.note ? `<br><span class="note">${esc(s.note)}</span>` : ''}</span></label>`).join('')}</div>`).join('')}
+    <p class="note" style="margin-top:-4px">Tick everything you have. Not sure? Start with how you watch TV today.</p>
+    <div class="services">${COMMON.map((id) => box(serviceById[id])).join('')}</div>
+    <details style="margin-top:14px"><summary class="group-title" style="cursor:pointer">More services</summary>
+      ${groups.map((g) => { const rest = SERVICES.filter((s) => s.group === g && !COMMON.includes(s.id)); return rest.length ? `<div class="group-title">${esc(g)}</div><div class="services">${rest.map(box).join('')}</div>` : ''; }).join('')}
+    </details>
     <div class="row" style="margin-top:24px"><button class="btn" id="done">Show my games</button></div>`;
   const chips = () => {
     document.getElementById('chips').innerHTML = teams.length ? teams.map((t, i) => `<span class="chip">${t.logo ? `<img src="${esc(t.logo)}" alt="">` : ''}${esc(t.name)}<button aria-label="Remove ${esc(t.name)}" data-i="${i}">✕</button></span>`).join('')
@@ -260,6 +278,13 @@ async function viewSetup() {
     document.querySelectorAll('#chips button').forEach((b) => b.onclick = () => { teams.splice(Number(b.dataset.i), 1); store.set('teams', teams); chips(); });
   };
   chips();
+  document.querySelectorAll('#popular .pick').forEach((b) => b.onclick = async () => {
+    b.disabled = true;
+    const [league, name] = POPULAR[Number(b.dataset.i)];
+    const t = (await loadTeamDirectory()).find((x) => x.league === league && x.name === name);
+    if (t && !teams.some((x) => x.id === t.id && x.league === t.league)) { teams.push(t); store.set('teams', teams); chips(); }
+    b.disabled = false;
+  });
   for (const cb of document.querySelectorAll('.services input')) cb.onchange = () => {
     services = [...document.querySelectorAll('.services input:checked')].map((x) => x.value);
     store.set('services', services);
@@ -279,6 +304,8 @@ async function viewSetup() {
     });
   };
   document.getElementById('done').onclick = async () => {
+    if (!teams.length) { document.getElementById('q').focus(); alert('Pick at least one team first.'); return; }
+    track('setup_done');
     $main.innerHTML = '<p class="muted">Finding your games…</p>';
     await loadGames(); setView('games');
   };
@@ -286,7 +313,11 @@ async function viewSetup() {
 
 // ---------------------------------------------------------------- start
 
+// Count taps on Watch buttons (the link itself does the navigation).
+document.addEventListener('click', (e) => { if (e.target.closest('a[href^="go.html"]')) track('watch_click'); });
+
 (async () => {
+  track('app_open');
   // ?demo preloads a sample fan so people can see it working before setting up.
   if (new URLSearchParams(location.search).has('demo') && !teams.length) {
     teams = [

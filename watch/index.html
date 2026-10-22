@@ -7,8 +7,11 @@
 <meta name="description" content="Every game for your teams, and exactly how to watch it with the services you already pay for. Plus what you can cancel.">
 <link rel="icon" href="icon.svg">
 <link rel="stylesheet" href="styles.css">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0f172a">
+<link rel="apple-touch-icon" href="icon.svg">
 <!-- Set this to a form endpoint (Tally, Formspree, Google Apps Script…) to collect real sign-ups. -->
-<meta name="waitlist-endpoint" content="">
+<meta name="waitlist-endpoint" content="/api/waitlist">
 <style>
   .hero { background: var(--ink); color: #fff; }
   .hero .in { max-width: 900px; margin: 0 auto; padding: 56px 22px 48px; }
@@ -78,16 +81,25 @@
   </div>
   <p class="note">Tipoff Watch isn't affiliated with any league, network or streaming service. Channel listings come from public schedules and can change.</p>
 </main>
-<script>
-document.getElementById('wait').addEventListener('submit', async (e) => {
+<script type="module">
+import { track, userId } from './track.js';
+track('visit');
+const form = document.getElementById('wait');
+form.addEventListener('submit', async (e) => {
   e.preventDefault();
   const endpoint = document.querySelector('meta[name="waitlist-endpoint"]').content;
-  const data = { email: document.getElementById('email').value, plan: document.querySelector('input[name=plan]:checked').value, at: new Date().toISOString(), page: location.href };
+  const data = { email: document.getElementById('email').value, plan: document.querySelector('input[name=plan]:checked').value, uid: userId };
+  const btn = form.querySelector('button'); btn.disabled = true; btn.textContent = 'Saving…';
+  let ok = true, msg = '';
   try {
-    if (endpoint) await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-    const list = JSON.parse(localStorage.getItem('tw.waitlist') || '[]'); list.push(data); localStorage.setItem('tw.waitlist', JSON.stringify(list));
-  } catch { /* still thank them; the local copy is kept */ }
-  e.target.hidden = true; document.getElementById('thanks').hidden = false;
+    const r = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+    if (r.status === 404) ok = true; // static hosting without the API: keep a local copy below
+    else { const j = await r.json(); ok = j.ok; msg = j.error || ''; }
+  } catch { ok = true; }
+  const list = JSON.parse(localStorage.getItem('tw.waitlist') || '[]'); list.push({ ...data, at: new Date().toISOString() }); localStorage.setItem('tw.waitlist', JSON.stringify(list));
+  if (!ok) { btn.disabled = false; btn.textContent = 'Reserve my spot'; alert(msg || 'Something went wrong. Please try again.'); return; }
+  track('waitlist');
+  form.hidden = true; document.getElementById('thanks').hidden = false;
 });
 </script>
 </body>

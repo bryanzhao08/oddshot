@@ -1,0 +1,6 @@
+{
+  "name": "tipoff-watch",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=20" }
+}

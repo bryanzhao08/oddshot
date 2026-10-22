@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Tipoff Watch · Stats</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
+  .grid .card { margin: 0; }
+  .label { color: var(--muted); font-size: .9rem; }
+  .spark { display: flex; align-items: flex-end; gap: 3px; height: 60px; margin-top: 10px; }
+  .spark i { flex: 1; background: var(--field); border-radius: 3px 3px 0 0; min-height: 2px; }
+  table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  td, th { text-align: left; padding: 6px 8px; border-top: 1px solid var(--line); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Stats</h1>
+  <form id="login" class="card"><label for="tok">Stats password</label><input type="password" id="tok" autocomplete="current-password"><div class="row" style="margin-top:12px"><button class="btn">Show stats</button></div></form>
+  <div id="out"></div>
+  <p class="note">Visitor and page-view details: Vercel dashboard → this project → Analytics.</p>
+</main>
+<script>
+const LABELS = { visit: 'Landing page visitors', app_open: 'Opened the app', setup_done: 'Finished setup', watch_click: 'Tapped Watch', checkup_view: 'Viewed the check-up', waitlist: 'Joined the waitlist' };
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+async function load(tok) {
+  const r = await fetch('/api/stats', { headers: { Authorization: `Bearer ${tok}` } });
+  const j = await r.json();
+  if (!j.ok) { document.getElementById('out').innerHTML = '<div class="card">Wrong password.</div>'; return; }
+  sessionStorage.statsTok = tok; document.getElementById('login').hidden = true;
+  if (!j.connected) { document.getElementById('out').innerHTML = '<div class="card"><b>Storage isn\'t connected yet.</b> In Vercel, add the Upstash Redis integration to this project, then redeploy.</div>'; return; }
+  const e = j.events;
+  const v = e.visit.unique || 1;
+  const funnel = ['visit', 'app_open', 'setup_done', 'watch_click', 'waitlist'];
+  document.getElementById('out').innerHTML = `
+    <div class="grid">${Object.entries(LABELS).map(([k, label]) => {
+      const max = Math.max(1, ...e[k].daily.map((d) => d.unique));
+      return `<div class="card"><div class="label">${label}</div><div class="stat">${e[k].unique}</div>
+        <div class="label">${e[k].unique7d} in the last 7 days · ${e[k].total} total actions</div>
+        <div class="spark" aria-label="Last 14 days">${e[k].daily.map((d) => `<i title="${d.day}: ${d.unique}" style="height:${(d.unique / max) * 100}%"></i>`).join('')}</div></div>`;
+    }).join('')}</div>
+    <h2>Funnel (unique people)</h2>
+    <div class="card">${funnel.map((k) => `<div class="svc"><div>${LABELS[k]}</div><div><b>${e[k].unique}</b> <span class="muted">${Math.round((e[k].unique / v) * 100)}% of visitors</span></div></div>`).join('')}</div>
+    <h2>Waitlist: ${j.waitlist.count}</h2>
+    <p class="muted">${j.waitlist.yearly} chose $29/year · ${j.waitlist.monthly} chose $3.99/month</p>
+    <div class="card"><table><tr><th>Email</th><th>Plan</th><th>When</th></tr>${j.waitlist.recent.map((w) => `<tr><td>${esc(w.email)}</td><td>${esc(w.plan)}</td><td>${esc(new Date(w.at).toLocaleString())}</td></tr>`).join('')}</table></div>`;
+}
+document.getElementById('login').addEventListener('submit', (ev) => { ev.preventDefault(); load(document.getElementById('tok').value); });
+if (sessionStorage.statsTok) load(sessionStorage.statsTok);
+</script>
+</body>
+</html>

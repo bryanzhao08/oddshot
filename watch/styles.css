@@ -83,3 +83,8 @@ input[type=search], input[type=email], select { font: inherit; width: 100%; padd
   .top nav { margin-left: 0; }
 }
 @media (prefers-reduced-motion: no-preference) { .btn, .chip, .results button { transition: transform .08s ease; } .btn:active { transform: scale(.98); } }
+
+.pick { font: inherit; font-weight: 700; font-size: .95rem; padding: 10px 16px; min-height: 48px; border-radius: 999px; border: 2px solid var(--line); background: #fff; cursor: pointer; }
+.pick:hover { border-color: var(--field); }
+details summary { list-style: revert; }
+#done { position: sticky; bottom: 16px; box-shadow: 0 8px 24px rgba(15,23,42,.18); }
