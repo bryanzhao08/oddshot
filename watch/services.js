@@ -97,7 +97,7 @@ export function howToWatch(broadcasts, mine) {
   if (!nets.length) return { status: 'unknown' };
   // A regional sports channel means it's local TV in the team's area; league passes only work outside it.
   const regional = nets.find((n) => n.regional);
-  const national = nets.filter((n) => !n.regional && !['NBA LEAGUE PASS', 'MLB.TV', 'NFL+'].includes(n.key));
+  const national = nets.filter((n) => !n.regional && n.services.length && !['NBA LEAGUE PASS', 'MLB.TV', 'NFL+'].includes(n.key));
   const passes = nets.filter((n) => ['NBA LEAGUE PASS', 'MLB.TV'].includes(n.key));
   if (!regional && !national.length && passes.length) {
     // Only a league pass listed: it's on the local sports channel in the team's area.
@@ -111,4 +111,55 @@ export function howToWatch(broadcasts, mine) {
   const options = [...new Set(nets.flatMap((n) => n.services))].map((id) => serviceById[id]).filter(Boolean)
     .sort((a, b) => (a.price ?? 999) - (b.price ?? 999));
   return { status: 'no', network: nets.find((n) => n.services.length) || nets[0], options: options.slice(0, 3) };
+}
+
+// ---------------------------------------------------------------- jumping into the stream
+// Official pages that land closest to the live game. On phones these are universal links,
+// so they open the installed app. go.html only redirects to these hosts.
+
+const SERVICE_LINKS = {
+  youtube_tv: ['https://tv.youtube.com/live', 'Pick the game in the Live guide.'],
+  hulu_live: ['https://www.hulu.com/live-tv', 'Open the Live guide and pick the game.'],
+  fubo: ['https://www.fubo.tv/stream/', 'Pick the game from the guide.'],
+  sling_orange: ['https://watch.sling.com/', 'Open the Guide and pick the game.'],
+  sling_blue: ['https://watch.sling.com/', 'Open the Guide and pick the game.'],
+  directv_stream: ['https://stream.directv.com/', 'Open the Guide and pick the game.'],
+  prime: ['https://www.amazon.com/gp/video/storefront', 'The game is at the top of Prime Video when it is live.'],
+  peacock: ['https://www.peacocktv.com/sports', 'Sign in with your Peacock account; the game is under Sports.'],
+  paramount: ['https://www.paramountplus.com/live-tv/', 'Sign in; the game is on the CBS live channel.'],
+  espn_plus: ['https://www.espn.com/watch/', 'Sign in with your ESPN account; the game is under Live.'],
+  espn_unlimited: ['https://www.espn.com/watch/', 'Sign in with your ESPN account; the game is under Live.'],
+  max: ['https://play.max.com/sports', 'Sign in; the game is under Sports.'],
+  netflix: ['https://www.netflix.com/browse', 'The game is at the top of Netflix when it is live.'],
+  apple_tv: ['https://tv.apple.com/sports', 'Sign in; the game is under Sports.'],
+  disney_plus: ['https://www.disneyplus.com/browse/espn', 'Sign in; the game is on the ESPN page.'],
+  nfl_plus: ['https://www.nfl.com/plus/', 'Sign in with your NFL account.'],
+  nba_league_pass: ['https://www.nba.com/watch', 'Sign in with your NBA account; the game is under Live.'],
+  mlb_tv: ['https://www.mlb.com/tv', 'Sign in with your MLB account.'],
+};
+
+// Watching through cable: each network's own "watch live" site, signed in with your TV provider.
+const NETWORK_LINKS = {
+  ABC: 'https://abc.com/watch-live', CBS: 'https://www.cbs.com/live-tv/', NBC: 'https://www.nbc.com/live', FOX: 'https://www.foxsports.com/live',
+  ESPN: 'https://www.espn.com/watch/', ESPN2: 'https://www.espn.com/watch/', ESPNU: 'https://www.espn.com/watch/', SECN: 'https://www.espn.com/watch/', ACCN: 'https://www.espn.com/watch/',
+  FS1: 'https://www.foxsports.com/live/fs1', FS2: 'https://www.foxsports.com/live/fs2', BTN: 'https://www.foxsports.com/live/btn',
+  TNT: 'https://www.tntdrama.com/watchtnt', TBS: 'https://www.tbs.com/watchtbs', TRUTV: 'https://www.trutv.com/watchtrutv',
+  USA: 'https://www.usanetwork.com/live', 'NFL NETWORK': 'https://www.nfl.com/network/watch/nfl-network-live', 'NBA TV': 'https://www.nba.com/watch/nba-tv',
+  'MLB NETWORK': 'https://www.mlb.com/network/live', CBSSN: 'https://www.cbssports.com/watch/cbs-sports-network',
+};
+
+export const ALLOWED_HOSTS = [...new Set([...Object.values(SERVICE_LINKS).map(([u]) => u), ...Object.values(NETWORK_LINKS)].map((u) => new URL(u).host))];
+
+/** Where "Watch now" should go for a game the user can watch: { url, app, tip } or null. */
+export function watchLink(how) {
+  if (how?.status !== 'yes') return null;
+  const via = how.via[0], net = how.network;
+  if (via.id === 'antenna') return { url: null, app: 'your TV', tip: `Turn on your TV and tune to your local ${net.label} channel.` };
+  if (via.id === 'cable') {
+    const url = NETWORK_LINKS[net.key];
+    return url ? { url, app: `${net.label} (sign in with your TV provider)`, tip: `Choose your cable or satellite company and sign in with that account.` }
+      : { url: null, app: 'your TV', tip: `Turn on your TV and go to ${net.label}.` };
+  }
+  const link = SERVICE_LINKS[via.id];
+  return link ? { url: link[0], app: via.name, tip: link[1] } : null;
 }

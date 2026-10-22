@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Opening your game…</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+  body { display: grid; min-height: 100vh; place-items: center; }
+  .box { max-width: 560px; margin: 24px; text-align: center; }
+  .big { font-size: 2rem; font-weight: 700; line-height: 1.2; margin: 0 0 14px; }
+  .tip { font-size: 1.1rem; background: var(--field-soft); border-radius: 16px; padding: 16px 18px; margin: 18px 0 24px; }
+  .count { color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="box" role="status" aria-live="polite">
+  <p class="big" id="title">Opening your game…</p>
+  <p id="game" class="muted"></p>
+  <p class="tip" id="tip"></p>
+  <p class="count" id="count"></p>
+  <div class="row" style="justify-content:center">
+    <a class="btn" id="go" style="text-decoration:none;display:inline-flex;align-items:center">Open now</a>
+    <a class="btn secondary" href="app.html" style="text-decoration:none;display:inline-flex;align-items:center">Back to my games</a>
+  </div>
+</div>
+<script type="module">
+import { ALLOWED_HOSTS } from './services.js';
+const q = new URLSearchParams(location.search);
+const app = q.get('app') || 'the app', tip = q.get('tip') || '', game = q.get('game') || '';
+document.getElementById('title').textContent = `Opening ${app}…`;
+document.getElementById('game').textContent = game;
+document.getElementById('tip').textContent = tip;
+if (!tip) document.getElementById('tip').style.display = 'none';
+let url = null;
+try { const u = new URL(q.get('url')); if (u.protocol === 'https:' && ALLOWED_HOSTS.includes(u.host)) url = u.href; } catch {}
+const go = document.getElementById('go');
+if (!url) {
+  document.getElementById('title').textContent = 'We couldn’t open that link';
+  go.style.display = 'none';
+  document.getElementById('tip').textContent = 'Go back to your games and try the Watch button again.';
+  document.getElementById('tip').style.display = '';
+} else {
+  go.href = url;
+  let n = 3;
+  const tick = () => {
+    document.getElementById('count').textContent = `Taking you there in ${n}…`;
+    if (n-- <= 0) location.href = url; else setTimeout(tick, 1000);
+  };
+  tick();
+}
+</script>
+</body>
+</html>

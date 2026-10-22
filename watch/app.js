@@ -2,7 +2,7 @@
 // exactly how you can watch it, what you're paying for but not using, and get a nudge when
 // a game gets close. Runs entirely in the browser on ESPN's public data.
 
-import { SERVICES, serviceById, howToWatch } from './services.js';
+import { SERVICES, serviceById, howToWatch, watchLink } from './services.js';
 
 const ESPN = 'https://site.web.api.espn.com/apis/site/v2/sports';
 const LEAGUES = [
@@ -57,7 +57,8 @@ function parseEvent(e, l, myTeam) {
   const broadcasts = [];
   for (const b of c.geoBroadcasts || []) broadcasts.push({ name: b.media?.shortName, type: b.type?.shortName, market: b.market?.type });
   for (const b of c.broadcasts || []) {
-    for (const n of b.names || [b.media?.shortName]) if (n && !broadcasts.some((x) => x.name === n)) broadcasts.push({ name: n, market: b.market });
+    const market = typeof b.market === 'object' ? b.market?.type : b.market;
+    for (const n of b.names || [b.media?.shortName]) if (n && !broadcasts.some((x) => x.name === n)) broadcasts.push({ name: n, type: b.type?.shortName, market });
   }
   return {
     id: String(e.id), league: l.key, leagueName: l.name, date: new Date(e.date), myTeam,
@@ -151,12 +152,22 @@ function fmtDay(d) {
 }
 const fmtTime = (d) => d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
 
+function watchButton(g, h) {
+  const link = watchLink(h);
+  if (!link) return '';
+  if (!link.url) return `<p class="note" style="margin:8px 0 0">${esc(link.tip)}</p>`;
+  const soon = g.state === 'in' || (g.state === 'pre' && g.date - Date.now() < 60 * 60e3);
+  const title = `${g.teams[0]?.name} at ${g.teams[1]?.name}`;
+  const href = `go.html?${new URLSearchParams({ url: link.url, app: link.app, tip: link.tip, game: title })}`;
+  return `<div class="row" style="margin-top:10px"><a class="btn ${soon ? '' : 'secondary'}" href="${esc(href)}" style="text-decoration:none;display:inline-flex;align-items:center">${soon ? `▶ Watch now on ${esc(link.app.replace(/ \(.*\)$/, ''))}` : `Open ${esc(link.app.replace(/ \(.*\)$/, ''))}`}</a></div>`;
+}
+
 function watchBox(g) {
   const h = howToWatch(g.broadcasts, services);
   if (h.status === 'yes') {
     const via = h.via[0];
     const how = via.id === h.network.key.toLowerCase() || via.group === 'Streaming' || via.group === 'League pass' ? `in the ${via.name} app` : `with your ${via.name}`;
-    return `<div class="watch yes"><strong>✅ Watch on ${esc(h.network.label)}</strong>You have it ${esc(how)}.</div>`;
+    return `<div class="watch yes"><strong>✅ Watch on ${esc(h.network.label)}</strong>You have it ${esc(how)}.${watchButton(g, h)}</div>`;
   }
   if (h.status === 'local') return `<div class="watch local"><strong>📍 Local TV: ${esc(h.network.label)}</strong>Usually through cable or the team's own app.${h.outOfMarket ? ` Live outside the team's area? It's on ${esc(h.outOfMarket)}.` : ''}</div>`;
   if (h.status === 'no') {
@@ -181,9 +192,10 @@ function viewGames() {
       </div></article>`;
   }).join('') : `<div class="card empty">No games in the next three weeks for your teams.</div>`;
   const covered = games.filter((g) => howToWatch(g.broadcasts, services).status === 'yes').length;
+  const liveNow = games.filter((g) => g.state === 'in');
   $main.innerHTML = `
     <h1>Your next games</h1>
-    <p class="lede">${games.length ? `You can watch <b>${covered} of ${games.length}</b> with what you already pay for.` : ''} Times are in your time zone.</p>
+    <p class="lede">${liveNow.length ? `<b>${liveNow.length} game${liveNow.length > 1 ? 's' : ''} on right now.</b> ` : ''}${games.length ? `You can watch <b>${covered} of ${games.length}</b> with what you already pay for.` : ''} Times are in your time zone.</p>
     ${list}
     <div class="card"><h2 style="margin-top:0">Alerts</h2>
       <div class="row"><label><input type="checkbox" id="a-rem" ${alerts.reminders ? 'checked' : ''}> Remind me 30 minutes before</label></div>
